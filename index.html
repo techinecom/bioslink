@@ -1,0 +1,1089 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BiosSTORE | High-Velocity Sales Hub</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;700;900&display=swap');
+        
+        body { 
+            font-family: 'Inter', sans-serif; 
+            background-color: #0047FF; 
+            margin: 0; 
+            overflow-x: hidden; 
+            color: white;
+        }
+
+        /* High-Opacity Swirling Ribbon */
+        #ribbon-canvas {
+            position: absolute;
+            top: 50%;
+            left: 55%;
+            transform: translate(-50%, -50%);
+            z-index: 1;
+            opacity: 0.8; /* Increased opacity for visibility */
+            pointer-events: none;
+        }
+
+        /* High-Speed Order Animation */
+        @keyframes orderIn {
+            0% { transform: translateX(80px) scale(0.9); opacity: 0; }
+            100% { transform: translateX(0) scale(1); opacity: 1; }
+        }
+        .order-alert {
+            animation: orderIn 0.3s ease-out forwards;
+            background: white;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+        }
+
+        /* Dynamic Revenue Pulse */
+        @keyframes pulseGreen {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.05); color: #22c55e; }
+            100% { transform: scale(1); }
+        }
+        .revenue-pulse { animation: pulseGreen 0.3s ease-in-out; }
+    </style>
+</head>
+<body class="min-h-screen">
+
+    <nav class="flex justify-between items-center px-12 py-8 max-w-screen-2xl mx-auto relative z-50">
+        <div class="flex items-center gap-2">
+            <div class="bg-[#D9FF00] p-1.5 rounded-md">
+                <i class="fa-solid fa-link text-black"></i>
+            </div>
+            <span class="text-2xl font-black italic">Bios<span class="font-normal uppercase text-sm ml-1 not-italic">STORE</span></span>
+        </div>
+        <div class="hidden md:flex gap-10 font-bold text-sm">
+            <a href="#">Features</a>
+            <a href="#">Templates</a>
+            <a href="#">Pricing</a>
+            <a href="#">Showcase</a>
+        </div>
+        <button class="bg-[#D9FF00] text-black px-8 py-3 rounded-full font-bold text-sm">Sign Up</button>
+    </nav>
+
+    <main class="max-w-screen-2xl mx-auto px-12 grid lg:grid-cols-2 gap-10 items-center relative py-12">
+        <canvas id="ribbon-canvas" width="900" height="900"></canvas>
+        
+        <div class="relative z-10 space-y-8">
+            <h1 class="text-7xl lg:text-8xl font-black leading-[0.85] tracking-tighter">
+                Build Your <br>
+                <span class="text-[#D9FF00]">Cyber Store</span> <br>
+                Builder.
+            </h1>
+            <p class="text-xl text-white/80 max-w-md font-medium">Zero code, maximum impact. Watch your orders fly in from every social channel.</p>
+
+            <div class="space-y-4">
+                <div class="bg-white rounded-2xl p-4 flex items-center shadow-2xl w-full max-w-md">
+                    <span class="text-gray-400 font-bold px-2">biostore.com/</span>
+                    <input type="text" placeholder="averyclothing" class="flex-grow outline-none text-blue-600 font-bold">
+                    <i class="fa-solid fa-circle-check text-blue-600"></i>
+                </div>
+                <button class="bg-[#D9FF00] text-black px-10 py-4 rounded-full font-black text-lg shadow-xl hover:scale-105 transition">Get started Free</button>
+            </div>
+        </div>
+
+        <div class="relative flex justify-center lg:justify-end items-center py-10">
+            <div class="relative z-20 w-[310px] h-[640px] bg-[#1a1a1a] rounded-[3.5rem] p-2.5 border-[8px] border-[#2a2a2a] shadow-[0_0_100px_rgba(0,0,0,0.5)]">
+                <div class="w-full h-full bg-white rounded-[2.8rem] overflow-hidden flex flex-col relative">
+                    
+                    <div class="pt-12 pb-4 text-center bg-gray-50/50">
+                        <img src="https://i.pravatar.cc/150?u=9" class="w-20 h-20 rounded-full mx-auto mb-2 border-4 border-white shadow-lg">
+                        <h3 class="text-lg font-black text-black">@averyclothing</h3>
+                        <div class="flex items-center justify-center gap-1">
+                            <span class="w-1.5 h-1.5 bg-green-500 rounded-full animate-pulse"></span>
+                            <span class="text-[8px] font-bold text-gray-400 uppercase tracking-widest">Store Live</span>
+                        </div>
+                    </div>
+
+                    <div class="mx-4 p-4 bg-black rounded-2xl mt-2 text-white">
+                        <p class="text-[8px] font-bold text-gray-400 uppercase mb-1">Total Revenue Today</p>
+                        <h2 class="text-3xl font-black italic tracking-tighter" id="rev-container">₹<span id="revenue-counter">1,02,400</span></h2>
+                    </div>
+
+                    <div id="order-feed" class="flex-grow p-4 space-y-2 overflow-hidden flex flex-col justify-end pb-12">
+                    </div>
+
+                    <div class="h-16 border-t flex justify-around items-center px-10 bg-white">
+                        <i class="fa-solid fa-house text-blue-600"></i>
+                        <div class="relative">
+                            <i class="fa-solid fa-comment-dots text-gray-200"></i>
+                            <span class="absolute -top-1 -right-1 w-2 h-2 bg-red-500 rounded-full"></span>
+                        </div>
+                        <i class="fa-solid fa-user text-gray-200"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <script>
+        // --- High Opacity Ribbon ---
+        const canvas = document.getElementById('ribbon-canvas');
+        const ctx = canvas.getContext('2d');
+        function drawRibbon() {
+            ctx.clearRect(0, 0, 900, 900);
+            ctx.strokeStyle = 'rgba(217, 255, 0, 0.8)'; // Lime Yellow Ribbon for high visibility
+            ctx.setLineDash([10, 20]);
+            ctx.lineWidth = 3;
+            ctx.beginPath();
+            const t = Date.now() * 0.0015;
+            for(let i=0; i<360; i++) {
+                const ang = i * Math.PI / 180;
+                const r = 260 + Math.sin(ang * 3 + t) * 40;
+                ctx.lineTo(450 + r * Math.cos(ang) * 1.5, 450 + r * Math.sin(ang) * 0.4);
+            }
+            ctx.stroke();
+            requestAnimationFrame(drawRibbon);
+        }
+        drawRibbon();
+
+        // --- Fast Order Engine ---
+        const feed = document.getElementById('order-feed');
+        const revEl = document.getElementById('revenue-counter');
+        const revCont = document.getElementById('rev-container');
+        let totalRev = 102400;
+
+        const channels = [
+            { name: 'WhatsApp', icon: 'fa-whatsapp', color: 'bg-green-500', weight: 0.6 }, // 60% Frequency
+            { name: 'Instagram', icon: 'fa-instagram', color: 'bg-gradient-to-tr from-purple-500 to-orange-400', weight: 0.25 },
+            { name: 'Facebook', icon: 'fa-facebook-f', color: 'bg-blue-600', weight: 0.15 }
+        ];
+
+        function getWeightedChannel() {
+            const rand = Math.random();
+            if (rand < 0.6) return channels[0]; // WhatsApp
+            if (rand < 0.85) return channels[1]; // Instagram
+            return channels[2]; // Facebook
+        }
+
+        function createOrder() {
+            const chan = getWeightedChannel();
+            const amt = Math.floor(Math.random() * 3000) + 1200;
+
+            const div = document.createElement('div');
+            div.className = "order-alert p-3 rounded-xl border border-gray-100 flex items-center gap-3 w-full";
+            div.innerHTML = `
+                <div class="w-8 h-8 rounded-lg ${chan.color} flex items-center justify-center text-white text-xs shrink-0">
+                    <i class="fa-brands ${chan.icon}"></i>
+                </div>
+                <div class="flex-grow">
+                    <p class="text-[10px] font-black text-black leading-none">${chan.name} SALE</p>
+                    <p class="text-[8px] text-gray-400 font-bold mt-0.5">Order Received</p>
+                </div>
+                <div class="text-[10px] font-black text-green-600 shrink-0">+₹${amt}</div>
+            `;
+
+            feed.appendChild(div);
+            
+            if (feed.children.length > 5) feed.removeChild(feed.firstChild);
+
+            // Revenue Update with Pulse
+            totalRev += amt;
+            revEl.innerText = totalRev.toLocaleString();
+            revCont.classList.remove('revenue-pulse');
+            void revCont.offsetWidth; // Trigger reflow
+            revCont.classList.add('revenue-pulse');
+
+            setTimeout(() => {
+                div.style.opacity = '0';
+                div.style.transform = 'translateY(-10px)';
+                div.style.transition = '0.3s';
+                setTimeout(() => div.remove(), 300);
+            }, 2500);
+        }
+
+        // Fast Loop: Orders every 0.8 to 2 seconds
+        (function loop() {
+            const delay = Math.random() * 1200 + 800; 
+            setTimeout(() => {
+                createOrder();
+                loop();
+            }, delay);
+        })();
+    </script>
+<section class="relative z-10 bg-white text-black py-32 px-6 overflow-hidden">
+    
+    <div class="absolute top-20 left-10 w-32 h-40 bg-blue-50 rounded-2xl border border-blue-100 shadow-xl rotate-12 flex flex-col items-center justify-center p-4 opacity-40 animate-bounce" style="animation-duration: 4s;">
+        <i class="fa-solid fa-calendar-check text-blue-500 text-3xl mb-2"></i>
+        <p class="text-[8px] font-black uppercase tracking-tighter text-center">Consultant Booking</p>
+    </div>
+    
+    <div class="absolute bottom-20 right-10 w-32 h-40 bg-lime-50 rounded-2xl border border-lime-100 shadow-xl -rotate-12 flex flex-col items-center justify-center p-4 opacity-40 animate-bounce" style="animation-duration: 5s;">
+        <i class="fa-solid fa-shirt text-lime-600 text-3xl mb-2"></i>
+        <p class="text-[8px] font-black uppercase tracking-tighter text-center">Creator Merch</p>
+    </div>
+
+    <div class="max-w-7xl mx-auto relative">
+        <div class="text-center mb-24 relative">
+            <div class="inline-block px-6 py-2 bg-black text-[#D9FF00] rounded-full font-black text-xs uppercase tracking-widest mb-6 animate-pulse">
+                Fastest Setup in the Industry
+            </div>
+            <h2 class="text-6xl lg:text-8xl font-black tracking-tighter mb-4 uppercase italic leading-none">
+                EVERYTHING <br>
+                <span class="text-[#0047FF] not-italic">IN 60 SECONDS.</span>
+            </h2>
+            <div class="h-2 w-64 bg-gradient-to-r from-[#0047FF] to-[#D9FF00] mx-auto rounded-full mt-4"></div>
+        </div>
+
+        <div class="relative grid lg:grid-cols-3 gap-16 perspective-2000">
+            
+            <div class="hidden lg:block absolute top-1/2 left-0 w-full h-1 bg-gray-100 -translate-y-1/2 z-0">
+                <div class="h-full bg-[#0047FF] animate-loading-line origin-left"></div>
+            </div>
+
+            <div class="step-card group relative z-10 p-1 bg-white rounded-[3rem] shadow-[0_30px_60px_-12px_rgba(0,0,0,0.15)] transition-all duration-700 hover:scale-105">
+                <div class="h-full w-full bg-white rounded-[2.8rem] p-12 border border-gray-100 flex flex-col items-center text-center">
+                    <div class="icon-box relative w-24 h-24 mb-10">
+                        <div class="absolute inset-0 bg-[#0047FF] rounded-3xl rotate-12 blur-md opacity-20 group-hover:rotate-45 transition-all"></div>
+                        <div class="absolute inset-0 bg-white border-2 border-gray-100 rounded-3xl flex items-center justify-center shadow-inner group-hover:border-[#0047FF] transition-colors">
+                            <i class="fa-solid fa-bolt-lightning text-3xl text-[#0047FF]"></i>
+                        </div>
+                    </div>
+                    <h3 class="text-2xl font-black mb-4 uppercase tracking-tighter">1. Setup Profile</h3>
+                    <p class="text-gray-500 font-medium text-sm leading-relaxed">Register & choose your profile type: **Store, Consultant, or Creator**.</p>
+                </div>
+            </div>
+
+            <div class="step-card group relative z-10 p-1 bg-white rounded-[3rem] shadow-[0_30px_60px_-12px_rgba(0,0,0,0.15)] transition-all duration-700 hover:scale-105">
+                <div class="h-full w-full bg-white rounded-[2.8rem] p-12 border border-gray-100 flex flex-col items-center text-center">
+                    <div class="icon-box relative w-24 h-24 mb-10">
+                        <div class="absolute inset-0 bg-[#D9FF00] rounded-3xl -rotate-12 blur-md opacity-30 group-hover:-rotate-45 transition-all"></div>
+                        <div class="absolute inset-0 bg-black rounded-3xl flex items-center justify-center">
+                            <i class="fa-solid fa-box-open text-3xl text-[#D9FF00]"></i>
+                        </div>
+                    </div>
+                    <h3 class="text-2xl font-black mb-4 uppercase tracking-tighter">2. Add Content</h3>
+                    <p class="text-gray-500 font-medium text-sm leading-relaxed">Instantly add **Digital Products, Services, or Link Collections**.</p>
+                </div>
+            </div>
+
+            <div class="step-card group relative z-10 p-1 bg-white rounded-[3rem] shadow-[0_30px_60px_-12px_rgba(0,0,0,0.15)] transition-all duration-700 hover:scale-105">
+                <div class="h-full w-full bg-white rounded-[2.8rem] p-12 border border-gray-100 flex flex-col items-center text-center">
+                    <div class="icon-box relative w-24 h-24 mb-10">
+                        <div class="absolute inset-0 bg-[#0047FF] rounded-3xl rotate-12 blur-md opacity-20 group-hover:rotate-90 transition-all"></div>
+                        <div class="absolute inset-0 bg-[#0047FF] rounded-3xl flex items-center justify-center shadow-xl">
+                            <i class="fa-solid fa-rocket text-3xl text-white"></i>
+                        </div>
+                    </div>
+                    <h3 class="text-2xl font-black mb-4 uppercase tracking-tighter">3. Go Live</h3>
+                    <p class="text-gray-500 font-medium text-sm leading-relaxed">Share your unique link anywhere and start receiving **instant payments**.</p>
+                </div>
+            </div>
+
+        </div>
+    </div>
+</section>
+
+<style>
+    /* Advanced 3D Realistic Elements */
+    .perspective-2000 {
+        perspective: 2000px;
+    }
+
+    .step-card {
+        transform-style: preserve-3d;
+        background: linear-gradient(145deg, #ffffff, #f0f0f0);
+    }
+
+    .step-card:hover {
+        transform: rotateY(10deg) rotateX(5deg) translateY(-20px);
+    }
+
+    /* The Progress Line Animation */
+    @keyframes loading-line {
+        0% { transform: scaleX(0); }
+        100% { transform: scaleX(1); }
+    }
+    .animate-loading-line {
+        animation: loading-line 3s cubic-bezier(0.65, 0, 0.35, 1) infinite;
+    }
+
+    /* Icon Box Inner Glow */
+    .icon-box div:last-child {
+        box-shadow: inset 0 0 15px rgba(0,0,0,0.05);
+    }
+
+    /* Realistic Shadow on Hover */
+    .step-card:hover {
+        box-shadow: 0 45px 80px -20px rgba(0, 47, 255, 0.2);
+    }
+</style>
+
+<style>
+    .perspective-1000 { perspective: 1000px; }
+    .step-card { transform-style: preserve-3d; transition: all 0.6s cubic-bezier(0.23, 1, 0.32, 1); }
+    .step-card:hover { transform: rotateX(10deg) translateY(-15px); }
+</style>
+
+<style>
+    /* 3D Engine CSS */
+    .perspective-1000 {
+        perspective: 1000px;
+    }
+    
+    .rotate-x-12:hover {
+        transform: rotateX(10deg) translateY(-15px);
+    }
+
+    .step-card {
+        transform-style: preserve-3d;
+        transition: transform 0.6s cubic-bezier(0.23, 1, 0.32, 1);
+    }
+
+    /* Floating Animation for 01, 02, 03 badges */
+    .step-card span {
+        animation: floatBadge 3s ease-in-out infinite;
+    }
+
+    @keyframes floatBadge {
+        0%, 100% { transform: translateY(0); }
+        50% { transform: translateY(-10px); }
+    }
+</style>
+<section class="relative z-10 bg-[#0047FF] py-32 px-6 overflow-hidden">
+    
+    <div class="absolute inset-0 flex items-center justify-center pointer-events-none select-none">
+        <h2 class="text-[20vw] font-black text-white/[0.03] uppercase leading-none">Versatile</h2>
+    </div>
+
+    <div class="max-w-7xl mx-auto relative z-10">
+        <div class="mb-16 text-center lg:text-left">
+            <h2 class="text-6xl lg:text-7xl font-black tracking-tighter text-white leading-none uppercase italic">
+                ONE TOOL. <br>
+                <span class="text-[#D9FF00] not-italic">EVERY HUSTLE.</span>
+            </h2>
+            <div class="h-1.5 w-24 bg-[#D9FF00] mt-6 hidden lg:block"></div>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 auto-rows-[240px]">
+            
+            <div class="bento-card col-span-1 lg:col-span-2 row-span-2 float-1">
+                <div class="bg-white h-full w-full rounded-[2.5rem] p-10 border-2 border-black shadow-[10px_10px_0px_0px_#D9FF00] flex flex-col justify-between group transition-all duration-500 hover:shadow-none hover:translate-x-1 hover:translate-y-1">
+                    <div>
+                        <div class="flex justify-between items-start mb-6">
+                            <div class="w-14 h-14 bg-black rounded-2xl flex items-center justify-center text-[#D9FF00] text-2xl group-hover:rotate-12 transition-transform">
+                                <i class="fa-solid fa-store"></i>
+                            </div>
+                            <span class="text-black/5 font-black text-6xl italic leading-none">01</span>
+                        </div>
+                        <h3 class="text-3xl font-black uppercase mb-4 tracking-tighter text-black">Sellers & Brands</h3>
+                        <p class="text-gray-500 font-bold italic leading-relaxed">"Turn your 'Link-in-Bio' into a high-speed revenue engine."</p>
+                    </div>
+                    <div class="pt-6 border-t border-gray-100">
+                        <span class="text-xs font-black text-[#0047FF] uppercase tracking-widest">Native Storefront ● High-Res Galleries</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="bento-card col-span-1 row-span-1 float-2">
+                <div class="bg-white h-full w-full rounded-[2.5rem] p-8 border-2 border-black shadow-[10px_10px_0px_0px_rgba(0,0,0,0.2)] group">
+                    <div class="w-10 h-10 bg-[#0047FF] rounded-xl flex items-center justify-center text-white text-lg mb-4">
+                        <i class="fa-solid fa-handshake"></i>
+                    </div>
+                    <h3 class="text-xl font-black uppercase mb-2 text-black">Consultants</h3>
+                    <p class="text-gray-400 text-xs font-bold leading-tight">Professional service menus with app-like feel.</p>
+                </div>
+            </div>
+
+            <div class="bento-card col-span-1 row-span-1 float-3">
+                <div class="bg-black h-full w-full rounded-[2.5rem] p-8 shadow-[10px_10px_0px_0px_#D9FF00] group">
+                    <div class="w-10 h-10 bg-[#D9FF00] rounded-xl flex items-center justify-center text-black text-lg mb-4">
+                        <i class="fa-solid fa-hashtag"></i>
+                    </div>
+                    <h3 class="text-xl font-black uppercase mb-2 text-white">Influencers</h3>
+                    <p class="text-white/40 text-xs font-bold leading-tight">Curated collections for your gym kit or tech.</p>
+                </div>
+            </div>
+
+            <div class="bento-card col-span-1 lg:col-span-2 row-span-1 float-4">
+                <div class="bg-white h-full w-full rounded-[2.5rem] p-8 border-2 border-black shadow-[10px_10px_0px_0px_rgba(255,255,255,0.2)] flex items-center gap-6">
+                    <div class="w-16 h-16 bg-blue-50 rounded-2xl flex items-center justify-center text-[#0047FF] text-3xl shrink-0">
+                        <i class="fa-solid fa-palette"></i>
+                    </div>
+                    <div>
+                        <h3 class="text-xl font-black uppercase text-black">Creators & Musicians</h3>
+                        <p class="text-gray-400 text-sm font-medium">Digital vaults for limited drops and mobile portfolios.</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="bento-card col-span-1 row-span-1 float-2">
+                <div class="bg-white h-full w-full rounded-[2.5rem] p-8 border-2 border-black shadow-[10px_10px_0px_0px_#0047FF] group">
+                    <i class="fa-solid fa-building text-[#0047FF] text-2xl mb-4"></i>
+                    <h3 class="text-lg font-black uppercase text-black">Real Estate</h3>
+                    <p class="text-gray-400 text-[10px] font-bold">Property tours & direct booking.</p>
+                </div>
+            </div>
+
+            <div class="bento-card col-span-1 row-span-1 float-1">
+                <div class="bg-[#D9FF00] h-full w-full rounded-[2.5rem] p-8 border-2 border-black shadow-[10px_10px_0px_0px_#000] group">
+                    <i class="fa-solid fa-ticket text-black text-2xl mb-4"></i>
+                    <h3 class="text-lg font-black uppercase text-black">Event Promoters</h3>
+                    <p class="text-black/60 text-[10px] font-bold">Sell tickets directly on social feeds.</p>
+                </div>
+            </div>
+
+             <div class="bento-card col-span-1 row-span-1 float-3">
+                <div class="bg-white h-full w-full rounded-[2.5rem] p-8 border-2 border-black shadow-[10px_10px_0px_0px_rgba(0,0,0,0.1)] group">
+                    <i class="fa-solid fa-graduation-cap text-black text-2xl mb-4"></i>
+                    <h3 class="text-lg font-black uppercase text-black">Educators</h3>
+                    <p class="text-gray-400 text-[10px] font-bold">Sell mini-courses & PDF guides.</p>
+                </div>
+            </div>
+
+            <div class="bento-card col-span-1 row-span-1 float-4">
+                <div class="bg-white h-full w-full rounded-[2.5rem] p-8 border-2 border-black shadow-[10px_10px_0px_0px_#22c55e] group">
+                    <i class="fa-solid fa-utensils text-[#22c55e] text-2xl mb-4"></i>
+                    <h3 class="text-lg font-black uppercase text-black">Kitchens</h3>
+                    <p class="text-gray-400 text-[10px] font-bold">Direct WhatsApp ordering menus.</p>
+                </div>
+            </div>
+
+        </div>
+    </div>
+</section>
+
+<style>
+    /* Floating 3D Physics */
+    .bento-card {
+        transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    }
+
+    .bento-card:hover {
+        transform: scale(1.03) rotate(-1deg);
+        z-index: 20;
+    }
+
+    @keyframes float {
+        0%, 100% { transform: translateY(0); }
+        50% { transform: translateY(-12px); }
+    }
+
+    .float-1 { animation: float 5s ease-in-out infinite; }
+    .float-2 { animation: float 6s ease-in-out infinite; animation-delay: 1s; }
+    .float-3 { animation: float 4s ease-in-out infinite; animation-delay: 0.5s; }
+    .float-4 { animation: float 7s ease-in-out infinite; animation-delay: 1.5s; }
+
+    /* Bento Responsive Tweaks */
+    @media (max-width: 1024px) {
+        .auto-rows-\[240px\] { auto-rows: auto; }
+        .bento-card { row-span: 1 !important; col-span: 1 !important; animation: none !important; }
+    }
+</style>
+
+
+<section class="relative z-10 bg-[#0047FF] py-32 px-6 overflow-hidden">
+    
+    <div class="absolute top-0 left-0 w-full h-full overflow-hidden pointer-events-none opacity-10">
+        <div class="absolute top-20 left-0 whitespace-nowrap animate-auto-scroll text-[10vw] font-black italic text-white/20 uppercase">
+            GLOBAL SALES FLOWING • NYC • DUBAI • LONDON • TOKYO • MUMBAI • 
+        </div>
+    </div>
+
+    <div class="max-w-7xl mx-auto relative z-10">
+        
+        <div class="text-center mb-32">
+            <div class="inline-block relative">
+                <h2 class="text-6xl lg:text-9xl font-black tracking-tighter text-white leading-none uppercase italic">
+                    AUTO-PILOT <br>
+                    <span class="text-[#D9FF00] animate-pulse-glow">LUXURY.</span>
+                </h2>
+                <div class="absolute -top-12 -right-12 animate-float-slow">
+                    <i class="fa-solid fa-crown text-5xl text-[#D9FF00] drop-shadow-2xl"></i>
+                </div>
+            </div>
+        </div>
+
+        <div class="grid lg:grid-cols-3 gap-12">
+            
+            <div class="luxury-card-auto animate-tilt-a">
+                <div class="inner-card-luxe bg-white/10 backdrop-blur-xl border border-white/20 p-12 rounded-[3.5rem] h-full relative overflow-hidden shadow-2xl">
+                    <div class="shimmer-effect"></div>
+                    <div class="w-16 h-16 bg-[#D9FF00] rounded-2xl flex items-center justify-center text-black text-2xl mb-8 shadow-2xl">
+                        <i class="fa-solid fa-shop"></i>
+                    </div>
+                    <h3 class="text-3xl font-black text-white uppercase italic mb-4">Native <br>Storefront</h3>
+                    <p class="text-white/60 font-medium text-sm leading-relaxed">The pinnacle of speed. Unlimited listing power with 0% drag.</p>
+                </div>
+            </div>
+
+            <div class="luxury-card-auto animate-tilt-b lg:mt-16">
+                <div class="inner-card-luxe bg-black border-2 border-[#D9FF00] p-12 rounded-[3.5rem] h-full relative overflow-hidden shadow-[0_0_50px_rgba(217,255,0,0.15)]">
+                    <div class="shimmer-effect"></div>
+                    <div class="w-16 h-16 bg-[#0047FF] rounded-2xl flex items-center justify-center text-white text-2xl mb-8 shadow-2xl">
+                        <i class="fa-solid fa-hand-pointer"></i>
+                    </div>
+                    <h3 class="text-3xl font-black text-[#D9FF00] uppercase italic mb-4">Tactile <br>Menus</h3>
+                    <p class="text-white/40 font-medium text-sm leading-relaxed">App-like category swiping for elite service providers.</p>
+                </div>
+            </div>
+
+            <div class="luxury-card-auto animate-tilt-c">
+                <div class="inner-card-luxe bg-gradient-to-br from-white/20 to-transparent backdrop-blur-md border border-white/30 p-12 rounded-[3.5rem] h-full relative overflow-hidden shadow-2xl">
+                    <div class="shimmer-effect"></div>
+                    <div class="w-16 h-16 bg-white rounded-2xl flex items-center justify-center text-black text-2xl mb-8 shadow-2xl">
+                        <i class="fa-solid fa-vault"></i>
+                    </div>
+                    <h3 class="text-3xl font-black text-white uppercase italic mb-4">Digital <br>Vaults</h3>
+                    <p class="text-white/60 font-medium text-sm leading-relaxed">High-fidelity stage for artists and musicians to drop exclusive gear.</p>
+                </div>
+            </div>
+
+        </div>
+
+        <div class="mt-24 bg-black/40 backdrop-blur-md p-8 rounded-[2rem] border border-white/10 flex flex-wrap justify-around items-center gap-8">
+            <div class="text-center">
+                <p class="text-[10px] font-black text-white/40 uppercase tracking-widest mb-1">Global Orders</p>
+                <p class="text-2xl font-black text-[#D9FF00] tabular-nums">1,284,930+</p>
+            </div>
+            <div class="h-10 w-[1px] bg-white/10 hidden md:block"></div>
+            <div class="text-center">
+                <p class="text-[10px] font-black text-white/40 uppercase tracking-widest mb-1">Live Shoppers</p>
+                <p class="text-2xl font-black text-white tabular-nums">42,019</p>
+            </div>
+            <div class="h-10 w-[1px] bg-white/10 hidden md:block"></div>
+            <div class="text-center">
+                <p class="text-[10px] font-black text-white/40 uppercase tracking-widest mb-1">Uptime</p>
+                <p class="text-2xl font-black text-[#0047FF]">99.99%</p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<style>
+    /* 1. 3D OSCILLATION ANIMATIONS (The Magic) */
+    @keyframes tilt-a {
+        0%, 100% { transform: perspective(1000px) rotateY(-5deg) rotateX(2deg) translateY(0); }
+        50% { transform: perspective(1000px) rotateY(5deg) rotateX(-2deg) translateY(-20px); }
+    }
+    @keyframes tilt-b {
+        0%, 100% { transform: perspective(1000px) rotateY(5deg) rotateX(-3deg) translateY(-15px); }
+        50% { transform: perspective(1000px) rotateY(-5deg) rotateX(3deg) translateY(5px); }
+    }
+    @keyframes tilt-c {
+        0%, 100% { transform: perspective(1000px) rotateY(-3deg) rotateX(-2deg) translateY(10px); }
+        50% { transform: perspective(1000px) rotateY(3deg) rotateX(2deg) translateY(-10px); }
+    }
+
+    .animate-tilt-a { animation: tilt-a 8s ease-in-out infinite; }
+    .animate-tilt-b { animation: tilt-b 10s ease-in-out infinite; }
+    .animate-tilt-c { animation: tilt-c 9s ease-in-out infinite; }
+
+    /* 2. AUTOMATIC SHIMMER (Light Sweep) */
+    @keyframes shimmer {
+        0% { transform: translateX(-150%) skewX(-25deg); }
+        100% { transform: translateX(150%) skewX(-25deg); }
+    }
+    .shimmer-effect {
+        position: absolute;
+        top: 0; left: 0; width: 50%; height: 100%;
+        background: linear-gradient(to right, transparent, rgba(255,255,255,0.2), transparent);
+        animation: shimmer 4s infinite linear;
+        pointer-events: none;
+    }
+
+    /* 3. OTHER ELEMENTS */
+    @keyframes auto-scroll {
+        0% { transform: translateX(0); }
+        100% { transform: translateX(-50%); }
+    }
+    .animate-auto-scroll { animation: auto-scroll 40s linear infinite; }
+
+    @keyframes float-slow {
+        0%, 100% { transform: translateY(0) rotate(5deg); }
+        50% { transform: translateY(-20px) rotate(-5deg); }
+    }
+    .animate-float-slow { animation: float-slow 6s ease-in-out infinite; }
+
+    .animate-pulse-glow {
+        animation: pulse-glow 3s infinite;
+    }
+    @keyframes pulse-glow {
+        0%, 100% { text-shadow: 0 0 0px rgba(217,255,0,0); }
+        50% { text-shadow: 0 0 20px rgba(217,255,0,0.6); }
+    }
+</style>
+
+
+<section class="relative z-10 bg-white py-32 px-6 overflow-hidden">
+    
+    <div class="absolute inset-0 pointer-events-none flex items-center justify-center opacity-[0.03]">
+        <h2 class="text-[30vw] font-black uppercase italic leading-none">ELITE</h2>
+    </div>
+
+    <div class="max-w-7xl mx-auto relative">
+        <div class="text-center mb-24">
+            <h2 class="text-5xl lg:text-7xl font-black tracking-tighter leading-none uppercase italic">
+                Clients get <span class="text-[#0047FF]">Power.</span> <br>
+                Customers get <span class="text-black bg-[#D9FF00] px-4">Fidelity.</span>
+            </h2>
+            <p class="mt-6 text-gray-400 font-bold uppercase tracking-[0.3em] text-xs">The Dual-Engine Digital Architecture</p>
+        </div>
+
+        <div class="grid lg:grid-cols-2 gap-12 lg:gap-24 relative">
+            
+            <div class="auto-float-luxe-a">
+                <div class="bg-[#0047FF] rounded-[4rem] p-12 border-[3px] border-black shadow-[40px_40px_0px_0px_rgba(0,71,255,0.1)] relative overflow-hidden h-full group">
+                    <div class="shimmer-luxe"></div>
+                    
+                    <div class="flex justify-between items-start mb-12">
+                        <div class="w-20 h-20 bg-white rounded-3xl flex items-center justify-center shadow-2xl">
+                            <i class="fa-solid fa-bolt-lightning text-4xl text-[#0047FF]"></i>
+                        </div>
+                        <div class="text-right">
+                            <span class="text-[#D9FF00] font-black italic text-sm tracking-widest uppercase">The Engine</span>
+                            <div class="flex gap-1 justify-end mt-2">
+                                <div class="w-1 h-1 bg-[#D9FF00] rounded-full animate-ping"></div>
+                                <div class="w-8 h-1 bg-[#D9FF00]/30 rounded-full"></div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <h3 class="text-white text-4xl font-black uppercase italic mb-10 tracking-tighter">Creator <br>Power</h3>
+
+                    <ul class="space-y-8">
+                        <li class="flex gap-5">
+                            <i class="fa-solid fa-layer-group text-[#D9FF00] mt-1"></i>
+                            <div>
+                                <h4 class="text-white font-black uppercase text-sm tracking-tight">Unlimited Catalog</h4>
+                                <p class="text-white/50 text-xs mt-1">List 10 or 10,000 products with zero extra fees.</p>
+                            </div>
+                        </li>
+                        <li class="flex gap-5">
+                            <i class="fa-solid fa-wand-magic-sparkles text-[#D9FF00] mt-1"></i>
+                            <div>
+                                <h4 class="text-white font-black uppercase text-sm tracking-tight">Tactile Dashboard</h4>
+                                <p class="text-white/50 text-xs mt-1">Drag, drop, and organize categories instantly.</p>
+                            </div>
+                        </li>
+                        <li class="flex gap-5">
+                            <i class="fa-solid fa-palette text-[#D9FF00] mt-1"></i>
+                            <div>
+                                <h4 class="text-white font-black uppercase text-sm tracking-tight">High-Fidelity Branding</h4>
+                                <p class="text-white/50 text-xs mt-1">Full Neobrutalist control: Cyber fonts & bold borders.</p>
+                            </div>
+                        </li>
+                        <li class="flex gap-5">
+                            <i class="fa-solid fa-comment-dots text-[#D9FF00] mt-1"></i>
+                            <div>
+                                <h4 class="text-white font-black uppercase text-sm tracking-tight">Merchant Notifications</h4>
+                                <p class="text-white/50 text-xs mt-1">Direct WhatsApp/Email alerts for every sale.</p>
+                            </div>
+                        </li>
+                        <li class="flex gap-5">
+                            <i class="fa-solid fa-chart-pie text-[#D9FF00] mt-1"></i>
+                            <div>
+                                <h4 class="text-white font-black uppercase text-sm tracking-tight">Deep Analytics</h4>
+                                <p class="text-white/50 text-xs mt-1">Track every swipe and click in real-time.</p>
+                            </div>
+                        </li>
+                        <li class="flex gap-5">
+                            <i class="fa-solid fa-earth-americas text-[#D9FF00] mt-1"></i>
+                            <div>
+                                <h4 class="text-white font-black uppercase text-sm tracking-tight">Global Sync</h4>
+                                <p class="text-white/50 text-xs mt-1">Push to 500+ marketplaces with one click.</p>
+                            </div>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="auto-float-luxe-b">
+                <div class="bg-black rounded-[4rem] p-12 border-[3px] border-[#D9FF00] shadow-[40px_40px_0px_0px_rgba(0,0,0,0.05)] relative overflow-hidden h-full">
+                    <div class="shimmer-luxe"></div>
+
+                    <div class="flex justify-between items-start mb-12">
+                        <div class="w-20 h-20 bg-[#D9FF00] rounded-3xl flex items-center justify-center shadow-2xl">
+                            <i class="fa-solid fa-crown text-4xl text-black"></i>
+                        </div>
+                        <div class="text-right">
+                            <span class="text-[#0047FF] font-black italic text-sm tracking-widest uppercase">The Experience</span>
+                            <div class="flex gap-1 justify-end mt-2">
+                                <div class="w-8 h-1 bg-[#0047FF]/30 rounded-full"></div>
+                                <div class="w-1 h-1 bg-[#0047FF] rounded-full animate-ping"></div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <h3 class="text-white text-4xl font-black uppercase italic mb-10 tracking-tighter">Shopper <br>Fidelity</h3>
+
+                    <ul class="space-y-8">
+                        <li class="flex gap-5">
+                            <i class="fa-solid fa-mobile-screen text-[#0047FF] mt-1"></i>
+                            <div>
+                                <h4 class="text-white font-black uppercase text-sm tracking-tight">App-Like Browsing</h4>
+                                <p class="text-white/40 text-xs mt-1">No slow loads. Swipe through categories like a premium app.</p>
+                            </div>
+                        </li>
+                        <li class="flex gap-5">
+                            <i class="fa-solid fa-bolt text-[#0047FF] mt-1"></i>
+                            <div>
+                                <h4 class="text-white font-black uppercase text-sm tracking-tight">1-Click Checkout</h4>
+                                <p class="text-white/40 text-xs mt-1">Frictionless path from discovery to purchase.</p>
+                            </div>
+                        </li>
+                        <li class="flex gap-5">
+                            <i class="fa-solid fa-expand text-[#0047FF] mt-1"></i>
+                            <div>
+                                <h4 class="text-white font-black uppercase text-sm tracking-tight">High-Res Galleries</h4>
+                                <p class="text-white/40 text-xs mt-1">Visual-first cards showcasing every elite detail.</p>
+                            </div>
+                        </li>
+                        <li class="flex gap-5">
+                            <i class="fa-solid fa-eye-slash text-[#0047FF] mt-1"></i>
+                            <div>
+                                <h4 class="text-white font-black uppercase text-sm tracking-tight">No Redirection</h4>
+                                <p class="text-white/40 text-xs mt-1">One-page world. Never get kicked to another tab.</p>
+                            </div>
+                        </li>
+                        <li class="flex gap-5">
+                            <i class="fa-solid fa-clone text-[#0047FF] mt-1"></i>
+                            <div>
+                                <h4 class="text-white font-black uppercase text-sm tracking-tight">Interactive Modals</h4>
+                                <p class="text-white/40 text-xs mt-1">Sleek pop-ups for sizes/colors without losing place.</p>
+                            </div>
+                        </li>
+                        <li class="flex gap-5">
+                            <i class="fa-solid fa-location-dot text-[#0047FF] mt-1"></i>
+                            <div>
+                                <h4 class="text-white font-black uppercase text-sm tracking-tight">Location Identity</h4>
+                                <p class="text-white/40 text-xs mt-1">Verified brand pills and location tags for total trust.</p>
+                            </div>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+
+        </div>
+    </div>
+</section>
+
+<style>
+    /* AUTOMATIC 3D FLOATING PHYSICS */
+    @keyframes float-engine {
+        0%, 100% { transform: perspective(2000px) rotateY(-4deg) rotateX(2deg) translateY(0); }
+        50% { transform: perspective(2000px) rotateY(4deg) rotateX(-2deg) translateY(-25px); }
+    }
+    @keyframes float-experience {
+        0%, 100% { transform: perspective(2000px) rotateY(4deg) rotateX(-2deg) translateY(-25px); }
+        50% { transform: perspective(2000px) rotateY(-4deg) rotateX(2deg) translateY(0); }
+    }
+
+    .auto-float-luxe-a { animation: float-engine 8s ease-in-out infinite; }
+    .auto-float-luxe-b { animation: float-experience 8s ease-in-out infinite; }
+
+    /* AUTOMATIC SHIMMER LIGHT-SWEEP */
+    @keyframes shimmer-luxe {
+        0% { transform: translateX(-150%) skewX(-30deg); }
+        100% { transform: translateX(150%) skewX(-30deg); }
+    }
+    .shimmer-luxe {
+        position: absolute;
+        top: 0; left: 0; width: 60%; height: 100%;
+        background: linear-gradient(to right, transparent, rgba(255,255,255,0.1), transparent);
+        animation: shimmer-luxe 5s infinite linear;
+        pointer-events: none;
+    }
+
+    /* NEUTRALIZE HOVER (FORCED AUTOMATION) */
+    .auto-float-luxe-a:hover, .auto-float-luxe-b:hover {
+        animation-play-state: running; /* Remains running on hover */
+    }
+</style>
+
+
+<section class="relative z-10 bg-[#050505] py-32 px-6 overflow-hidden perspective-2000">
+    
+    <div class="absolute inset-0 pointer-events-none">
+        <div class="absolute inset-0 bg-[url('https://grainy-gradients.vercel.app/noise.svg')] opacity-20 mix-blend-overlay"></div>
+        <div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[800px] bg-[#0047FF] opacity-10 blur-[120px] rounded-full animate-pulse"></div>
+    </div>
+
+    <div class="max-w-7xl mx-auto relative z-10">
+        
+        <div class="text-center mb-32">
+            <h2 class="text-7xl lg:text-9xl font-black tracking-tighter text-white uppercase italic leading-[0.8] mb-4">
+                THE WORLD <br>
+                <span class="text-transparent stroke-luxe">TRUSTS THE ENGINE.</span>
+            </h2>
+            <div class="inline-flex items-center gap-3 bg-white/5 backdrop-blur-md border border-white/10 px-6 py-2 rounded-full">
+                <span class="w-2 h-2 bg-green-500 rounded-full animate-ping"></span>
+                <p class="text-[#D9FF00] font-black uppercase tracking-[0.3em] text-[10px]">100% Autonomous Network</p>
+            </div>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-8 items-center">
+            
+            <div class="orbit-card delay-1">
+                <div class="glass-container">
+                    <div class="shimmer-auto"></div>
+                    <i class="fa-solid fa-users-viewfinder text-white/20 text-4xl mb-6"></i>
+                    <h3 class="text-5xl font-black text-white italic"><span class="counter" data-target="150">0</span>K+</h3>
+                    <p class="text-gray-500 font-bold uppercase text-[10px] tracking-widest mt-2">Elite Creators</p>
+                </div>
+            </div>
+
+            <div class="orbit-card delay-2 lg:scale-110">
+                <div class="bg-[#D9FF00] p-10 rounded-[3.5rem] shadow-[0_0_70px_rgba(217,255,0,0.15)] border-t-4 border-white/50 relative overflow-hidden group">
+                    <div class="absolute inset-0 bg-gradient-to-br from-white/40 to-transparent opacity-50"></div>
+                    <i class="fa-solid fa-shop text-black text-4xl mb-6"></i>
+                    <h3 class="text-6xl font-black text-black italic leading-none"><span class="counter" data-target="10">0</span>K+</h3>
+                    <p class="text-black font-black uppercase text-xs mt-4 leading-tight">Stores <br>Launched</p>
+                    <div class="mt-6 flex gap-1">
+                        <div class="w-12 h-1 bg-black/10 rounded-full overflow-hidden">
+                            <div class="h-full bg-black animate-progress"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="orbit-card delay-3">
+                <div class="glass-container">
+                    <div class="shimmer-auto"></div>
+                    <i class="fa-solid fa-globe text-white/20 text-4xl mb-6"></i>
+                    <h3 class="text-5xl font-black text-white italic"><span class="counter" data-target="85">0</span>M+</h3>
+                    <p class="text-gray-500 font-bold uppercase text-[10px] tracking-widest mt-2">Sessions</p>
+                </div>
+            </div>
+
+            <div class="orbit-card delay-4">
+                <div class="glass-container">
+                    <div class="shimmer-auto"></div>
+                    <i class="fa-solid fa-map-location-dot text-white/20 text-4xl mb-6"></i>
+                    <h3 class="text-5xl font-black text-white italic"><span class="counter" data-target="142">0</span>+</h3>
+                    <p class="text-gray-500 font-bold uppercase text-[10px] tracking-widest mt-2">Countries</p>
+                </div>
+            </div>
+
+            <div class="orbit-card delay-5">
+                <div class="bg-[#0047FF] p-8 rounded-[3rem] border border-white/20 shadow-[0_30px_60px_rgba(0,0,0,0.5)]">
+                    <i class="fa-solid fa-star text-white text-3xl mb-4"></i>
+                    <h3 class="text-4xl font-black text-white italic">99.9%</h3>
+                    <p class="text-white/50 font-bold uppercase text-[10px] tracking-widest mt-2">Success Rate</p>
+                </div>
+            </div>
+
+        </div>
+
+        <div class="mt-40">
+            <p class="text-center text-white/20 font-black uppercase text-[10px] tracking-[1em] mb-16 italic">Global Processing Partners</p>
+            <div class="relative w-full py-10 border-y border-white/5 bg-white/[0.01] backdrop-blur-sm overflow-hidden">
+                <div class="flex gap-20 items-center animate-infinite-slide">
+                    <i class="fa-brands fa-shopify text-6xl text-white/20 hover:text-[#D9FF00] transition-colors"></i>
+                    <i class="fa-brands fa-stripe text-6xl text-white/20"></i>
+                    <i class="fa-brands fa-whatsapp text-6xl text-white/20"></i>
+                    <i class="fa-brands fa-instagram text-6xl text-white/20"></i>
+                    <i class="fa-brands fa-apple-pay text-6xl text-white/20"></i>
+                    <i class="fa-brands fa-paypal text-6xl text-white/20"></i>
+                    <i class="fa-brands fa-amazon text-6xl text-white/20"></i>
+                    <i class="fa-brands fa-shopify text-6xl text-white/20"></i>
+                    <i class="fa-brands fa-stripe text-6xl text-white/20"></i>
+                    <i class="fa-brands fa-whatsapp text-6xl text-white/20"></i>
+                    <i class="fa-brands fa-instagram text-6xl text-white/20"></i>
+                    <i class="fa-brands fa-apple-pay text-6xl text-white/20"></i>
+                    <i class="fa-brands fa-paypal text-6xl text-white/20"></i>
+                    <i class="fa-brands fa-amazon text-6xl text-white/20"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<style>
+    /* REALISTIC 3D ORBITAL MOVEMENT */
+    @keyframes orbit {
+        0%, 100% { transform: translateY(0) rotateX(0deg) rotateY(0deg); }
+        33% { transform: translateY(-20px) rotateX(10deg) rotateY(-5deg); }
+        66% { transform: translateY(10px) rotateX(-5deg) rotateY(10deg); }
+    }
+
+    .orbit-card {
+        animation: orbit 10s ease-in-out infinite;
+        transition: all 0.5s ease;
+    }
+    .delay-1 { animation-delay: 0s; }
+    .delay-2 { animation-delay: 2s; }
+    .delay-3 { animation-delay: 4s; }
+    .delay-4 { animation-delay: 1s; }
+    .delay-5 { animation-delay: 3s; }
+
+    /* GLASS DESIGN */
+    .glass-container {
+        background: rgba(255, 255, 255, 0.03);
+        backdrop-filter: blur(20px);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        padding: 40px;
+        border-radius: 3.5rem;
+        height: 100%;
+        position: relative;
+        overflow: hidden;
+    }
+
+    /* TEXT STROKE EFFECT */
+    .stroke-luxe {
+        -webkit-text-stroke: 1px rgba(255,255,255,0.3);
+    }
+
+    /* INFINITE SLIDE (FIXED) */
+    @keyframes infinite-slide {
+        0% { transform: translateX(0); }
+        100% { transform: translateX(-50%); }
+    }
+    .animate-infinite-slide {
+        display: flex;
+        width: max-content;
+        animation: infinite-slide 30s linear infinite;
+    }
+
+    /* PROGRESS BAR */
+    @keyframes progress {
+        0% { transform: translateX(-100%); }
+        100% { transform: translateX(100%); }
+    }
+    .animate-progress {
+        width: 100%;
+        animation: progress 2s linear infinite;
+    }
+
+    /* SHIMMER */
+    @keyframes shimmer-auto {
+        0% { transform: translateX(-150%) skewX(-45deg); }
+        100% { transform: translateX(150%) skewX(-45deg); }
+    }
+    .shimmer-auto {
+        position: absolute;
+        top: 0; left: 0; width: 100%; height: 100%;
+        background: linear-gradient(90deg, transparent, rgba(255,255,255,0.05), transparent);
+        animation: shimmer-auto 6s infinite;
+    }
+</style>
+
+<section class="relative min-h-[110vh] bg-[#050505] overflow-hidden flex items-center justify-center py-20">
+    
+    <div class="absolute w-[600px] h-[600px] bg-[#0047FF] rounded-full blur-[150px] opacity-20 animate-pulse"></div>
+    
+    <div class="absolute inset-0 pointer-events-none">
+        <div class="absolute top-[10%] left-[5%] text-[#D9FF00] text-[10vw] font-black opacity-[0.03] italic">TRUST</div>
+        <div class="absolute bottom-[10%] right-[5%] text-white text-[10vw] font-black opacity-[0.02] italic">SOVEREIGN</div>
+    </div>
+
+    <div class="max-w-7xl w-full mx-auto relative z-10">
+        
+        <div class="text-center mb-32 relative z-50">
+            <h2 class="text-7xl lg:text-9xl font-black tracking-tighter text-white uppercase italic leading-none drop-shadow-2xl">
+                CRAZY <br> <span class="text-[#D9FF00] drop-shadow-[0_0_30px_rgba(217,255,0,0.5)]">RESULTS.</span>
+            </h2>
+            <p class="text-blue-500 font-black tracking-[0.5em] text-xs mt-4">REAL-TIME SECTOR INTELLIGENCE</p>
+        </div>
+
+        <div class="relative h-[800px] perspective-2000">
+            
+            <div class="absolute top-[0%] left-[5%] animate-orbit-1 group">
+                <div class="w-[350px] p-1 bg-gradient-to-br from-white via-gray-400 to-transparent rounded-[3rem] shadow-2xl">
+                    <div class="bg-black rounded-[2.9rem] p-10 relative overflow-hidden">
+                        <div class="absolute -right-4 -top-4 text-white/5 text-8xl italic font-black">SALE</div>
+                        <div class="flex items-center gap-4 mb-6">
+                            <div class="w-12 h-12 rounded-full border-2 border-[#D9FF00] p-1">
+                                <img src="https://i.pravatar.cc/100?u=12" class="rounded-full grayscale">
+                            </div>
+                            <span class="text-white font-black italic uppercase text-sm tracking-widest">Streetwear Mogul</span>
+                        </div>
+                        <p class="text-xl text-white font-bold leading-tight italic">"The engine processed $40k in 1 hour. No crashes. No lag. My customers are literally addicted to the swipe."</p>
+                        <div class="mt-8 flex justify-between items-center">
+                            <span class="h-1 w-20 bg-[#D9FF00]"></span>
+                            <span class="text-[10px] text-white/40 font-black">STORES: 12.4K SALES</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="absolute top-[10%] right-[0%] animate-orbit-2 z-20">
+                <div class="w-[380px] bg-[#D9FF00] p-12 rounded-[4rem] shadow-[0_0_100px_rgba(217,255,0,0.2)] rotate-[-5deg] border-r-[15px] border-b-[15px] border-black/10">
+                    <div class="flex justify-between items-start mb-8">
+                        <i class="fa-solid fa-fire-burner text-4xl text-black"></i>
+                        <span class="bg-black text-white px-3 py-1 rounded-full text-[9px] font-black">9.8/10 SPEED</span>
+                    </div>
+                    <h3 class="text-3xl font-black text-black uppercase italic leading-none mb-4">Cloud Kitchen <br>Empire</h3>
+                    <p class="text-black font-bold text-lg leading-snug">"500 orders a day, 0 redirections. The conversion rate is pure insanity."</p>
+                </div>
+            </div>
+
+            <div class="absolute bottom-[5%] left-[10%] animate-orbit-3 z-30">
+                <div class="w-[320px] backdrop-blur-3xl bg-white/10 border border-white/20 p-10 rounded-[3rem] shadow-2xl skew-x-3">
+                    <div class="flex gap-2 mb-6">
+                        <i class="fa-solid fa-star text-[#0047FF]"></i>
+                        <i class="fa-solid fa-star text-[#0047FF]"></i>
+                        <i class="fa-solid fa-star text-[#0047FF]"></i>
+                        <i class="fa-solid fa-star text-[#0047FF]"></i>
+                        <i class="fa-solid fa-star text-[#0047FF]"></i>
+                    </div>
+                    <p class="text-white text-lg font-medium italic mb-6">"Our coaching agency finally feels like a 7-figure brand. The tactile UX is unmatched."</p>
+                    <div class="flex items-center gap-3">
+                        <div class="w-8 h-8 bg-[#0047FF] rounded-lg"></div>
+                        <span class="text-white/40 font-black uppercase text-[10px]">Elite Services</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="absolute bottom-[15%] right-[15%] animate-orbit-4 z-10">
+                <div class="w-[300px] bg-[#0047FF] p-8 rounded-[2.5rem] shadow-2xl -rotate-12 border-l-8 border-black/20">
+                    <i class="fa-solid fa-bolt text-4xl text-white mb-4"></i>
+                    <p class="text-white font-black text-xl italic uppercase tracking-tighter">"It's not a platform, it's a cheat code for sales."</p>
+                    <p class="text-white/40 text-[10px] font-bold mt-4">CHEF RAFAEL — GHOST KITCHEN NY</p>
+                </div>
+            </div>
+
+        </div>
+    </div>
+</section>
+
+<style>
+    .perspective-2000 { perspective: 2000px; transform-style: preserve-3d; }
+
+    /* CRAZY 3D ORBITAL PHYSICS */
+    @keyframes orbit-1 {
+        0%, 100% { transform: translate3d(0, 0, 100px) rotateY(15deg) rotateX(5deg); }
+        50% { transform: translate3d(50px, -40px, 0px) rotateY(-10deg) rotateX(-5deg); }
+    }
+    @keyframes orbit-2 {
+        0%, 100% { transform: translate3d(0, 0, 50px) rotateY(-20deg) rotateX(-10deg); }
+        50% { transform: translate3d(-60px, 50px, 150px) rotateY(10deg) rotateX(10deg); }
+    }
+    @keyframes orbit-3 {
+        0%, 100% { transform: translate3d(0, 0, 200px) rotateY(10deg) skewY(2deg); }
+        50% { transform: translate3d(30px, -20px, 50px) rotateY(-15deg) skewY(-2deg); }
+    }
+    @keyframes orbit-4 {
+        0%, 100% { transform: translate3d(0, 0, -50px) rotateZ(-12deg); }
+        50% { transform: translate3d(-40px, -60px, 50px) rotateZ(0deg) scale(1.1); }
+    }
+
+    .animate-orbit-1 { animation: orbit-1 12s ease-in-out infinite; }
+    .animate-orbit-2 { animation: orbit-2 15s ease-in-out infinite; }
+    .animate-orbit-3 { animation: orbit-3 10s ease-in-out infinite; }
+    .animate-orbit-4 { animation: orbit-4 18s ease-in-out infinite; }
+
+    /* LIQUID SHIMMER */
+    .animate-orbit-1::before {
+        content: '';
+        position: absolute;
+        inset: 0;
+        background: linear-gradient(125deg, transparent, rgba(255,255,255,0.2), transparent);
+        animation: shimmer 4s infinite linear;
+        pointer-events: none;
+    }
+
+    @keyframes shimmer {
+        0% { transform: translateX(-200%) translateY(-200%) rotate(45deg); }
+        100% { transform: translateX(200%) translateY(200%) rotate(45deg); }
+    }
+</style>
+
+
+</body>
+</html>
