@@ -22,7 +22,7 @@
             color: white;
         }
 
-        /* --- PROFESSIONAL 3D LOADER CSS --- */
+        /* --- 3D LOADER --- */
         #loader-wrapper {
             position: fixed;
             inset: 0;
@@ -95,20 +95,16 @@
             50% { transform: scale(1.2) translateZ(40px); opacity: 1; }
         }
 
-        /* --- NAVIGATION & UI --- */
+        /* --- NAVIGATION --- */
         #main-nav { transition: all 0.4s ease; z-index: 1000; }
         .nav-scrolled {
             position: fixed !important; top: 15px !important; left: 50% !important;
             transform: translateX(-50%) !important; width: 95% !important;
             background: rgba(255, 255, 255, 0.9) !important; backdrop-filter: blur(10px);
             padding: 10px 20px !important; border-radius: 100px !important; color: #000 !important;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
         }
         .nav-scrolled .logo-text, .nav-scrolled .nav-link, .nav-scrolled i { color: #000 !important; }
-
-        #mobile-overlay {
-            display: none; position: fixed; inset: 0; background: var(--blue);
-            z-index: 2000; flex-direction: column; align-items: center; justify-content: center;
-        }
 
         @keyframes orderIn {
             0% { transform: translateY(20px) scale(0.8); opacity: 0; }
@@ -116,8 +112,8 @@
         }
         .order-notif { animation: orderIn 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards; }
 
-        #ribbon-canvas { position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 1; opacity: 0.5; pointer-events: none; }
-        .hero-title { font-size: clamp(3rem, 10vw, 6rem); line-height: 0.9; }
+        #ribbon-canvas { position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 1; opacity: 0.4; pointer-events: none; }
+        .hero-title { font-size: clamp(2.8rem, 10vw, 5.5rem); line-height: 0.95; }
     </style>
 </head>
 <body class="min-h-screen">
@@ -132,10 +128,13 @@
         </div>
     </div>
 
-    <div id="mobile-overlay">
-        <button onclick="toggleMenu()" class="absolute top-8 right-8 text-white text-3xl">&times;</button>
-        <a href="#" class="text-3xl font-black mb-4">Home</a>
-        <a href="biostorelogin.html" class="text-3xl font-black text-[#D9FF00]">Login</a>
+    <div id="mobile-overlay" class="fixed inset-0 bg-[#0047FF] z-[2000] hidden flex-col items-center justify-center gap-8">
+        <button onclick="toggleMenu()" class="absolute top-8 right-8 text-white text-4xl">&times;</button>
+        <a href="#" class="text-3xl font-black">Home</a>
+        <a href="#" class="text-3xl font-black">Templates</a>
+        <a href="#" class="text-3xl font-black">Pricing</a>
+        <hr class="w-20 border-white/20">
+        <button onclick="triggerTransition('biostorelogin.html')" class="text-2xl font-black text-[#D9FF00]">LOGIN / SIGNUP</button>
     </div>
 
     <nav id="main-nav" class="flex justify-between items-center px-6 md:px-12 py-8 max-w-screen-2xl mx-auto relative">
@@ -143,38 +142,45 @@
             <div class="bg-[#D9FF00] p-1.5 rounded-md"><i class="fa-solid fa-link text-black text-sm"></i></div>
             <span class="logo-text text-2xl font-black italic transition-colors">Bios<span class="font-normal uppercase text-[10px] ml-1 not-italic opacity-80">STORE</span></span>
         </div>
+
         <div class="hidden lg:flex gap-8 font-bold text-sm">
             <a href="#" class="nav-link hover:text-[#D9FF00]">Home</a>
             <a href="#" class="nav-link hover:text-[#D9FF00]">Templates</a>
             <a href="#" class="nav-link hover:text-[#D9FF00]">Pricing</a>
         </div>
-        <div id="auth-buttons" class="flex items-center gap-4">
-            </div>
+
+        <div class="flex items-center gap-3">
+            <button onclick="triggerTransition('biostorelogin.html')" class="text-sm font-bold px-4 py-2 hover:text-[#D9FF00] transition">Login</button>
+            <button onclick="triggerTransition('biostorelogin.html')" class="bg-[#D9FF00] text-black px-6 py-2.5 rounded-full font-bold text-xs shadow-xl active:scale-95 transition">Sign Up</button>
+            <button onclick="toggleMenu()" class="lg:hidden ml-2 text-xl"><i class="fa-solid fa-bars-staggered"></i></button>
+        </div>
     </nav>
 
     <main class="max-w-screen-2xl mx-auto px-6 md:px-12 grid grid-cols-1 lg:grid-cols-2 gap-10 items-center relative pt-10 pb-20">
         <canvas id="ribbon-canvas"></canvas>
+        
         <div class="relative z-10 space-y-6">
-            <h1 class="hero-title font-black tracking-tighter">Build Your <br><span class="text-[#D9FF00]">Cyber Store</span> <br>Builder.</h1>
-            <p class="text-xl text-white/80 max-w-md">The only link your bio ever needs. Optimized for mobile commerce.</p>
+            <h1 class="hero-title font-black tracking-tighter">Build Your <br><span class="text-[#D9FF00]">Cyber Store</span> <br>Instantly.</h1>
+            <p class="text-xl text-white/80 max-w-md">One link to rule your commerce. Optimized for the mobile-first generation.</p>
+            
             <div class="space-y-4 max-w-sm">
                 <div class="bg-white rounded-2xl p-3 flex items-center shadow-2xl">
                     <span class="text-gray-400 font-bold px-2 text-sm">biostore.com/</span>
-                    <input type="text" placeholder="brand" class="flex-grow outline-none text-blue-600 font-bold bg-transparent">
+                    <input type="text" placeholder="brandname" class="flex-grow outline-none text-blue-600 font-bold bg-transparent">
                 </div>
-                <button onclick="triggerTransition('biostorelogin.html')" class="w-full bg-[#D9FF00] text-black py-4 rounded-full font-black text-lg shadow-xl hover:scale-105 transition">Start Free</button>
+                <button onclick="triggerTransition('biostorelogin.html')" class="w-full bg-[#D9FF00] text-black py-4 rounded-full font-black text-lg shadow-xl hover:scale-105 active:scale-95 transition">Start Free</button>
             </div>
         </div>
 
         <div class="relative flex justify-center lg:justify-end items-center z-10">
-            <div class="w-[300px] h-[600px] bg-[#1a1a1a] rounded-[3.5rem] p-2.5 border-[8px] border-[#2a2a2a] shadow-2xl overflow-hidden relative">
+            <div class="w-[280px] h-[580px] bg-[#1a1a1a] rounded-[3.5rem] p-2.5 border-[8px] border-[#2a2a2a] shadow-2xl overflow-hidden relative">
                 <div class="w-full h-full bg-white rounded-[2.8rem] overflow-hidden flex flex-col">
                     <div class="pt-10 pb-4 text-center bg-gray-50">
-                        <img src="https://i.pravatar.cc/100?u=12" class="w-14 h-14 rounded-full mx-auto mb-2 border-2 border-[#0047FF]">
-                        <h3 class="text-black font-black text-xs uppercase">@cyber_store</h3>
+                        <img src="https://i.pravatar.cc/100?u=tech" class="w-14 h-14 rounded-full mx-auto mb-2 border-2 border-[#0047FF]">
+                        <h3 class="text-black font-black text-[10px] uppercase tracking-widest">@your_brand</h3>
                     </div>
                     <div class="mx-4 p-4 bg-black rounded-2xl text-white mt-2">
-                        <p class="text-[7px] opacity-50 uppercase font-black">Today's Revenue</p>
+                        <p class="text-[7px] opacity-50 uppercase font-black">Live Revenue</p>
                         <h2 class="text-2xl font-black italic">₹<span id="revenue">84,200</span></h2>
                     </div>
                     <div id="notif-feed" class="p-4 space-y-2 flex-grow overflow-hidden flex flex-col justify-end pb-10"></div>
@@ -184,13 +190,13 @@
     </main>
 
     <script>
-        // --- 1. TRANSITION ENGINE ---
+        // --- TRANSITION SYSTEM ---
         function triggerTransition(url) {
             const loader = document.getElementById('loader-wrapper');
             const status = document.getElementById('status-text');
             loader.style.display = 'flex';
             loader.style.opacity = '1';
-            status.innerText = "INITIALIZING PORT...";
+            status.innerText = "INITIALIZING PORTAL...";
             setTimeout(() => { window.location.href = url; }, 1200);
         }
 
@@ -202,25 +208,25 @@
             }, 1000);
         });
 
-        // --- 2. NAVIGATION & AUTH ---
+        // --- NAVIGATION & MENU ---
+        function toggleMenu() {
+            const overlay = document.getElementById('mobile-overlay');
+            if (overlay.classList.contains('hidden')) {
+                overlay.classList.replace('hidden', 'flex');
+                document.body.style.overflow = 'hidden';
+            } else {
+                overlay.classList.replace('flex', 'hidden');
+                document.body.style.overflow = 'auto';
+            }
+        }
+
         const nav = document.getElementById('main-nav');
         window.addEventListener('scroll', () => {
             if (window.scrollY > 50) nav.classList.add('nav-scrolled');
             else nav.classList.remove('nav-scrolled');
         });
 
-        const authContainer = document.getElementById('auth-buttons');
-        authContainer.innerHTML = `
-            <a href="javascript:void(0)" onclick="triggerTransition('biostorelogin.html')" class="hidden sm:block font-bold text-sm">Login</a>
-            <a href="javascript:void(0)" onclick="triggerTransition('biostorelogin.html')" class="bg-[#D9FF00] text-black px-6 py-2.5 rounded-full font-bold text-xs">Sign Up</a>
-        `;
-
-        function toggleMenu() {
-            const overlay = document.getElementById('mobile-overlay');
-            overlay.style.display = (overlay.style.display === 'flex') ? 'none' : 'flex';
-        }
-
-        // --- 3. RIBBON ENGINE ---
+        // --- RIBBON ENGINE ---
         const canvas = document.getElementById('ribbon-canvas');
         const ctx = canvas.getContext('2d');
         let w, h;
@@ -264,7 +270,7 @@
         initCanvas(); createWaves(); animate();
         window.addEventListener('resize', () => { initCanvas(); createWaves(); });
 
-        // --- 4. ORDER NOTIFICATIONS ---
+        // --- LIVE FEED SYSTEM ---
         const feed = document.getElementById('notif-feed');
         const revenueEl = document.getElementById('revenue');
         let totalRev = 84200;
@@ -279,14 +285,14 @@
             const n = document.createElement('div');
             n.className = "order-notif bg-gray-50 border p-2.5 rounded-xl flex items-center gap-3 shadow-sm";
             n.innerHTML = `<div class="${p.c}"><i class="fa-brands ${p.i}"></i></div>
-                           <div><p class="text-[8px] font-black text-gray-400 uppercase">${p.n} Order</p>
+                           <div><p class="text-[8px] font-black text-gray-400 uppercase">${p.n} Sale</p>
                            <p class="text-[10px] font-bold text-black">₹${amt.toLocaleString()}</p></div>`;
             feed.appendChild(n);
             totalRev += amt;
             revenueEl.innerText = totalRev.toLocaleString();
             if (feed.children.length > 4) feed.removeChild(feed.firstChild);
         }
-        setInterval(createOrder, 3000);
+        setInterval(createOrder, 3500);
     </script>
 </body>
 </html>
