@@ -15,7 +15,7 @@
             background: var(--bg);
             background-image: radial-gradient(circle at 100% 0%, rgba(0, 71, 255, 0.08) 0%, transparent 40%),
                               radial-gradient(circle at 0% 100%, rgba(217, 255, 0, 0.1) 0%, transparent 40%);
-            min-height: 100vh; display: flex; align-items: center; justify-content: center; padding: 10px; overflow: hidden;
+            min-height: 100vh; display: flex; align-items: center; justify-content: center; padding: 15px; overflow-x: hidden;
         }
 
         /* --- 3D LOADER --- */
@@ -33,62 +33,85 @@
         @keyframes rotate3d { 0% { transform: rotateX(45deg) rotateY(0deg) rotateZ(0deg); } 100% { transform: rotateX(45deg) rotateY(360deg) rotateZ(360deg); } }
         @keyframes pulse3d { 0%, 100% { transform: scale(1) translateZ(20px); opacity: 0.8; } 50% { transform: scale(1.2) translateZ(40px); opacity: 1; } }
 
-        /* --- UI --- */
+        /* --- UI CONTAINER --- */
         .master-container {
-            width: 100%; max-width: 1300px; min-height: 85vh; background: rgba(255, 255, 255, 0.8);
+            width: 100%; max-width: 1200px; min-height: 80vh; background: rgba(255, 255, 255, 0.8);
             backdrop-filter: blur(40px); border: 1px solid var(--white); border-radius: 2.5rem;
             display: grid; grid-template-columns: 1fr 1.1fr; box-shadow: 0 50px 100px -20px rgba(0, 71, 255, 0.1); overflow: hidden; position: relative;
         }
 
-        .auth-section { padding: 60px; display: flex; flex-direction: column; justify-content: center; background: var(--white); }
-        .logo { font-weight: 800; font-size: 24px; color: var(--blue); margin-bottom: 40px; font-style: italic; }
-        h2 { font-size: 42px; font-weight: 800; letter-spacing: -2px; margin-bottom: 10px; color: #000; }
-        .subtitle { color: #64748b; margin-bottom: 35px; font-size: 15px; }
+        .auth-section { padding: 40px; display: flex; flex-direction: column; justify-content: center; background: var(--white); }
+        .logo { font-weight: 800; font-size: 24px; color: var(--blue); margin-bottom: 30px; font-style: italic; }
+        h2 { font-size: 36px; font-weight: 800; letter-spacing: -1.5px; margin-bottom: 8px; color: #000; }
+        .subtitle { color: #64748b; margin-bottom: 30px; font-size: 14px; }
 
-        .social-btns { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 30px; }
+        .social-btns { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 25px; }
         .btn-alt {
-            padding: 16px; border-radius: 1.2rem; border: 1.5px solid #E2E8F0;
+            padding: 14px; border-radius: 1rem; border: 1.5px solid #E2E8F0;
             background: var(--white); cursor: pointer; display: flex; align-items: center;
-            justify-content: center; gap: 10px; font-weight: 700; font-size: 13px; transition: 0.3s;
+            justify-content: center; gap: 8px; font-weight: 700; font-size: 13px; transition: 0.3s;
         }
-        .btn-alt:hover { border-color: var(--blue); background: #f8faff; }
 
-        .input-wrap { margin-bottom: 15px; }
+        .input-wrap { margin-bottom: 12px; }
         .input-wrap input {
-            width: 100%; padding: 18px 24px; border-radius: 1.2rem; border: 1.5px solid #E2E8F0;
-            background: #F8FAFC; font-weight: 600; font-size: 15px;
+            width: 100%; padding: 16px 20px; border-radius: 1rem; border: 1.5px solid #E2E8F0;
+            background: #F8FAFC; font-weight: 600; font-size: 14px;
         }
 
         .btn-primary {
-            width: 100%; padding: 20px; border-radius: 1.2rem; border: none; background: var(--blue);
+            width: 100%; padding: 18px; border-radius: 1rem; border: none; background: var(--blue);
             color: var(--white); font-weight: 800; cursor: pointer; transition: 0.4s;
-            box-shadow: 0 15px 30px rgba(0, 71, 255, 0.2); font-size: 16px;
+            box-shadow: 0 10px 20px rgba(0, 71, 255, 0.2); font-size: 15px;
         }
 
-        /* --- PHONE VISUALS --- */
-        .visual-section { background: #000; display: flex; align-items: center; justify-content: center; padding: 40px; position: relative; }
-        .visual-section::after { content: ''; position: absolute; inset: 0; background: radial-gradient(circle at center, var(--blue), transparent 70%); opacity: 0.2; }
+        /* --- PHONE VISUALS (FIXED FOR MOBILE) --- */
+        .visual-section { background: #000; display: flex; align-items: center; justify-content: center; padding: 40px; position: relative; overflow: hidden; }
+        .visual-section::after { content: ''; position: absolute; inset: 0; background: radial-gradient(circle at center, var(--blue), transparent 75%); opacity: 0.3; }
         
         .phone-3d-frame {
-            width: 280px; aspect-ratio: 9/19; background: #111; border-radius: 3rem; border: 12px solid #222;
-            position: relative; overflow: hidden; transform: perspective(1000px) rotateY(-15deg) rotateX(5deg);
-            box-shadow: 50px 50px 100px rgba(0,0,0,0.5); z-index: 2;
+            width: 260px; height: 520px; background: #111; border-radius: 2.8rem; border: 10px solid #222;
+            position: relative; overflow: hidden; z-index: 2;
+            box-shadow: 0 30px 60px rgba(0,0,0,0.5);
+            /* Reset transform for mobile compatibility */
+            transform-style: preserve-3d;
             animation: phone-float 6s ease-in-out infinite;
         }
-        @keyframes phone-float { 0%, 100% { transform: perspective(1000px) rotateY(-15deg) rotateX(5deg) translateY(0); } 50% { transform: perspective(1000px) rotateY(-10deg) rotateX(2deg) translateY(-20px); } }
+
+        @keyframes phone-float { 
+            0%, 100% { transform: perspective(1000px) rotateY(-10deg) translateY(0); } 
+            50% { transform: perspective(1000px) rotateY(-5deg) translateY(-15px); } 
+        }
         
         .phone-screen { height: 100%; width: 300%; display: flex; animation: slide-content 12s cubic-bezier(0.8, 0, 0.2, 1) infinite; }
-        
-        /* Slide Pages */
-        .page { width: 33.333%; height: 100%; padding: 60px 25px; display: flex; flex-direction: column; align-items: center; text-align: center; }
-        .page i { font-size: 50px; margin-bottom: 20px; }
-        .page h3 { font-size: 22px; font-weight: 800; line-height: 1.2; margin-bottom: 10px; }
-        .page p { font-size: 12px; opacity: 0.7; }
-        .pill { padding: 6px 14px; border-radius: 100px; font-size: 10px; font-weight: 800; margin-bottom: 20px; text-transform: uppercase; }
+        .page { width: 33.333%; height: 100%; padding: 50px 20px; display: flex; flex-direction: column; align-items: center; text-align: center; }
+        .page i { font-size: 45px; margin-bottom: 15px; }
+        .page h3 { font-size: 20px; font-weight: 800; line-height: 1.2; margin-bottom: 10px; }
+        .page p { font-size: 11px; opacity: 0.8; line-height: 1.5; }
+        .pill { padding: 5px 12px; border-radius: 100px; font-size: 9px; font-weight: 800; margin-bottom: 15px; text-transform: uppercase; }
 
         @keyframes slide-content { 0%, 28% { transform: translateX(0); } 33%, 61% { transform: translateX(-33.333%); } 66%, 94% { transform: translateX(-66.666%); } 100% { transform: translateX(0); } }
 
-        @media (max-width: 900px) { .master-container { grid-template-columns: 1fr; } .visual-section { display: none; } }
+        /* --- MOBILE RESPONSIVENESS (THE FIX) --- */
+        @media (max-width: 900px) {
+            body { padding: 10px; overflow-y: auto; height: auto; }
+            .master-container { grid-template-columns: 1fr; border-radius: 1.5rem; min-height: unset; margin-top: 20px; }
+            .auth-section { padding: 30px 20px; order: 1; }
+            .visual-section { 
+                display: flex; height: 450px; padding: 20px; order: 0; 
+                background: linear-gradient(135deg, #000 0%, #001A5E 100%);
+            }
+            .phone-3d-frame { 
+                width: 200px; height: 400px; /* Scaled down for mobile */
+                transform: perspective(1000px) rotateY(0deg) !important; /* Flatten on mobile for better visibility */
+                animation: mobile-float 4s ease-in-out infinite;
+            }
+            h2 { font-size: 28px; }
+        }
+
+        @keyframes mobile-float {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-10px); }
+        }
     </style>
 </head>
 <body>
@@ -104,55 +127,53 @@
 </div>
 
 <div class="master-container">
-    <div class="auth-section">
-        <div class="logo">Bios<span>STORE</span></div>
-        <h2>Access Port</h2>
-        <p class="subtitle">Initialize your session via Google or Apple ID.</p>
-        
-        <div class="social-btns">
-            <button class="btn-alt" id="googleLogin">
-                <i class="fa-brands fa-google" style="color: #DB4437; font-size: 18px;"></i>
-                Google
-            </button>
-            <button class="btn-alt" id="appleLogin">
-                <i class="fa-brands fa-apple" style="color: #000; font-size: 18px;"></i>
-                Apple
-            </button>
-        </div>
-
-        <div class="input-wrap"><input type="tel" placeholder="Phone Number / ID"></div>
-        <div class="input-wrap"><input type="password" placeholder="Access Key"></div>
-        
-        <button class="btn-primary" id="loginBtn">INITIATE SESSION</button>
-
-        <div style="display: flex; justify-content: space-between; margin-top: 30px; font-size: 12px; font-weight: 700;">
-            <a href="#" style="color: var(--blue); text-decoration: none;">LOST KEY?</a>
-            <a href="index.html" style="color: #94A3B8; text-decoration: none;">EXIT PORT</a>
-        </div>
-    </div>
-
     <div class="visual-section">
         <div class="phone-3d-frame">
             <div class="phone-screen">
                 <div class="page" style="background:white; color:black;">
                     <span class="pill" style="background:rgba(0,71,255,0.1); color:var(--blue);">Retail Sector</span>
                     <i class="fa-solid fa-shop" style="color:var(--blue)"></i>
-                    <h3>Smart Retail Stores</h3>
-                    <p>Automated inventory and lightning fast checkouts.</p>
+                    <h3>Smart Retail</h3>
+                    <p>Automated inventory and checkouts.</p>
                 </div>
                 <div class="page" style="background:var(--blue); color:white;">
                     <span class="pill" style="background:rgba(255,255,255,0.2); color:white;">Kitchen Sector</span>
                     <i class="fa-solid fa-fire-burner" style="color:var(--lime)"></i>
                     <h3>Cloud Kitchens</h3>
-                    <p>Manage orders, menus, and delivery from one terminal.</p>
+                    <p>Manage menus and delivery flows.</p>
                 </div>
                 <div class="page" style="background:var(--lime); color:black;">
                     <span class="pill" style="background:rgba(0,0,0,0.1); color:black;">Event Sector</span>
                     <i class="fa-solid fa-ticket" style="color:var(--blue)"></i>
-                    <h3>Event Organizers</h3>
-                    <p>Sell tickets and manage guest entry with QR tech.</p>
+                    <h3>Event Tech</h3>
+                    <p>Tickets and entry management.</p>
                 </div>
             </div>
+        </div>
+    </div>
+
+    <div class="auth-section">
+        <div class="logo">Bios<span>STORE</span></div>
+        <h2>Access Port</h2>
+        <p class="subtitle">Secure entry to your digital commerce mainframe.</p>
+        
+        <div class="social-btns">
+            <button class="btn-alt" id="googleLogin">
+                <i class="fa-brands fa-google" style="color: #DB4437; font-size: 18px;"></i> Google
+            </button>
+            <button class="btn-alt" id="appleLogin">
+                <i class="fa-brands fa-apple" style="color: #000; font-size: 18px;"></i> Apple
+            </button>
+        </div>
+
+        <div class="input-wrap"><input type="tel" placeholder="Mainframe ID"></div>
+        <div class="input-wrap"><input type="password" placeholder="Access Key"></div>
+        
+        <button class="btn-primary" id="loginBtn">INITIATE SESSION</button>
+
+        <div style="display: flex; justify-content: space-between; margin-top: 25px; font-size: 12px; font-weight: 700;">
+            <a href="#" style="color: var(--blue); text-decoration: none;">LOST KEY?</a>
+            <a href="index.html" style="color: #94A3B8; text-decoration: none;">EXIT PORT</a>
         </div>
     </div>
 </div>
@@ -180,7 +201,6 @@
     const loader = document.getElementById('loader-wrapper');
     const status = document.getElementById('status-text');
 
-    // 1. Entrance Logic
     window.addEventListener('load', () => {
         setTimeout(() => {
             loader.style.opacity = '0';
@@ -188,7 +208,6 @@
         }, 1200);
     });
 
-    // 2. Auth Function
     async function handleAuth(provider) {
         loader.style.display = 'flex';
         loader.style.opacity = '1';
@@ -219,6 +238,5 @@
         }
     }
 </script>
-
 </body>
 </html>
