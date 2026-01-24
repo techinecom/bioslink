@@ -219,56 +219,105 @@
         </div>
     </div>
 
-    <script type="module">
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-        import { getFirestore, doc, setDoc } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+<script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+    import { getAuth, signInWithPopup, GoogleAuthProvider, signInWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+    import { getFirestore, doc, getDoc } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
-        const firebaseConfig = {
-            apiKey: "AIzaSyDMm_iqFWeU_jv_y-tHhRA-lZhy5PosQnI",
-            authDomain: "seller-bio.firebaseapp.com",
-            projectId: "seller-bio",
-            storageBucket: "seller-bio.firebasestorage.app",
-            messagingSenderId: "319004958530",
-            appId: "1:319004958530:web:6ba52f7ec5cb06e34872db"
-        };
+    const firebaseConfig = {
+        apiKey: "AIzaSyDMm_iqFWeU_jv_y-tHhRA-lZhy5PosQnI",
+        authDomain: "seller-bio.firebaseapp.com",
+        projectId: "seller-bio",
+        storageBucket: "seller-bio.firebasestorage.app",
+        messagingSenderId: "319004958530",
+        appId: "1:319004958530:web:6ba52f7ec5cb06e34872db"
+    };
 
-        const app = initializeApp(firebaseConfig);
-        const db = getFirestore(app);
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+    const db = getFirestore(app);
 
-        let merchantData = { sector: '', storeName: '', description: '', address: '', plan: '' };
+    const loader = document.getElementById('loader-wrapper');
+    const statusText = document.getElementById('status-text');
 
-        window.next = (num, type = '') => {
-            if(type) merchantData.sector = type;
-            document.querySelectorAll('.step-view').forEach(s => s.classList.remove('active'));
-            document.getElementById('step-' + num).classList.add('active');
-            window.scrollTo({ top: 0, behavior: 'smooth' });
-        };
+    // --- 1. LOADER CONTROLS ---
+    const showLoader = (msg) => {
+        loader.style.display = 'flex';
+        loader.style.opacity = '1';
+        statusText.innerText = msg;
+    };
 
-        window.checkName = (val) => {
-            const fb = document.getElementById('feedback');
-            const btn = document.getElementById('btn2');
-            const name = val.toLowerCase().replace(/[^a-z0-9]/g, '');
-            if(name.length < 3) { fb.innerText = ""; btn.style.opacity = "0.2"; btn.style.pointerEvents = "none"; return; }
-            fb.innerText = "STORE ID AVAILABLE"; fb.style.color = "#D9FF00";
-            btn.style.opacity = "1"; btn.style.pointerEvents = "auto";
-            document.getElementById('final-name').value = "@" + name;
-            merchantData.storeName = name;
-        };
+    const hideLoader = () => {
+        loader.style.opacity = '0';
+        setTimeout(() => { loader.style.display = 'none'; }, 500);
+    };
 
-        window.saveToFirebase = async (plan) => {
-            merchantData.plan = plan;
-            merchantData.description = document.getElementById('desc').value;
-            merchantData.address = document.getElementById('addr').value;
-            document.getElementById('sync-overlay').style.display = 'flex';
-            try {
-                await setDoc(doc(db, "merchants", merchantData.storeName), merchantData);
-                setTimeout(() => { window.location.href = 'dashboard.html'; }, 2000);
-            } catch (e) {
-                console.error(e);
-                alert("Sync failed. Check terminal logs.");
-                document.getElementById('sync-overlay').style.display = 'none';
+    // --- 2. BACK BUTTON / PERSISTENCE FIX ---
+    // This ensures that if the user hits "Back" from the next page, they don't see the loader.
+    window.addEventListener('pageshow', (event) => {
+        hideLoader();
+    });
+
+    window.addEventListener('load', () => {
+        setTimeout(hideLoader, 800);
+    });
+
+    // --- 3. POST-AUTH ROUTING ---
+    async function handlePostAuth(user) {
+        showLoader("VERIFYING IDENTITY...");
+        try {
+            const docRef = doc(db, "merchants", user.uid);
+            const docSnap = await getDoc(docRef);
+            
+            if (docSnap.exists()) {
+                statusText.innerText = "ACCESS GRANTED";
+                window.location.href = 'dashboard.html';
+            } else {
+                statusText.innerText = "NEW TERMINAL DETECTED";
+                window.location.href = 'onboarding.html';
             }
-        };
-    </script>
+        } catch (error) {
+            console.error(error);
+            // If we can't check the DB, assume onboarding is needed
+            window.location.href = 'onboarding.html';
+        }
+    }
+
+    // --- 4. GOOGLE LOGIN ---
+    document.getElementById('googleLogin').onclick = async () => {
+        const provider = new GoogleAuthProvider();
+        showLoader("CONTACTING GOOGLE...");
+        try {
+            const result = await signInWithPopup(auth, provider);
+            handlePostAuth(result.user);
+        } catch (error) {
+            console.warn("Login cancelled or failed:", error.code);
+            hideLoader(); // Return to form if they close the popup
+        }
+    };
+
+    // --- 5. EMAIL LOGIN ---
+    document.getElementById('loginBtn').onclick = async () => {
+        const email = document.getElementById('email').value.trim();
+        const password = document.getElementById('password').value;
+        
+        if(!email || !password) return alert("Please enter Access ID and Passkey");
+
+        showLoader("INITIATING SESSION...");
+        
+        try {
+            const result = await signInWithEmailAndPassword(auth, email, password);
+            handlePostAuth(result.user);
+        } catch (error) {
+            hideLoader();
+            // Friendly error mapping
+            if (error.code === 'auth/invalid-credential') {
+                alert("Access Denied: Invalid ID or Passkey.");
+            } else {
+                alert("Protocol Error: " + error.message);
+            }
+        }
+    };
+</script>
 </body>
 </html>
