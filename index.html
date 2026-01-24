@@ -800,197 +800,204 @@
     .card-3d { transform-style: preserve-3d; }
 </style>
 
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+
 <style>
-    /* 1. GAMIFIED AUTO-PHYSICS ENGINE */
-    
-    /* Smooth 3D Floating (Sinusoidal) */
-    @keyframes auto-float-luxe {
-        0%, 100% { transform: perspective(2000px) rotateY(-5deg) rotateX(3deg) translateY(0); }
-        50% { transform: perspective(2000px) rotateY(5deg) rotateX(-3deg) translateY(-30px); }
+    .engine-viewport-dual {
+        background: #000;
+        position: relative;
+        overflow: hidden;
+        padding: 100px 20px;
+        color: white;
     }
 
-    /* Loot-box Pop (for badges/icons) */
-    @keyframes loot-pop {
-        0%, 100% { transform: scale(1) rotate(0deg); filter: brightness(1); }
-        50% { transform: scale(1.15) rotate(10deg); filter: brightness(1.3); }
+    /* THE BLUE CORE GLOW */
+    .bg-engine-glow {
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        width: 140vw;
+        height: 140vh;
+        background: radial-gradient(circle at center, rgba(0, 71, 255, 0.15) 0%, transparent 70%);
+        transform: translate(-50%, -50%);
+        filter: blur(100px);
+        mix-blend-mode: screen;
+        pointer-events: none;
     }
 
-    /* Continuous Scanning Line (Cyber-grid feel) */
-    @keyframes scanner-sweep {
-        0% { top: -10%; opacity: 0; }
-        50% { opacity: 0.5; }
-        100% { top: 110%; opacity: 0; }
+    /* IPHONE FRAME DESIGN */
+    .iphone-frame {
+        width: 320px;
+        height: 650px;
+        background: #111;
+        border: 8px solid #222;
+        border-radius: 3.5rem;
+        position: relative;
+        box-shadow: 0 50px 100px -20px rgba(0,0,0,0.5), 0 0 0 2px #333;
+        overflow: hidden;
+        margin: 0 auto;
     }
 
-    /* Level-up XP Bar */
-    @keyframes xp-fill {
-        0% { width: 0%; box-shadow: 0 0 0px #D9FF00; }
-        50% { width: 100%; box-shadow: 0 0 20px #D9FF00; }
-        100% { width: 0%; }
+    /* Dynamic Island */
+    .dynamic-island {
+        position: absolute;
+        top: 15px;
+        left: 50%;
+        transform: translateX(-50%);
+        width: 100px;
+        height: 25px;
+        background: #000;
+        border-radius: 20px;
+        z-index: 50;
     }
 
-    .animate-float-auto { animation: auto-float-luxe 7s ease-in-out infinite; }
-    .animate-loot { animation: loot-pop 4s ease-in-out infinite; }
-    .animate-xp { animation: xp-fill 3s ease-in-out infinite; }
-    
+    /* AUTO-SCROLLING CONTENT ENGINE */
+    .screen-content {
+        padding: 60px 20px 20px;
+        height: 100%;
+        display: flex;
+        flex-direction: column;
+        gap: 20px;
+    }
+
+    .scroll-container {
+        display: flex;
+        flex-direction: column;
+        gap: 15px;
+        animation: screen-scroll 20s linear infinite;
+    }
+
+    @keyframes screen-scroll {
+        0% { transform: translateY(0); }
+        100% { transform: translateY(-50%); }
+    }
+
+    /* CARD STYLING INSIDE PHONE */
+    .feature-card {
+        background: rgba(255,255,255,0.05);
+        border: 1px solid rgba(255,255,255,0.1);
+        padding: 20px;
+        border-radius: 1.5rem;
+        backdrop-filter: blur(10px);
+    }
+
+    /* SHIMMER SCANNER */
     .scanner-line {
         position: absolute;
-        left: 0; width: 100%; height: 2px;
-        background: linear-gradient(90deg, transparent, #D9FF00, transparent);
-        animation: scanner-sweep 4s linear infinite;
+        left: 0; width: 100%; height: 50px;
+        background: linear-gradient(to bottom, transparent, rgba(0, 71, 255, 0.2), transparent);
+        animation: scan-move 4s linear infinite;
+        z-index: 10;
     }
 
-    /* 3D Container Setup */
-    .game-viewport { perspective: 2000px; transform-style: preserve-3d; }
+    @keyframes scan-move { 0% { top: -10%; } 100% { top: 110%; } }
+
+    /* Floating Header Style */
+    .phone-header {
+        position: sticky;
+        top: 0;
+        background: rgba(17,17,17,0.8);
+        backdrop-filter: blur(10px);
+        padding: 15px;
+        text-align: center;
+        border-bottom: 1px solid rgba(255,255,255,0.1);
+        z-index: 40;
+    }
 </style>
 
-<section class="relative z-10 bg-white py-32 px-6 overflow-hidden game-viewport">
-    
-    <div class="absolute inset-0 pointer-events-none flex items-center justify-center opacity-[0.03] select-none">
-        <h2 class="text-[35vw] font-black uppercase italic leading-none">ELITE</h2>
-    </div>
+<section class="engine-viewport-dual">
+    <div class="bg-engine-glow"></div>
 
-    <div class="absolute top-10 left-[8%] z-30 animate-float-auto" style="animation-duration: 9s;">
-        <div class="bg-black text-[#D9FF00] px-4 py-1 rounded-full text-[10px] font-black mb-2 border-2 border-[#D9FF00] shadow-lg">LVL 99 MERCHANT</div>
-        <div class="text-8xl animate-loot">😎</div>
-    </div>
-
-    <div class="absolute bottom-20 right-[8%] z-30 animate-float-auto" style="animation-delay: -3s;">
-        <div class="text-7xl drop-shadow-2xl">📦</div>
-        <div class="bg-[#0047FF] text-white px-3 py-1 rounded-lg text-[8px] font-black mt-2 animate-bounce">LEGENDARY DROP</div>
-    </div>
-
-    <div class="max-w-7xl mx-auto relative">
+    <div class="max-w-7xl mx-auto relative z-10">
         
-        <div class="text-center mb-28">
-            <h2 class="text-5xl lg:text-8xl font-black tracking-tighter leading-none uppercase italic">
-                Clients get <span class="text-[#0047FF]">Power.</span> <br>
-                Customers get <span class="text-black bg-[#D9FF00] px-6 py-1 inline-block -skew-x-12">Fidelity.</span>
+        <div class="text-center mb-20">
+            <h2 class="text-5xl lg:text-7xl font-black uppercase italic leading-none">
+                CLIENTS GET <span class="text-[#0047FF]">POWER.</span><br>
+                CUSTOMERS GET <span class="text-[#D9FF00]">FIDELITY.</span>
             </h2>
-            
-            <div class="w-64 h-1.5 bg-gray-100 mx-auto mt-10 relative rounded-full overflow-hidden">
-                <div class="absolute inset-y-0 left-0 bg-[#0047FF] animate-xp"></div>
+            <div class="w-48 h-1 bg-white/10 mx-auto mt-8 relative rounded-full overflow-hidden">
+                <div class="absolute inset-y-0 left-0 bg-[#D9FF00]" style="width: 60%; box-shadow: 0 0 15px #D9FF00;"></div>
             </div>
-            <p class="mt-4 text-gray-400 font-bold uppercase tracking-[0.4em] text-[10px]">Dual-Engine Digital Architecture v2.0</p>
         </div>
 
-        <div class="grid lg:grid-cols-2 gap-16 lg:gap-24 relative">
+        <div class="grid lg:grid-cols-2 gap-16 items-center">
             
-            <div class="animate-float-auto" style="animation-delay: 0s;">
-                <div class="bg-[#0047FF] rounded-[4rem] p-12 border-[4px] border-black shadow-[35px_35px_0px_0px_#000] relative overflow-hidden group">
+            <div class="relative">
+                <div class="absolute -top-10 -left-10 bg-[#0047FF] text-white px-6 py-2 rounded-full font-black italic z-50 skew-x-[-12deg] shadow-xl">LVL 99 MERCHANT</div>
+                <div class="iphone-frame border-[#0047FF]/30 shadow-[0_0_50px_rgba(0,71,255,0.2)]">
+                    <div class="dynamic-island"></div>
                     <div class="scanner-line"></div>
                     
-                    <div class="absolute -top-6 -right-6 w-24 h-24 bg-[#D9FF00] rounded-3xl flex items-center justify-center border-4 border-black z-20 animate-loot">
-                        <i class="fa-solid fa-bolt-lightning text-4xl text-black"></i>
+                    <div class="phone-header">
+                        <span class="text-[#0047FF] font-black text-[10px] tracking-widest uppercase">Creator Engine</span>
                     </div>
 
-                    <div class="flex justify-between items-start mb-14">
-                        <h3 class="text-white text-5xl font-black uppercase italic tracking-tighter leading-[0.85]">Creator <br><span class="text-[#D9FF00]">Power</span></h3>
-                        <div class="bg-white/10 px-3 py-1 rounded border border-white/20 text-[9px] font-black text-white tracking-widest uppercase">CLASS: SSS</div>
+                    <div class="screen-content">
+                        <div class="scroll-container">
+                            <div class="feature-card">
+                                <i class="fa-solid fa-layer-group text-[#D9FF00] mb-3"></i>
+                                <h4 class="text-sm font-black uppercase">Unlimited Catalog</h4>
+                                <p class="text-[10px] text-white/50">10 or 10,000 products, zero fees.</p>
+                            </div>
+                            <div class="feature-card">
+                                <i class="fa-solid fa-wand-magic-sparkles text-[#D9FF00] mb-3"></i>
+                                <h4 class="text-sm font-black uppercase">Tactile Dashboard</h4>
+                                <p class="text-[10px] text-white/50">Drag, drop, and organize categories.</p>
+                            </div>
+                            <div class="feature-card">
+                                <i class="fa-solid fa-palette text-[#D9FF00] mb-3"></i>
+                                <h4 class="text-sm font-black uppercase">High-Fidelity Branding</h4>
+                                <p class="text-[10px] text-white/50">Neobrutalist Cyber control.</p>
+                            </div>
+                            <div class="feature-card">
+                                <i class="fa-solid fa-comment-dots text-[#D9FF00] mb-3"></i>
+                                <h4 class="text-sm font-black uppercase">Merchant Notifications</h4>
+                                <p class="text-[10px] text-white/50">Instant WhatsApp/Email alerts.</p>
+                            </div>
+                            <div class="feature-card"><i class="fa-solid fa-layer-group text-[#D9FF00] mb-3"></i><h4 class="text-sm font-black uppercase">Unlimited Catalog</h4><p class="text-[10px] text-white/50">10 or 10,000 products, zero fees.</p></div>
+                            <div class="feature-card"><i class="fa-solid fa-wand-magic-sparkles text-[#D9FF00] mb-3"></i><h4 class="text-sm font-black uppercase">Tactile Dashboard</h4><p class="text-[10px] text-white/50">Drag, drop, and organize categories.</p></div>
+                        </div>
                     </div>
-
-                    <ul class="space-y-7 relative z-10">
-                        <li class="flex gap-5 group/item">
-                            <i class="fa-solid fa-layer-group text-[#D9FF00] text-xl mt-1"></i>
-                            <div>
-                                <h4 class="text-white font-black uppercase text-sm tracking-tight">Unlimited Catalog</h4>
-                                <p class="text-white/50 text-xs mt-1">10 or 10,000 products, zero fees.</p>
-                            </div>
-                        </li>
-                        <li class="flex gap-5">
-                            <i class="fa-solid fa-wand-magic-sparkles text-[#D9FF00] text-xl mt-1"></i>
-                            <div>
-                                <h4 class="text-white font-black uppercase text-sm tracking-tight">Tactile Dashboard</h4>
-                                <p class="text-white/50 text-xs mt-1">Drag, drop, and organize categories instantly.</p>
-                            </div>
-                        </li>
-                        <li class="flex gap-5">
-                            <i class="fa-solid fa-palette text-[#D9FF00] text-xl mt-1"></i>
-                            <div>
-                                <h4 class="text-white font-black uppercase text-sm tracking-tight">High-Fidelity Branding</h4>
-                                <p class="text-white/50 text-xs mt-1">Neobrutalist Cyber control.</p>
-                            </div>
-                        </li>
-                        <li class="flex gap-5">
-                            <i class="fa-solid fa-comment-dots text-[#D9FF00] text-xl mt-1"></i>
-                            <div>
-                                <h4 class="text-white font-black uppercase text-sm tracking-tight">Merchant Notifications</h4>
-                                <p class="text-white/50 text-xs mt-1">Instant WhatsApp/Email alerts.</p>
-                            </div>
-                        </li>
-                        <li class="flex gap-5">
-                            <i class="fa-solid fa-chart-pie text-[#D9FF00] text-xl mt-1"></i>
-                            <div>
-                                <h4 class="text-white font-black uppercase text-sm tracking-tight">Deep Analytics</h4>
-                                <p class="text-white/50 text-xs mt-1">Track every swipe in real-time.</p>
-                            </div>
-                        </li>
-                        <li class="flex gap-5">
-                            <i class="fa-solid fa-earth-americas text-[#D9FF00] text-xl mt-1"></i>
-                            <div>
-                                <h4 class="text-white font-black uppercase text-sm tracking-tight">Global Sync</h4>
-                                <p class="text-white/50 text-xs mt-1">Sync to 500+ marketplaces.</p>
-                            </div>
-                        </li>
-                    </ul>
                 </div>
             </div>
 
-            <div class="animate-float-auto" style="animation-delay: -3.5s;">
-                <div class="bg-black rounded-[4rem] p-12 border-[4px] border-[#D9FF00] shadow-[35px_35px_0px_0px_rgba(217,255,0,0.1)] relative overflow-hidden h-full">
-                    <div class="scanner-line" style="animation-delay: -2s;"></div>
+            <div class="relative">
+                <div class="absolute -bottom-10 -right-10 bg-[#D9FF00] text-black px-6 py-2 rounded-full font-black italic z-50 skew-x-[12deg] shadow-xl">BUFF: SPEED</div>
+                <div class="iphone-frame border-[#D9FF00]/30 shadow-[0_0_50px_rgba(217,255,0,0.1)]">
+                    <div class="dynamic-island"></div>
+                    <div class="scanner-line" style="animation-delay: -2s; background: linear-gradient(to bottom, transparent, rgba(217,255,0,0.1), transparent);"></div>
                     
-                    <div class="absolute -bottom-10 -left-10 text-7xl animate-loot" style="animation-delay: -1s;">💎</div>
-
-                    <div class="flex justify-between items-start mb-14">
-                        <h3 class="text-white text-5xl font-black uppercase italic tracking-tighter leading-[0.85]">Shopper <br><span class="text-[#0047FF]">Fidelity</span></h3>
-                        <div class="bg-[#D9FF00] px-3 py-1 rounded text-[9px] font-black text-black tracking-widest uppercase">BUFF: SPEED</div>
+                    <div class="phone-header">
+                        <span class="text-[#D9FF00] font-black text-[10px] tracking-widest uppercase">Shopper Fidelity</span>
                     </div>
 
-                    <ul class="space-y-7 relative z-10">
-                        <li class="flex gap-5">
-                            <i class="fa-solid fa-mobile-screen text-[#0047FF] text-xl mt-1"></i>
-                            <div>
-                                <h4 class="text-white font-black uppercase text-sm tracking-tight">App-Like Browsing</h4>
-                                <p class="text-white/40 text-xs mt-1">No slow loads. Swipe through categories.</p>
+                    <div class="screen-content">
+                        <div class="scroll-container" style="animation-duration: 15s; animation-direction: reverse;">
+                            <div class="feature-card">
+                                <i class="fa-solid fa-mobile-screen text-[#0047FF] mb-3"></i>
+                                <h4 class="text-sm font-black uppercase">App-Like Browsing</h4>
+                                <p class="text-[10px] text-white/50">No slow loads. Swipe through categories.</p>
                             </div>
-                        </li>
-                        <li class="flex gap-5">
-                            <i class="fa-solid fa-bolt text-[#0047FF] text-xl mt-1"></i>
-                            <div>
-                                <h4 class="text-white font-black uppercase text-sm tracking-tight">1-Click Checkout</h4>
-                                <p class="text-white/40 text-xs mt-1">Frictionless path to purchase.</p>
+                            <div class="feature-card">
+                                <i class="fa-solid fa-bolt text-[#0047FF] mb-3"></i>
+                                <h4 class="text-sm font-black uppercase">1-Click Checkout</h4>
+                                <p class="text-[10px] text-white/50">Frictionless path to purchase.</p>
                             </div>
-                        </li>
-                        <li class="flex gap-5">
-                            <i class="fa-solid fa-expand text-[#0047FF] text-xl mt-1"></i>
-                            <div>
-                                <h4 class="text-white font-black uppercase text-sm tracking-tight">High-Res Galleries</h4>
-                                <p class="text-white/40 text-xs mt-1">Visual-first elite cards.</p>
+                            <div class="feature-card">
+                                <i class="fa-solid fa-eye-slash text-[#0047FF] mb-3"></i>
+                                <h4 class="text-sm font-black uppercase">No Redirection</h4>
+                                <p class="text-[10px] text-white/50">Stay in the world. No external tabs.</p>
                             </div>
-                        </li>
-                        <li class="flex gap-5">
-                            <i class="fa-solid fa-eye-slash text-[#0047FF] text-xl mt-1"></i>
-                            <div>
-                                <h4 class="text-white font-black uppercase text-sm tracking-tight">No Redirection</h4>
-                                <p class="text-white/40 text-xs mt-1">Stay in the world. No external tabs.</p>
+                            <div class="feature-card">
+                                <i class="fa-solid fa-location-dot text-[#0047FF] mb-3"></i>
+                                <h4 class="text-sm font-black uppercase">Location Identity</h4>
+                                <p class="text-[10px] text-white/50">Verified brand pills & location tags.</p>
                             </div>
-                        </li>
-                        <li class="flex gap-5">
-                            <i class="fa-solid fa-clone text-[#0047FF] text-xl mt-1"></i>
-                            <div>
-                                <h4 class="text-white font-black uppercase text-sm tracking-tight">Interactive Modals</h4>
-                                <p class="text-white/40 text-xs mt-1">Sleek pop-ups for variation choice.</p>
-                            </div>
-                        </li>
-                        <li class="flex gap-5">
-                            <i class="fa-solid fa-location-dot text-[#0047FF] text-xl mt-1"></i>
-                            <div>
-                                <h4 class="text-white font-black uppercase text-sm tracking-tight">Location Identity</h4>
-                                <p class="text-white/40 text-xs mt-1">Verified brand pills & location tags.</p>
-                            </div>
-                        </li>
-                    </ul>
+                            <div class="feature-card"><i class="fa-solid fa-mobile-screen text-[#0047FF] mb-3"></i><h4 class="text-sm font-black uppercase">App-Like Browsing</h4><p class="text-[10px] text-white/50">No slow loads. Swipe through categories.</p></div>
+                            <div class="feature-card"><i class="fa-solid fa-bolt text-[#0047FF] mb-3"></i><h4 class="text-sm font-black uppercase">1-Click Checkout</h4><p class="text-[10px] text-white/50">Frictionless path to purchase.</p></div>
+                        </div>
+                    </div>
                 </div>
             </div>
 
@@ -1246,23 +1253,24 @@
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
 
 <style>
-    /* 1. NEBULAR ENGINE GLOW (FIXED BACKGROUND) */
+    /* 1. CORE VIEWPORT & BACKGROUND */
     .crazy-results-viewport {
         background: #000;
         position: relative;
         overflow: hidden;
-        min-height: 120vh;
+        min-height: 100vh;
         display: flex;
+        flex-direction: column;
         align-items: center;
-        justify-content: center;
+        padding: 80px 20px;
     }
 
     .engine-core-glow {
         position: absolute;
         top: 50%;
         left: 50%;
-        width: 140vw;
-        height: 140vh;
+        width: 150vw;
+        height: 150vh;
         background: radial-gradient(circle at center, 
             rgba(0, 71, 255, 0.25) 0%, 
             rgba(0, 30, 150, 0.05) 40%, 
@@ -1272,46 +1280,52 @@
         mix-blend-mode: screen;
         animation: nebula-pulse 12s ease-in-out infinite;
         pointer-events: none;
+        z-index: 1;
     }
 
-    @keyframes nebula-pulse {
-        0%, 100% { transform: translate(-50%, -50%) scale(1); opacity: 0.6; }
-        50% { transform: translate(-50%, -50%) scale(1.15); opacity: 0.9; }
-    }
-
-    /* 2. 3D PERSPECTIVE SETUP */
-    .perspective-box {
+    /* 2. RESPONSIVE CONTAINER SYSTEM */
+    .perspective-stage {
         perspective: 2000px;
         transform-style: preserve-3d;
         width: 100%;
-        height: 800px;
+        max-width: 1200px;
         position: relative;
+        /* Mobile: Cards stack vertically */
+        display: flex;
+        flex-direction: column;
+        gap: 30px;
+        align-items: center;
+        z-index: 10;
     }
 
-    /* 3. CRAZY ORBITAL PHYSICS (AUTONOMOUS) */
-    @keyframes orbit-1 {
-        0%, 100% { transform: translate3d(0, 0, 100px) rotateY(15deg) rotateX(5deg); }
-        50% { transform: translate3d(50px, -40px, 0px) rotateY(-10deg) rotateX(-5deg); }
-    }
-    @keyframes orbit-2 {
-        0%, 100% { transform: translate3d(0, 0, 50px) rotateY(-20deg) rotateX(-10deg); }
-        50% { transform: translate3d(-60px, 50px, 150px) rotateY(10deg) rotateX(10deg); }
-    }
-    @keyframes orbit-3 {
-        0%, 100% { transform: translate3d(0, 0, 200px) rotateY(10deg) skewY(2deg); }
-        50% { transform: translate3d(30px, -20px, 50px) rotateY(-15deg) skewY(-2deg); }
-    }
-    @keyframes orbit-4 {
-        0%, 100% { transform: translate3d(0, 0, -50px) rotateZ(-12deg); }
-        50% { transform: translate3d(-40px, -60px, 50px) rotateZ(0deg) scale(1.1); }
+    /* Desktop: Switch back to Absolute Positioning */
+    @media (min-width: 1024px) {
+        .perspective-stage {
+            display: block;
+            height: 850px;
+        }
     }
 
-    .animate-orbit-1 { animation: orbit-1 12s ease-in-out infinite; }
-    .animate-orbit-2 { animation: orbit-2 15s ease-in-out infinite; }
-    .animate-orbit-3 { animation: orbit-3 10s ease-in-out infinite; }
-    .animate-orbit-4 { animation: orbit-4 18s ease-in-out infinite; }
+    /* 3. CARD BASE & SHIMMER */
+    .result-card-wrap {
+        position: relative;
+        width: 100%;
+        max-width: 400px;
+        transition: all 0.5s ease;
+    }
 
-    /* 4. LIQUID SHIMMER */
+    .glass-inner {
+        background: rgba(255, 255, 255, 0.03);
+        backdrop-filter: blur(20px);
+        -webkit-backdrop-filter: blur(20px);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        border-radius: 3rem;
+        padding: 40px;
+        height: 100%;
+        position: relative;
+        overflow: hidden;
+    }
+
     .shimmer-overlay {
         position: absolute;
         inset: 0;
@@ -1319,96 +1333,242 @@
         background-size: 200% 200%;
         animation: liquid-shimmer 6s infinite linear;
         pointer-events: none;
-        border-radius: inherit;
     }
 
-    @keyframes liquid-shimmer {
-        0% { background-position: -200% -200%; }
-        100% { background-position: 200% 200%; }
+    /* 4. ANIMATION & POSITIONING (DESKTOP ONLY) */
+    @media (min-width: 1024px) {
+        .pos-1 { position: absolute; top: 0; left: 5%; animation: orbit-1 12s ease-in-out infinite; }
+        .pos-2 { position: absolute; top: 10%; right: 5%; animation: orbit-2 15s ease-in-out infinite; }
+        .pos-3 { position: absolute; bottom: 5%; left: 10%; animation: orbit-3 10s ease-in-out infinite; }
+        .pos-4 { position: absolute; bottom: 15%; right: 10%; animation: orbit-4 18s ease-in-out infinite; }
     }
+
+    /* Subtler Float for Mobile */
+    @media (max-width: 1023px) {
+        .result-card-wrap {
+            animation: mobile-float 6s ease-in-out infinite;
+        }
+    }
+
+    @keyframes mobile-float {
+        0%, 100% { transform: translateY(0) rotateX(2deg); }
+        50% { transform: translateY(-15px) rotateX(-2deg); }
+    }
+
+    /* Standard Orbital Animations */
+    @keyframes orbit-1 { 0%, 100% { transform: translate3d(0,0,100px) rotateY(10deg); } 50% { transform: translate3d(30px,-20px,0) rotateY(-5deg); } }
+    @keyframes orbit-2 { 0%, 100% { transform: translate3d(0,0,50px) rotateY(-15deg); } 50% { transform: translate3d(-40px,40px,120px) rotateY(5deg); } }
+    @keyframes orbit-3 { 0%, 100% { transform: translate3d(0,0,150px) rotateY(8deg); } 50% { transform: translate3d(20px,-10px,30px) rotateY(-10deg); } }
+    @keyframes orbit-4 { 0%, 100% { transform: translate3d(0,0,-30px) rotateZ(-5deg); } 50% { transform: translate3d(-30px,-40px,40px) rotateZ(2deg); } }
+
+    @keyframes liquid-shimmer { 0% { background-position: -200% -200%; } 100% { background-position: 200% 200%; } }
+    @keyframes nebula-pulse { 0%, 100% { transform: translate(-50%, -50%) scale(1); opacity: 0.6; } 50% { transform: translate(-50%, -50%) scale(1.1); opacity: 0.8; } }
 </style>
 
 <section class="crazy-results-viewport">
-    
     <div class="engine-core-glow"></div>
-    <div class="absolute inset-0 opacity-10 pointer-events-none" style="background-image: url('https://grainy-gradients.vercel.app/noise.svg');"></div>
-    
-    <div class="absolute inset-0 pointer-events-none overflow-hidden">
-        <div class="absolute top-[10%] left-[5%] text-[#D9FF00] text-[10vw] font-black opacity-[0.03] italic">TRUST</div>
-        <div class="absolute bottom-[10%] right-[5%] text-white text-[10vw] font-black opacity-[0.02] italic">SOVEREIGN</div>
-    </div>
 
-    <div class="max-w-7xl w-full mx-auto relative z-10 px-6">
+    <div class="max-w-7xl w-full mx-auto relative z-20">
         
-        <div class="text-center mb-20">
-            <h2 class="text-7xl lg:text-9xl font-black tracking-tighter text-white uppercase italic leading-none">
-                CRAZY <br> <span class="text-[#D9FF00] drop-shadow-[0_0_30px_rgba(217,255,0,0.5)]">RESULTS.</span>
+        <div class="text-center mb-16 lg:mb-32">
+            <h2 class="text-5xl lg:text-9xl font-black tracking-tighter text-white uppercase italic leading-none">
+                CRAZY <br> <span class="text-[#D9FF00] drop-shadow-[0_0_20px_rgba(217,255,0,0.4)]">RESULTS.</span>
             </h2>
-            <p class="text-blue-500 font-black tracking-[0.5em] text-xs mt-6">REAL-TIME SECTOR INTELLIGENCE</p>
+            <p class="text-blue-500 font-black tracking-[0.4em] text-[10px] lg:text-xs mt-6">REAL-TIME SECTOR INTELLIGENCE</p>
         </div>
 
-        <div class="perspective-box">
+        <div class="perspective-stage">
             
-            <div class="absolute top-[0%] left-[5%] animate-orbit-1 z-30">
-                <div class="w-[350px] p-[2px] bg-gradient-to-br from-white/40 via-white/10 to-transparent rounded-[3rem] shadow-2xl backdrop-blur-sm">
-                    <div class="bg-black rounded-[2.9rem] p-10 relative overflow-hidden">
-                        <div class="shimmer-overlay"></div>
-                        <div class="absolute -right-4 -top-4 text-white/5 text-8xl italic font-black select-none">SALE</div>
-                        <div class="flex items-center gap-4 mb-6">
-                            <div class="w-12 h-12 rounded-full border-2 border-[#D9FF00] p-1">
-                                <img src="https://i.pravatar.cc/100?u=12" class="rounded-full grayscale">
-                            </div>
-                            <span class="text-white font-black italic uppercase text-sm tracking-widest">Streetwear Mogul</span>
-                        </div>
-                        <p class="text-xl text-white font-bold leading-tight italic">"The engine processed $40k in 1 hour. My customers are addicted to the swipe."</p>
-                        <div class="mt-8 flex justify-between items-center">
-                            <span class="h-1 w-20 bg-[#D9FF00]"></span>
-                            <span class="text-[10px] text-white/40 font-black uppercase">STORES: 12.4K SALES</span>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <div class="absolute top-[10%] right-[5%] animate-orbit-2 z-40">
-                <div class="w-[380px] bg-[#D9FF00] p-12 rounded-[4rem] shadow-[0_0_80px_rgba(217,255,0,0.2)] rotate-[-5deg] border-r-[15px] border-b-[15px] border-black/10 relative overflow-hidden">
-                    <div class="shimmer-overlay" style="opacity: 0.3;"></div>
-                    <div class="flex justify-between items-start mb-8">
-                        <i class="fa-solid fa-fire-burner text-4xl text-black"></i>
-                        <span class="bg-black text-white px-3 py-1 rounded-full text-[9px] font-black tracking-widest">9.8/10 SPEED</span>
-                    </div>
-                    <h3 class="text-3xl font-black text-black uppercase italic leading-none mb-4">Cloud Kitchen <br>Empire</h3>
-                    <p class="text-black font-bold text-lg leading-snug">"500 orders a day, 0 redirections. The conversion rate is pure insanity."</p>
-                </div>
-            </div>
-
-            <div class="absolute bottom-[5%] left-[10%] animate-orbit-3 z-50">
-                <div class="w-[320px] backdrop-blur-3xl bg-white/5 border border-white/10 p-10 rounded-[3rem] shadow-2xl skew-x-3 relative overflow-hidden">
+            <div class="result-card-wrap pos-1 z-30">
+                <div class="glass-inner">
                     <div class="shimmer-overlay"></div>
-                    <div class="flex gap-2 mb-6 text-[#0047FF]">
-                        <i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i>
+                    <div class="flex items-center gap-4 mb-6">
+                        <div class="w-10 h-10 rounded-full border border-[#D9FF00] p-1">
+                            <img src="https://i.pravatar.cc/100?u=12" class="rounded-full grayscale">
+                        </div>
+                        <span class="text-white font-black italic uppercase text-xs tracking-widest">Streetwear Mogul</span>
                     </div>
-                    <p class="text-white text-lg font-medium italic mb-6">"Finally feels like a 7-figure brand. The tactile UX is unmatched."</p>
-                    <div class="flex items-center gap-3">
-                        <div class="w-8 h-8 bg-[#0047FF] rounded-lg animate-pulse"></div>
-                        <span class="text-white/40 font-black uppercase text-[10px]">Elite Services</span>
-                    </div>
+                    <p class="text-lg lg:text-xl text-white font-bold italic leading-tight">"The engine processed $40k in 1 hour. My customers are addicted to the swipe."</p>
                 </div>
             </div>
 
-            <div class="absolute bottom-[15%] right-[10%] animate-orbit-4 z-20">
-                <div class="w-[300px] bg-[#0047FF] p-8 rounded-[2.5rem] shadow-2xl -rotate-12 border-l-8 border-black/20 relative overflow-hidden">
+            <div class="result-card-wrap pos-2 z-40">
+                <div class="bg-[#D9FF00] p-10 lg:p-12 rounded-[3rem] lg:rounded-[4rem] shadow-2xl relative overflow-hidden border-b-8 border-r-8 border-black/10">
+                    <div class="shimmer-overlay" style="opacity: 0.2;"></div>
+                    <i class="fa-solid fa-fire-burner text-3xl text-black mb-6"></i>
+                    <h3 class="text-2xl lg:text-3xl font-black text-black uppercase italic leading-none mb-4">Cloud Kitchen</h3>
+                    <p class="text-black font-bold text-base lg:text-lg">"500 orders a day, 0 redirections. Conversion is pure insanity."</p>
+                </div>
+            </div>
+
+            <div class="result-card-wrap pos-3 z-50">
+                <div class="glass-inner skew-x-1 lg:skew-x-3">
                     <div class="shimmer-overlay"></div>
-                    <i class="fa-solid fa-bolt text-4xl text-white mb-4"></i>
-                    <p class="text-white font-black text-xl italic uppercase tracking-tighter leading-tight">"It's not a platform, it's a cheat code for sales."</p>
-                    <p class="text-white/40 text-[9px] font-black mt-6 tracking-widest uppercase">Chef Rafael — Ghost Kitchen NY</p>
+                    <div class="flex gap-1 mb-4 text-[#0047FF]">
+                        <i class="fa-solid fa-star text-xs"></i><i class="fa-solid fa-star text-xs"></i><i class="fa-solid fa-star text-xs"></i><i class="fa-solid fa-star text-xs"></i><i class="fa-solid fa-star text-xs"></i>
+                    </div>
+                    <p class="text-white text-base lg:text-lg font-medium italic">"The tactile UX is unmatched. Finally feels like a 7-figure brand."</p>
+                </div>
+            </div>
+
+            <div class="result-card-wrap pos-4 z-20">
+                <div class="bg-[#0047FF] p-8 lg:p-10 rounded-[2.5rem] shadow-2xl relative overflow-hidden">
+                    <div class="shimmer-overlay"></div>
+                    <i class="fa-solid fa-bolt text-3xl text-white mb-4"></i>
+                    <p class="text-white font-black text-lg lg:text-xl italic uppercase tracking-tighter leading-tight">"It's not a platform, it's a cheat code for sales."</p>
                 </div>
             </div>
 
         </div>
     </div>
 </section>
+<style>
+    /* 1. FOOTER ARCHITECTURE */
+    .engine-footer {
+        background: #000;
+        position: relative;
+        padding: 100px 20px 40px;
+        overflow: hidden;
+        border-top: 1px solid rgba(255, 255, 255, 0.05);
+    }
 
-</body>
-</html>
-</html>
+    /* Subtle glow carry-over */
+    .footer-glow {
+        position: absolute;
+        top: -200px;
+        left: 50%;
+        width: 80vw;
+        height: 400px;
+        background: radial-gradient(circle, rgba(0, 71, 255, 0.15) 0%, transparent 70%);
+        transform: translateX(-50%);
+        filter: blur(80px);
+        pointer-events: none;
+    }
 
+    /* 2. INTERACTIVE LINKS */
+    .footer-link {
+        color: rgba(255, 255, 255, 0.4);
+        font-weight: 800;
+        text-transform: uppercase;
+        font-size: 11px;
+        letter-spacing: 0.2em;
+        transition: all 0.3s ease;
+        text-decoration: none;
+        display: block;
+        margin-bottom: 12px;
+    }
+
+    .footer-link:hover {
+        color: #D9FF00;
+        transform: translateX(8px);
+    }
+
+    /* 3. SOCIAL ICONS */
+    .social-pill {
+        width: 45px;
+        height: 45px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: rgba(255, 255, 255, 0.03);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        border-radius: 12px;
+        color: white;
+        transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    }
+
+    .social-pill:hover {
+        background: #0047FF;
+        border-color: #0047FF;
+        transform: translateY(-5px) rotate(8deg);
+        box-shadow: 0 10px 20px rgba(0, 71, 255, 0.3);
+    }
+
+    /* 4. STATUS INDICATOR */
+    .status-badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 10px;
+        background: rgba(217, 255, 0, 0.05);
+        border: 1px solid rgba(217, 255, 0, 0.1);
+        padding: 8px 16px;
+        border-radius: 100px;
+    }
+
+    .dot-pulse {
+        width: 8px;
+        height: 8px;
+        background: #D9FF00;
+        border-radius: 50%;
+        box-shadow: 0 0 10px #D9FF00;
+        animation: pulse-green 2s infinite;
+    }
+
+    @keyframes pulse-green {
+        0% { transform: scale(0.95); opacity: 0.5; }
+        50% { transform: scale(1.2); opacity: 1; }
+        100% { transform: scale(0.95); opacity: 0.5; }
+    }
+</style>
+
+<footer class="engine-footer">
+    <div class="footer-glow"></div>
+
+    <div class="max-w-7xl mx-auto">
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-16 mb-24">
+            
+            <div class="space-y-8">
+                <h2 class="text-3xl font-black text-white italic tracking-tighter">
+                    THE ENGINE<span class="text-[#D9FF00]">.</span>
+                </h2>
+                <p class="text-white/30 text-sm leading-relaxed font-bold uppercase tracking-tight">
+                    The world's most aggressive commerce infrastructure. Built for those who demand 100% uptime and insane conversion.
+                </p>
+                <div class="status-badge">
+                    <div class="dot-pulse"></div>
+                    <span class="text-[#D9FF00] text-[10px] font-black uppercase tracking-[0.2em]">All Systems Operational</span>
+                </div>
+            </div>
+
+            <div>
+                <h4 class="text-white text-xs font-black uppercase tracking-[0.4em] mb-8">Infrastructure</h4>
+                <a href="#" class="footer-link">The Core</a>
+                <a href="#" class="footer-link">Scalability</a>
+                <a href="#" class="footer-link">Global Nodes</a>
+                <a href="#" class="footer-link">Merchant API</a>
+            </div>
+
+            <div>
+                <h4 class="text-white text-xs font-black uppercase tracking-[0.4em] mb-8">Intelligence</h4>
+                <a href="#" class="footer-link">Case Studies</a>
+                <a href="#" class="footer-link">Documentation</a>
+                <a href="#" class="footer-link">System Status</a>
+                <a href="#" class="footer-link">Privacy Protocol</a>
+            </div>
+
+            <div class="space-y-8">
+                <h4 class="text-white text-xs font-black uppercase tracking-[0.4em]">Connect with the Core</h4>
+                <div class="flex gap-4">
+                    <a href="#" class="social-pill"><i class="fa-brands fa-x-twitter"></i></a>
+                    <a href="#" class="social-pill"><i class="fa-brands fa-instagram"></i></a>
+                    <a href="#" class="social-pill"><i class="fa-brands fa-discord"></i></a>
+                    <a href="#" class="social-pill"><i class="fa-brands fa-linkedin-in"></i></a>
+                </div>
+                <div class="pt-4">
+                    <p class="text-white/20 text-[10px] font-bold uppercase tracking-widest">Headquarters</p>
+                    <p class="text-white/60 text-xs font-black italic mt-1">india</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="pt-10 border-t border-white/5 flex flex-col md:flex-row justify-between items-center gap-6">
+            <p class="text-white/10 text-[9px] font-black uppercase tracking-[0.5em]">
+                &copy; 2026 ENGINE TECHNOLOGIES INC. ALL RIGHTS RESERVED.
+            </p>
+            <div class="flex gap-8">
+                <span class="text-white/10 text-[9px] font-black uppercase tracking-widest">SECURE DATA ENCRYPTION</span>
+                <span class="text-white/10 text-[9px] font-black uppercase tracking-widest">ISO 27001 CERTIFIED</span>
+            </div>
+        </div>
+    </div>
+</footer>
