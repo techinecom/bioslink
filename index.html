@@ -189,17 +189,62 @@
         </div>
     </main>
 
-    <script>
-        // --- TRANSITION SYSTEM ---
-        function triggerTransition(url) {
+ <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+        import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+        import { getFirestore, doc, getDoc } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyDMm_iqFWeU_jv_y-tHhRA-lZhy5PosQnI",
+            authDomain: "seller-bio.firebaseapp.com",
+            projectId: "seller-bio",
+            storageBucket: "seller-bio.firebasestorage.app",
+            messagingSenderId: "319004958530",
+            appId: "1:319004958530:web:6ba52f7ec5cb06e34872db"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const db = getFirestore(app);
+
+        // --- SMART TRANSITION SYSTEM ---
+        window.triggerTransition = (url) => {
             const loader = document.getElementById('loader-wrapper');
             const status = document.getElementById('status-text');
+            
             loader.style.display = 'flex';
             loader.style.opacity = '1';
-            status.innerText = "INITIALIZING PORTAL...";
-            setTimeout(() => { window.location.href = url; }, 1200);
-        }
+            status.innerText = "SCANNING BIOMETRICS...";
 
+            // Check if user is already logged in
+            const unsubscribe = onAuthStateChanged(auth, async (user) => {
+                unsubscribe(); // Prevent memory leaks
+
+                if (user) {
+                    status.innerText = "SESSION FOUND: SYNCING...";
+                    try {
+                        const docRef = doc(db, "merchants", user.uid);
+                        const docSnap = await getDoc(docRef);
+
+                        if (docSnap.exists()) {
+                            // User exists + Profile exists -> Dashboard
+                            setTimeout(() => { window.location.href = 'dashboard.html'; }, 1000);
+                        } else {
+                            // User exists but Profile incomplete -> Onboarding
+                            setTimeout(() => { window.location.href = 'onboarding.html'; }, 1000);
+                        }
+                    } catch (e) {
+                        window.location.href = url; // Fallback to login page
+                    }
+                } else {
+                    // No user logged in -> Go to Login Page
+                    status.innerText = "REDIRECTING TO TERMINAL...";
+                    setTimeout(() => { window.location.href = url; }, 1000);
+                }
+            });
+        };
+
+        // --- PAGE INITIALIZATION ---
         window.addEventListener('load', () => {
             setTimeout(() => {
                 const loader = document.getElementById('loader-wrapper');
@@ -209,7 +254,7 @@
         });
 
         // --- NAVIGATION & MENU ---
-        function toggleMenu() {
+        window.toggleMenu = () => {
             const overlay = document.getElementById('mobile-overlay');
             if (overlay.classList.contains('hidden')) {
                 overlay.classList.replace('hidden', 'flex');
@@ -218,7 +263,7 @@
                 overlay.classList.replace('flex', 'hidden');
                 document.body.style.overflow = 'auto';
             }
-        }
+        };
 
         const nav = document.getElementById('main-nav');
         window.addEventListener('scroll', () => {
@@ -280,6 +325,7 @@
         ];
 
         function createOrder() {
+            if(!feed) return;
             const p = platforms[Math.floor(Math.random() * platforms.length)];
             const amt = Math.floor(Math.random() * 1500) + 400;
             const n = document.createElement('div');
@@ -294,8 +340,6 @@
         }
         setInterval(createOrder, 3500);
     </script>
-</body>
-</html>
     <script>
         // --- High Opacity Ribbon with Responsive Sizing ---
         const canvas = document.getElementById('ribbon-canvas');
