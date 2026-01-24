@@ -26,23 +26,20 @@
         .scene3d { position: relative; width: 150px; height: 150px; transform-style: preserve-3d; }
         .orbit-ring { position: absolute; inset: 0; border: 2px solid rgba(217, 255, 0, 0.1); border-top: 2px solid var(--lime); border-radius: 50%; animation: rotate3d 1.5s linear infinite; }
         .core-glow { position: absolute; inset: 50px; background: var(--lime); border-radius: 50%; box-shadow: 0 0 30px var(--lime); }
+        .loading-status { position: absolute; bottom: -40px; color: white; font-size: 10px; width: 200px; text-align: center; font-weight: 800; letter-spacing: 2px; }
         @keyframes rotate3d { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
 
         /* --- MASTER GRID CONTAINER --- */
         .master-container {
             width: 100%; max-width: 1100px; display: grid;
-            grid-template-columns: 1fr 1fr; /* 2 Column Grid */
+            grid-template-columns: 1fr 1fr;
             background: var(--white); border-radius: 2rem; overflow: hidden;
             box-shadow: 0 40px 100px -20px rgba(0, 0, 0, 0.15);
         }
 
-        /* LEFT SIDE: AUTH */
-        .auth-section { 
-            padding: 60px; display: flex; flex-direction: column; justify-content: center; 
-            border-right: 1px solid #f0f0f0;
-        }
-        .logo { font-weight: 800; font-size: 22px; color: var(--blue); margin-bottom: 40px; }
-        .logo span { color: #000; font-weight: 400; font-size: 10px; letter-spacing: 2px; margin-left: 5px; }
+        .auth-section { padding: 60px; display: flex; flex-direction: column; justify-content: center; border-right: 1px solid #f0f0f0; }
+        .logo { font-weight: 800; font-size: 22px; color: var(--blue); margin-bottom: 40px; font-style: italic; }
+        .logo span { color: #000; font-weight: 400; font-size: 10px; letter-spacing: 2px; margin-left: 5px; font-style: normal; }
         h2 { font-size: 38px; font-weight: 800; letter-spacing: -1.5px; margin-bottom: 10px; }
         .subtitle { color: #64748b; margin-bottom: 35px; font-size: 15px; }
 
@@ -52,59 +49,33 @@
             background: transparent; cursor: pointer; display: flex; align-items: center;
             justify-content: center; gap: 10px; font-weight: 700; font-size: 14px; transition: 0.3s;
         }
-        .btn-alt:hover { background: #f8faff; border-color: var(--blue); }
 
         .input-wrap { margin-bottom: 12px; }
         .input-wrap input {
             width: 100%; padding: 18px; border-radius: 12px; border: 1.5px solid #E2E8F0;
             background: #F8FAFC; font-weight: 600; font-size: 15px; outline: none;
         }
-        .input-wrap input:focus { border-color: var(--blue); background: #fff; }
 
         .btn-primary {
             width: 100%; padding: 20px; border-radius: 12px; border: none; background: var(--blue);
             color: var(--white); font-weight: 800; cursor: pointer; transition: 0.4s;
-            box-shadow: 0 10px 20px rgba(0, 71, 255, 0.2); font-size: 16px; margin-top: 10px;
+            font-size: 16px; margin-top: 10px;
         }
-        .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 15px 30px rgba(0, 71, 255, 0.3); }
 
-        /* RIGHT SIDE: VISUAL */
-        .visual-section { 
-            background: #000; display: flex; align-items: center; justify-content: center; 
-            padding: 40px; position: relative; overflow: hidden;
-        }
-        .visual-section::before {
-            content: ''; position: absolute; width: 150%; height: 150%;
-            background: radial-gradient(circle, var(--blue) 0%, transparent 60%);
-            opacity: 0.2; animation: drift 10s infinite linear;
-        }
-        @keyframes drift { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
-
-        /* THE PHONE CARD */
-        .phone-card {
-            width: 280px; height: 550px; background: #111; border-radius: 3rem;
-            border: 10px solid #222; position: relative; z-index: 2;
-            overflow: hidden; box-shadow: 0 50px 80px rgba(0,0,0,0.5);
-            animation: float 5s ease-in-out infinite;
-        }
+        .visual-section { background: #000; display: flex; align-items: center; justify-content: center; padding: 40px; position: relative; overflow: hidden; }
+        .phone-card { width: 280px; height: 550px; background: #111; border-radius: 3rem; border: 10px solid #222; position: relative; z-index: 2; overflow: hidden; animation: float 5s ease-in-out infinite; }
         @keyframes float { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-15px); } }
-
+        
         .phone-screen { height: 100%; width: 300%; display: flex; animation: slide 12s infinite cubic-bezier(0.8, 0, 0.2, 1); }
         .page { width: 33.33%; height: 100%; padding: 60px 25px; display: flex; flex-direction: column; align-items: center; text-align: center; color: white; }
         .page i { font-size: 50px; margin-bottom: 20px; color: var(--lime); }
-        .page h3 { font-size: 24px; font-weight: 800; margin-bottom: 12px; }
-        .page p { font-size: 13px; opacity: 0.7; line-height: 1.6; }
-        .pill { padding: 6px 15px; border-radius: 20px; font-size: 10px; font-weight: 800; margin-bottom: 20px; background: rgba(255,255,255,0.1); }
 
         @keyframes slide { 0%, 28% { transform: translateX(0); } 33%, 61% { transform: translateX(-33.33%); } 66%, 94% { transform: translateX(-66.66%); } 100% { transform: translateX(0); } }
 
-        /* RESPONSIVE */
         @media (max-width: 900px) {
             .master-container { grid-template-columns: 1fr; max-width: 450px; }
-            .visual-section { order: -1; height: 400px; }
-            .phone-card { width: 200px; height: 400px; border-width: 6px; border-radius: 2rem; }
+            .visual-section { display: none; }
             .auth-section { padding: 40px 30px; }
-            h2 { font-size: 30px; }
         }
     </style>
 </head>
@@ -114,6 +85,7 @@
     <div class="scene3d">
         <div class="orbit-ring"></div>
         <div class="core-glow"></div>
+        <div class="loading-status" id="status-text">SYSTEM READY</div>
     </div>
 </div>
 
@@ -132,8 +104,8 @@
             </button>
         </div>
 
-        <div class="input-wrap"><input type="text" placeholder="Access ID"></div>
-        <div class="input-wrap"><input type="password" placeholder="Passkey"></div>
+        <div class="input-wrap"><input type="text" id="email" placeholder="Access ID (Email)"></div>
+        <div class="input-wrap"><input type="password" id="password" placeholder="Passkey"></div>
         
         <button class="btn-primary" id="loginBtn">INITIATE SESSION</button>
 
@@ -147,22 +119,19 @@
         <div class="phone-card">
             <div class="phone-screen">
                 <div class="page" style="background: #0047FF;">
-                    <span class="pill">RETAIL MODE</span>
                     <i class="fa-solid fa-shop"></i>
                     <h3>Smart Shop</h3>
-                    <p>Automated inventory sync and direct consumer checkout.</p>
+                    <p>Automated inventory sync.</p>
                 </div>
                 <div class="page" style="background: #000;">
-                    <span class="pill">KITCHEN MODE</span>
                     <i class="fa-solid fa-fire-burner"></i>
                     <h3>Cloud Kitchen</h3>
-                    <p>Manage orders, live menus, and local delivery routing.</p>
+                    <p>Manage live menus.</p>
                 </div>
                 <div class="page" style="background: #D9FF00; color: #000;">
-                    <span class="pill" style="background: rgba(0,0,0,0.1);">EVENT MODE</span>
                     <i class="fa-solid fa-ticket" style="color: #000;"></i>
-                    <h3 style="color: #000;">Ticket Hub</h3>
-                    <p style="color: #000;">Instant QR ticketing and guest gate management.</p>
+                    <h3 style="color: #000;">Event Hub</h3>
+                    <p style="color: #000;">Instant QR ticketing.</p>
                 </div>
             </div>
         </div>
@@ -170,8 +139,28 @@
 </div>
 
 <script type="module">
-    // Firebase implementation logic remains the same as your previous version
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+    import { getAuth, signInWithPopup, GoogleAuthProvider, OAuthProvider, signInWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+    import { getFirestore, doc, getDoc } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+
+    // YOUR FIREBASE CONFIG
+    const firebaseConfig = {
+        apiKey: "AIzaSyDMm_iqFWeU_jv_y-tHhRA-lZhy5PosQnI",
+        authDomain: "seller-bio.firebaseapp.com",
+        projectId: "seller-bio",
+        storageBucket: "seller-bio.firebasestorage.app",
+        messagingSenderId: "319004958530",
+        appId: "1:319004958530:web:6ba52f7ec5cb06e34872db"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+    const db = getFirestore(app);
+
     const loader = document.getElementById('loader-wrapper');
+    const statusText = document.getElementById('status-text');
+
+    // UI LOADER
     window.addEventListener('load', () => {
         setTimeout(() => {
             loader.style.opacity = '0';
@@ -179,12 +168,58 @@
         }, 800);
     });
 
-    // Add click event for the primary login button to trigger the same loader logic
-    document.getElementById('loginBtn').onclick = () => {
+    async function handlePostAuth(user) {
+        statusText.innerText = "VERIFYING IDENTITY...";
+        try {
+            const docRef = doc(db, "merchants", user.uid);
+            const docSnap = await getDoc(docRef);
+            
+            if (docSnap.exists()) {
+                statusText.innerText = "ACCESS GRANTED";
+                window.location.href = 'dashboard.html';
+            } else {
+                statusText.innerText = "NEW USER DETECTED";
+                window.location.href = 'onboarding.html';
+            }
+        } catch (error) {
+            console.error(error);
+            window.location.href = 'onboarding.html';
+        }
+    }
+
+    // SOCIAL LOGIN: GOOGLE
+    document.getElementById('googleLogin').onclick = async () => {
+        const provider = new GoogleAuthProvider();
         loader.style.display = 'flex';
         loader.style.opacity = '1';
-        // Simulate Redirect
-        setTimeout(() => { window.location.href = 'onboarding.html'; }, 1500);
+        statusText.innerText = "CONTACTING GOOGLE...";
+        try {
+            const result = await signInWithPopup(auth, provider);
+            handlePostAuth(result.user);
+        } catch (error) {
+            alert(error.message);
+            loader.style.display = 'none';
+        }
+    };
+
+    // EMAIL LOGIN
+    document.getElementById('loginBtn').onclick = async () => {
+        const email = document.getElementById('email').value;
+        const password = document.getElementById('password').value;
+        
+        if(!email || !password) return alert("Please fill all fields");
+
+        loader.style.display = 'flex';
+        loader.style.opacity = '1';
+        statusText.innerText = "AUTHENTICATING...";
+        
+        try {
+            const result = await signInWithEmailAndPassword(auth, email, password);
+            handlePostAuth(result.user);
+        } catch (error) {
+            alert("Login Failed: " + error.message);
+            loader.style.display = 'none';
+        }
     };
 </script>
 
