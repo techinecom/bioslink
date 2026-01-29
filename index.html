@@ -190,58 +190,48 @@
     </main>
 
  <script type="module">
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-        import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
-        import { getFirestore, doc, getDoc } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
-
-        const firebaseConfig = {
-            apiKey: "AIzaSyDMm_iqFWeU_jv_y-tHhRA-lZhy5PosQnI",
-            authDomain: "seller-bio.firebaseapp.com",
-            projectId: "seller-bio",
-            storageBucket: "seller-bio.firebasestorage.app",
-            messagingSenderId: "319004958530",
-            appId: "1:319004958530:web:6ba52f7ec5cb06e34872db"
-        };
-
-        const app = initializeApp(firebaseConfig);
-        const auth = getAuth(app);
-        const db = getFirestore(app);
+        // --- SUPABASE SETUP ---
+        const SUPABASE_URL = 'https://rujozgysdnaxlpqadqff.supabase.co';
+        const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InJ1am96Z3lzZG5heGxwcWFkcWZmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Njk0OTY1MTUsImV4cCI6MjA4NTA3MjUxNX0.zi4FwC0xfq0brTrYs3i18rwO3hbFeVhDBq6TpLQCyVs';
+        const _supabase = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
         // --- SMART TRANSITION SYSTEM ---
-        window.triggerTransition = (url) => {
+        window.triggerTransition = async (targetUrl) => {
             const loader = document.getElementById('loader-wrapper');
             const status = document.getElementById('status-text');
             
             loader.style.display = 'flex';
-            loader.style.opacity = '1';
+            // Slight delay to allow display flex to apply before opacity transition
+            setTimeout(() => { loader.style.opacity = '1'; }, 10);
             status.innerText = "SCANNING BIOMETRICS...";
 
-            // Check if user is already logged in
-            const unsubscribe = onAuthStateChanged(auth, async (user) => {
-                unsubscribe(); // Prevent memory leaks
+            try {
+                // Check if user is already logged in
+                const { data: { session } } = await _supabase.auth.getSession();
 
-                if (user) {
+                if (session) {
                     status.innerText = "SESSION FOUND: SYNCING...";
-                    try {
-                        const docRef = doc(db, "merchants", user.uid);
-                        const docSnap = await getDoc(docRef);
+                    
+                    // Check if they have a profile (to decide if they go to dashboard or onboarding)
+                    const { data: profile } = await _supabase.from('profiles').select('*').eq('id', session.user.id).single();
 
-                        if (docSnap.exists()) {
-                            // User exists + Profile exists -> Dashboard
-                            setTimeout(() => { window.location.href = 'dashboard.html'; }, 1000);
-                        } else {
-                            // User exists but Profile incomplete -> Onboarding
-                            setTimeout(() => { window.location.href = 'onboarding.html'; }, 1000);
-                        }
-                    } catch (e) {
-                        window.location.href = url; // Fallback to login page
+                    if (profile && profile.store_name) {
+                        // Profile complete -> Dashboard
+                        setTimeout(() => { window.location.href = 'dashboard.html'; }, 1000);
+                    } else {
+                        // User logged in but no profile -> Onboarding
+                        setTimeout(() => { window.location.href = 'onboarding.html'; }, 1000);
                     }
                 } else {
-                    // No user logged in -> Go to Login Page
+                    // No user logged in -> Go to Login Page (biostorelogin.html)
                     status.innerText = "REDIRECTING TO TERMINAL...";
-                    setTimeout(() => { window.location.href = url; }, 1000);
+                    setTimeout(() => { window.location.href = targetUrl; }, 1000);
                 }
-            });
+            } catch (error) {
+                console.error("Auth Check Error:", error);
+                // Fallback to login page on error
+                window.location.href = targetUrl;
+            }
         };
 
         // --- PAGE INITIALIZATION ---
