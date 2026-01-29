@@ -6,6 +6,9 @@
     <title>BiosSTORE | Terminal</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;500;700;800&display=swap');
         
@@ -31,15 +34,16 @@
             padding: 30px; 
             transition: all 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275); cursor: pointer;
             backdrop-filter: blur(20px); display: flex; flex-direction: column;
-            position: relative;
+            position: relative; min-height: 240px;
         }
         .atm-card:hover:not(.locked) {
             transform: translateY(-12px) rotateX(10deg) rotateY(-5deg); border-color: var(--lime);
             box-shadow: 0 40px 80px rgba(0,0,0,0.8), 0 0 30px rgba(217, 255, 0, 0.1);
         }
 
-        .locked { border-color: rgba(255, 214, 0, 0.1); opacity: 0.4; cursor: not-allowed; filter: grayscale(1); }
-        .locked-tag { font-size: 8px; font-weight: 900; background: var(--yellow); color: #000; padding: 3px 10px; border-radius: 4px; position: absolute; top: 20px; right: 20px; }
+        .locked { border-color: rgba(255, 214, 0, 0.1); opacity: 0.5; cursor: not-allowed; filter: grayscale(1); }
+        .locked:hover { transform: none; box-shadow: none; border-color: rgba(255, 214, 0, 0.1); }
+        .locked-tag { font-size: 8px; font-weight: 900; background: var(--yellow); color: #000; padding: 4px 12px; border-radius: 4px; position: absolute; top: 20px; right: 20px; letter-spacing: 1px; }
 
         .step-view { display: none; width: 100%; max-width: 1200px; margin: 0 auto; padding: 20px; }
         .step-view.active { display: block; animation: slideIn 0.5s ease-out forwards; }
@@ -50,9 +54,6 @@
             padding: 20px; border-radius: 18px; color: #fff; outline: none; transition: 0.3s;
         }
         .cyber-input:focus { border-color: var(--blue); background: rgba(255,255,255,0.1); }
-
-        .feature-item { font-size: 14px; color: rgba(255,255,255,0.6); display: flex; align-items: center; gap: 12px; margin-bottom: 10px; }
-        .feature-item i { color: var(--lime); }
         
         #sync-overlay {
             display: none; position: fixed; inset: 0; background: #000; z-index: 9999;
@@ -74,26 +75,55 @@
             <h1 class="text-5xl md:text-7xl font-black tracking-tighter uppercase italic">Initialize <span class="text-lime">Sector</span></h1>
             <p class="text-white/30 text-[10px] uppercase tracking-[0.4em] mt-4">Select operational module to begin</p>
         </div>
-        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
-            <div class="atm-card" onclick="next(2, 'SELLER')">
-                <div class="w-10 h-6 bg-white/10 rounded-md mb-8"></div>
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+            
+            <div class="atm-card group" onclick="next(2, 'SELLER')">
+                <div class="w-10 h-6 bg-white/10 rounded-md mb-8 group-hover:bg-lime transition-colors"></div>
                 <i class="fa-solid fa-shop text-4xl mb-4 text-lime"></i>
                 <h3 class="text-2xl font-black uppercase italic">Seller</h3>
                 <p class="text-[9px] opacity-40 uppercase tracking-widest mt-auto">Hardware: Active</p>
             </div>
-            <div class="atm-card" onclick="next(2, 'KITCHEN')">
-                <div class="w-10 h-6 bg-white/10 rounded-md mb-8"></div>
-                <i class="fa-solid fa-fire-burner text-4xl mb-4 text-lime"></i>
-                <h3 class="text-2xl font-black uppercase italic">Kitchen</h3>
-                <p class="text-[9px] opacity-40 uppercase tracking-widest mt-auto">Hardware: Active</p>
-            </div>
-            <div class="atm-card" onclick="next(2, 'EVENTS')">
-                <div class="w-10 h-6 bg-white/10 rounded-md mb-8"></div>
+
+            <div class="atm-card group" onclick="next(2, 'EVENTS')">
+                <div class="w-10 h-6 bg-white/10 rounded-md mb-8 group-hover:bg-lime transition-colors"></div>
                 <i class="fa-solid fa-ticket text-4xl mb-4 text-lime"></i>
                 <h3 class="text-2xl font-black uppercase italic">Events</h3>
                 <p class="text-[9px] opacity-40 uppercase tracking-widest mt-auto">Hardware: Active</p>
             </div>
+
+            <div class="atm-card locked">
+                <span class="locked-tag">COMING SOON</span>
+                <div class="w-10 h-6 bg-white/5 rounded-md mb-8"></div>
+                <i class="fa-solid fa-fire-burner text-4xl mb-4 text-gray-500"></i>
+                <h3 class="text-2xl font-black uppercase italic text-gray-500">Kitchen</h3>
+                <p class="text-[9px] opacity-20 uppercase tracking-widest mt-auto">Hardware: Offline</p>
             </div>
+
+            <div class="atm-card locked">
+                <span class="locked-tag">COMING SOON</span>
+                <div class="w-10 h-6 bg-white/5 rounded-md mb-8"></div>
+                <i class="fa-solid fa-wand-magic-sparkles text-4xl mb-4 text-gray-500"></i>
+                <h3 class="text-2xl font-black uppercase italic text-gray-500">Creators</h3>
+                <p class="text-[9px] opacity-20 uppercase tracking-widest mt-auto">Hardware: Offline</p>
+            </div>
+
+            <div class="atm-card locked">
+                <span class="locked-tag">COMING SOON</span>
+                <div class="w-10 h-6 bg-white/5 rounded-md mb-8"></div>
+                <i class="fa-solid fa-briefcase text-4xl mb-4 text-gray-500"></i>
+                <h3 class="text-2xl font-black uppercase italic text-gray-500">Consultant</h3>
+                <p class="text-[9px] opacity-20 uppercase tracking-widest mt-auto">Hardware: Offline</p>
+            </div>
+
+            <div class="atm-card locked">
+                <span class="locked-tag">COMING SOON</span>
+                <div class="w-10 h-6 bg-white/5 rounded-md mb-8"></div>
+                <i class="fa-solid fa-handshake text-4xl mb-4 text-gray-500"></i>
+                <h3 class="text-2xl font-black uppercase italic text-gray-500">Services</h3>
+                <p class="text-[9px] opacity-20 uppercase tracking-widest mt-auto">Hardware: Offline</p>
+            </div>
+
+        </div>
     </div>
 
     <div id="step-2" class="step-view max-w-xl">
@@ -128,17 +158,17 @@
             <h1 class="text-5xl md:text-7xl font-black tracking-tighter uppercase italic text-lime">Choose <span class="text-white">Plan</span></h1>
         </div>
         <div class="grid grid-cols-1 lg:grid-cols-3 gap-10">
-            <div class="atm-card border-white/10 min-h-[550px]" onclick="saveToFirebase('FREE')">
+            <div class="atm-card border-white/10 min-h-[550px]" onclick="saveToSupabase('FREE')">
                 <h3 class="text-4xl font-black mb-2 uppercase italic text-white/40">Free</h3>
                 <div class="text-7xl font-black">₹0</div>
                 <button class="w-full py-5 rounded-2xl border border-white/20 font-black uppercase text-xs mt-auto">Select Basic</button>
             </div>
-            <div class="atm-card border-blue-600 bg-blue-600/10 min-h-[550px] scale-105" onclick="saveToFirebase('BASIC')">
+            <div class="atm-card border-blue-600 bg-blue-600/10 min-h-[550px] scale-105" onclick="saveToSupabase('BASIC')">
                 <h3 class="text-4xl font-black mb-2 uppercase italic text-blue-400">Basic</h3>
                 <div class="text-7xl font-black">₹999</div>
                 <button class="w-full py-5 rounded-2xl bg-blue-600 font-black uppercase text-xs mt-auto">Select Growth</button>
             </div>
-            <div class="atm-card border-lime min-h-[550px]" onclick="saveToFirebase('ELITE')">
+            <div class="atm-card border-lime min-h-[550px]" onclick="saveToSupabase('ELITE')">
                 <h3 class="text-4xl font-black mb-2 uppercase italic text-lime">Elite</h3>
                 <div class="text-7xl font-black">₹2499</div>
                 <button class="w-full py-5 rounded-2xl bg-lime text-black font-black uppercase text-xs mt-auto">Select Elite</button>
@@ -146,44 +176,34 @@
         </div>
     </div>
 
-    <script type="module">
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-        import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
-        import { getFirestore, doc, setDoc } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
-
-        const firebaseConfig = {
-            apiKey: "AIzaSyDMm_iqFWeU_jv_y-tHhRA-lZhy5PosQnI",
-            authDomain: "seller-bio.firebaseapp.com",
-            projectId: "seller-bio",
-            storageBucket: "seller-bio.firebasestorage.app",
-            messagingSenderId: "319004958530",
-            appId: "1:319004958530:web:6ba52f7ec5cb06e34872db"
-        };
-
-        const app = initializeApp(firebaseConfig);
-        const db = getFirestore(app);
-        const auth = getAuth(app);
+    <script>
+        // 1. Initialize Supabase
+        const SUPABASE_URL = 'https://rujozgysdnaxlpqadqff.supabase.co';
+        const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InJ1am96Z3lzZG5heGxwcWFkcWZmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Njk0OTY1MTUsImV4cCI6MjA4NTA3MjUxNX0.zi4FwC0xfq0brTrYs3i18rwO3hbFeVhDBq6TpLQCyVs';
+        const _supabase = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
         let merchantData = { sector: '', storeName: '', description: '', address: '', plan: '', uid: '' };
 
-        // --- AUTH CHECK ONCE ---
-        onAuthStateChanged(auth, (user) => {
-            if (!user) {
+        // 2. Auth Check
+        async function checkAuth() {
+            const { data: { session } } = await _supabase.auth.getSession();
+            if (!session) {
                 window.location.href = 'biostorelogin.html';
             } else {
-                merchantData.uid = user.uid;
-                // Initialize history state
+                merchantData.uid = session.user.id;
+                // Initialize history
                 if(!history.state) {
                     history.replaceState({ step: 1 }, "Step 1", "#step1");
                 }
             }
-        });
+        }
+        checkAuth();
 
-        // --- NAVIGATION ENGINE ---
+        // 3. Navigation Engine
         window.next = (num, type = '') => {
             if(type) merchantData.sector = type;
             
-            // Push to history for back button support
+            // Push to history
             history.pushState({ step: num }, `Step ${num}`, `#step${num}`);
             renderStep(num);
         };
@@ -195,17 +215,16 @@
             window.scrollTo({ top: 0, behavior: 'smooth' });
         }
 
-        // --- BACK BUTTON INTERCEPTOR ---
+        // 4. Back Button Interceptor
         window.addEventListener('popstate', (event) => {
             if (event.state && event.state.step) {
                 renderStep(event.state.step);
             } else {
-                // If they back out of Step 1, go back to landing
                 window.location.href = 'index.html';
             }
         });
 
-        // --- LOGIC ---
+        // 5. Logic
         window.checkName = (val) => {
             const fb = document.getElementById('feedback');
             const btn = document.getElementById('btn2');
@@ -217,7 +236,7 @@
             merchantData.storeName = name;
         };
 
-        window.saveToFirebase = async (plan) => {
+        window.saveToSupabase = async (plan) => {
             if (!merchantData.uid) return alert("Session Expired. Please login again.");
 
             merchantData.plan = plan;
@@ -229,8 +248,20 @@
             overlay.style.display = 'flex';
             
             try {
-                // We use UID as the Doc ID so the user can actually find/edit their own store
-                await setDoc(doc(db, "merchants", merchantData.uid), merchantData);
+                // Save to 'profiles' table in Supabase
+                const { error } = await _supabase
+                    .from('profiles')
+                    .upsert({ 
+                        id: merchantData.uid,
+                        store_name: merchantData.storeName,
+                        tagline: merchantData.description,
+                        address: merchantData.address,
+                        plan: merchantData.plan,
+                        sector: merchantData.sector
+                    });
+
+                if (error) throw error;
+
                 status.innerText = "PROVISIONING DASHBOARD...";
                 setTimeout(() => { window.location.href = 'dashboard.html'; }, 2000);
             } catch (e) {
