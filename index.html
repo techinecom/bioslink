@@ -191,45 +191,25 @@
     </main>
 
     <script>
-        // 1. Initialize Supabase
+        // 1. Initialize Supabase (Kept only for compatibility, not used for auth check on this page)
         const SUPABASE_URL = 'https://rujozgysdnaxlpqadqff.supabase.co';
         const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InJ1am96Z3lzZG5heGxwcWFkcWZmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Njk0OTY1MTUsImV4cCI6MjA4NTA3MjUxNX0.zi4FwC0xfq0brTrYs3i18rwO3hbFeVhDBq6TpLQCyVs';
         const _supabase = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
-        // 2. Smart Transition System
-        window.triggerTransition = async (targetUrl) => {
+        // 2. Direct Transition System (No Auth Check)
+        window.triggerTransition = (targetUrl) => {
             const loader = document.getElementById('loader-wrapper');
             const status = document.getElementById('status-text');
             
-            // Show Loader
+            // Show Loader for visual effect
             loader.style.display = 'flex';
             setTimeout(() => { loader.style.opacity = '1'; }, 10);
-            status.innerText = "SCANNING BIOMETRICS...";
+            status.innerText = "INITIALIZING PORTAL...";
 
-            try {
-                // Check Session
-                const { data: { session } } = await _supabase.auth.getSession();
-
-                if (session) {
-                    status.innerText = "SESSION FOUND: SYNCING...";
-                    
-                    // Check if Profile exists (Route to Dashboard vs Onboarding)
-                    const { data: profile } = await _supabase.from('profiles').select('*').eq('id', session.user.id).single();
-
-                    if (profile && profile.store_name) {
-                        setTimeout(() => { window.location.href = 'dashboard.html'; }, 1000);
-                    } else {
-                        setTimeout(() => { window.location.href = 'onboarding.html'; }, 1000);
-                    }
-                } else {
-                    // No Session -> Go to Login Page
-                    status.innerText = "REDIRECTING TO TERMINAL...";
-                    setTimeout(() => { window.location.href = targetUrl; }, 1000);
-                }
-            } catch (error) {
-                console.error("Auth Error:", error);
-                window.location.href = targetUrl;
-            }
+            // Direct Redirect after 1 second
+            setTimeout(() => {
+                window.location.href = 'biostorelogin.html';
+            }, 1000);
         };
 
         // 3. Page Initialization
