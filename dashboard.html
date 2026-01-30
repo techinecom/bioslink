@@ -34,6 +34,7 @@
                 radial-gradient(at 100% 0%, rgba(132, 204, 22, 0.15) 0px, transparent 50%),
                 radial-gradient(at 100% 100%, rgba(99, 102, 241, 0.1) 0px, transparent 50%);
             background-attachment: fixed;
+            -webkit-tap-highlight-color: transparent;
         }
 
         /* --- TEXTURE OVERLAY (REALISM) --- */
@@ -76,16 +77,12 @@
         /* --- INPUTS --- */
         .input-3d {
             width: 100%; padding: 14px 16px; background: rgba(255,255,255,0.6); border: 1px solid #E2E8F0;
-            border-radius: 14px; outline: none; font-size: 13px; font-weight: 600; transition: all 0.3s;
+            border-radius: 14px; outline: none; font-size: 14px; font-weight: 600; transition: all 0.3s;
             box-shadow: inset 0 2px 4px rgba(0,0,0,0.02);
         }
         .input-3d:focus { background: #FFF; border-color: var(--primary); box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.1); transform: translateY(-1px); }
         .label-3d { font-size: 11px; font-weight: 800; text-transform: uppercase; letter-spacing: 0.05em; color: #64748B; margin-bottom: 8px; display: block; }
 
-        /* --- DRAG & DROP --- */
-        .draggable-item { cursor: grab; transition: transform 0.2s; }
-        .draggable-item.dragging { opacity: 0.5; transform: scale(0.98); cursor: grabbing; border: 2px dashed var(--primary); }
-        
         /* --- IMAGE UPLOAD --- */
         .img-upload-box {
             aspect-ratio: 1; border-radius: 16px; border: 2px dashed #CBD5E1; background: #F8FAFC;
@@ -96,7 +93,7 @@
 
         /* --- ENGINE BUTTON --- */
         .engine-btn {
-            padding: 8px 20px; border-radius: 99px; font-weight: 800; font-size: 11px; uppercase; letter-spacing: 0.05em;
+            padding: 8px 20px; border-radius: 99px; font-weight: 800; font-size: 11px; text-transform: uppercase; letter-spacing: 0.05em;
             cursor: pointer; transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
             border: 2px solid #E2E8F0; background: #F1F5F9; color: #94A3B8;
             display: flex; align-items: center; gap: 8px; box-shadow: inset 0 2px 4px rgba(0,0,0,0.05);
@@ -118,24 +115,22 @@
         .publish-btn:hover { transform: translateY(-2px); background: #2563EB; }
         .publish-btn:active { transform: translateY(0); }
 
-        /* --- SIDEBAR LINK BOX --- */
-        .store-link-box {
-            background: rgba(255,255,255,0.5); border: 1px solid rgba(255,255,255,0.6);
-            border-radius: 12px; padding: 12px; margin-top: auto; margin-bottom: 12px;
-            display: none; /* Hidden until published */
-            animation: fadeIn 0.5s ease;
-        }
-        .store-link-box.visible { display: block; }
-        .link-text { font-family: 'JetBrains Mono', monospace; font-size: 10px; color: var(--primary); word-break: break-all; }
-
-        /* --- LAYOUT FIX (CRITICAL FOR MOBILE/DESKTOP SYNC) --- */
+        /* --- LAYOUT WRAPPER --- */
         .layout-wrapper { 
             display: flex; width: 100%; height: 100vh; padding: 24px; gap: 24px; 
             position: relative; z-index: 1; box-sizing: border-box; 
         }
+        
+        /* --- SIDEBAR DRAWER (MOBILE READY) --- */
         .sidebar-container { 
-            width: 270px; display: flex; flex-direction: column; z-index: 40; flex-shrink: 0; 
+            width: 270px; display: flex; flex-direction: column; z-index: 100; flex-shrink: 0;
+            height: 100%; transition: transform 0.3s var(--ease-spring);
         }
+        
+        .sidebar-backdrop {
+            display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.3); backdrop-filter: blur(4px); z-index: 90;
+        }
+
         .nav-item { 
             padding: 14px 18px; margin-bottom: 6px; border-radius: 16px; 
             font-size: 13px; font-weight: 600; color: #64748B; cursor: pointer; 
@@ -143,31 +138,59 @@
         }
         .nav-item:hover { background: rgba(255,255,255,0.6); color: #0F172A; }
         .nav-item.active { background: #FFFFFF; color: #0F172A; box-shadow: 0 4px 12px rgba(0,0,0,0.03); border-left: 3px solid var(--accent); }
-        
-        /* WORKSPACE: Min-width 0 prevents flex child overflow */
+
+        /* --- MAIN WORKSPACE --- */
         .workspace-container { 
             flex: 1; display: flex; flex-direction: column; gap: 24px; 
             overflow: hidden; position: relative; min-width: 0; 
         }
-        .content-scroll-area { flex: 1; overflow-y: auto; padding-right: 6px; padding-bottom: 100px; }
-        
-        /* Badges */
-        .status-badge { padding: 4px 10px; border-radius: 99px; font-size: 10px; font-weight: 800; text-transform: uppercase; letter-spacing: 0.05em; }
-        .status-pending { background: #FEF3C7; color: #D97706; }
-        .status-accepted { background: #DCFCE7; color: #15803D; } 
-        .status-paid { background: #DCFCE7; color: #15803D; }
-        .status-cancelled { background: #FEE2E2; color: #B91C1C; }
+        .content-scroll-area { flex: 1; overflow-y: auto; padding-right: 6px; padding-bottom: 100px; -webkit-overflow-scrolling: touch; }
 
-        .variant-tag { display: inline-flex; align-items: center; padding: 4px 10px; background: #ECFCCB; color: #365314; border-radius: 6px; font-size: 11px; font-weight: 600; margin-right: 6px; margin-bottom: 6px; }
+        /* --- MOBILE HEADER (Visible on Small Screens) --- */
+        .mobile-header { display: none; }
+        .desktop-header { display: flex; }
 
-        /* Modal for Publish Success */
-        #publish-modal {
-            position: fixed; inset: 0; background: rgba(0,0,0,0.4); backdrop-filter: blur(10px);
-            z-index: 100; display: none; align-items: center; justify-content: center;
+        /* --- RESPONSIVE MEDIA QUERIES --- */
+        @media (max-width: 1024px) {
+            body { height: 100vh; overflow: hidden; }
+            .layout-wrapper { padding: 0; gap: 0; }
+            
+            /* Sidebar becomes Drawer */
+            .sidebar-container { 
+                position: fixed; left: 0; top: 0; bottom: 0; 
+                transform: translateX(-110%); /* Hidden by default */
+                background: rgba(255,255,255,0.95);
+                backdrop-filter: blur(20px);
+                border-radius: 0 24px 24px 0;
+                box-shadow: 20px 0 50px rgba(0,0,0,0.1);
+                border-right: 1px solid rgba(255,255,255,0.5);
+                width: 80%; max-width: 300px;
+                padding-top: 20px;
+            }
+            .sidebar-container.open { transform: translateX(0); }
+            .sidebar-backdrop.open { display: block; }
+            
+            /* Workspace takes full width */
+            .workspace-container { width: 100%; height: 100%; border-radius: 0; gap: 0; }
+            
+            /* Headers */
+            .desktop-header { display: none !important; }
+            .mobile-header { 
+                display: flex; height: 70px; align-items: center; justify-content: space-between; 
+                padding: 0 20px; background: rgba(255,255,255,0.85); backdrop-filter: blur(12px);
+                border-bottom: 1px solid rgba(0,0,0,0.05); z-index: 50; flex-shrink: 0;
+            }
+
+            /* Content Area Fixes */
+            .content-scroll-area { padding: 20px; padding-bottom: 120px; }
+            
+            /* Cards mobile layout */
+            .tilt-card { 
+                transform: none !important; 
+                box-shadow: 0 2px 5px rgba(0,0,0,0.02) !important; 
+                border-radius: 16px; padding: 20px; background: #FFF;
+            }
         }
-        #publish-modal.active { display: flex; animation: fadeIn 0.3s forwards; }
-        .success-card { background: white; padding: 30px; border-radius: 24px; width: 400px; text-align: center; box-shadow: 0 25px 50px -12px rgba(0,0,0,0.25); transform: scale(0.9); opacity: 0; transition: 0.3s; }
-        #publish-modal.active .success-card { transform: scale(1); opacity: 1; }
 
         /* --- AUTH SCREEN --- */
         #auth-screen {
@@ -181,86 +204,22 @@
             width: 90%; max-width: 400px; text-align: center; box-shadow: 0 20px 40px rgba(0,0,0,0.1);
         }
 
-        /* --- MOBILE BOTTOM NAV (NEW) --- */
-        .mobile-nav-bar { display: none; }
-        .mobile-header { display: none; }
-
-        /* --- RESPONSIVE ENGINE --- */
-        @media (max-width: 1024px) {
-            body { height: auto; overflow-y: auto; display: block; background: #F8FAFC; }
-            .layout-wrapper { padding: 0; flex-direction: column; gap: 0; height: auto; }
-            
-            /* HIDE DESKTOP SIDEBAR */
-            .sidebar-container { display: none; } 
-
-            /* SHOW MOBILE HEADER */
-            .mobile-header { 
-                display: flex; position: sticky; top: 0; z-index: 50; 
-                background: rgba(255,255,255,0.9); backdrop-filter: blur(12px); 
-                padding: 16px 20px; align-items: center; justify-content: space-between;
-                border-bottom: 1px solid rgba(0,0,0,0.05);
-            }
-
-            /* MAIN AREA */
-            .workspace-container { overflow: visible; height: auto; padding: 0; }
-            .glass-panel { border-radius: 0; border: none; background: transparent; box-shadow: none; backdrop-filter: none; }
-            /* Hide Desktop Header in Main Area since we have Mobile Header */
-            .workspace-container header { display: none; } 
-
-            .content-scroll-area { overflow: visible; padding: 20px; padding-bottom: 120px; }
-
-            /* CARDS ON MOBILE */
-            .tilt-card { 
-                transform: none !important; 
-                box-shadow: 0 2px 5px rgba(0,0,0,0.02) !important; 
-                border-radius: 16px; padding: 20px;
-                background: #FFF;
-            }
-            .glass-panel.border.border-white\/40 {
-                border: none; background: transparent; shadow: none;
-            }
-
-            /* MOBILE BOTTOM NAV */
-            .mobile-nav-bar {
-                display: flex; position: fixed; bottom: 20px; left: 16px; right: 16px;
-                background: rgba(255, 255, 255, 0.95);
-                backdrop-filter: blur(20px) saturate(180%);
-                border: 1px solid rgba(255,255,255,0.5);
-                border-radius: 24px; height: 70px;
-                justify-content: space-around; align-items: center;
-                box-shadow: 0 20px 40px -5px rgba(0,0,0,0.15);
-                z-index: 100; padding: 0 10px;
-            }
-
-            .mob-nav-item {
-                display: flex; flex-direction: column; align-items: center; gap: 4px;
-                color: #94A3B8; transition: 0.3s var(--ease-spring);
-                width: 50px; cursor: pointer;
-            }
-            .mob-nav-item i { font-size: 20px; transition: 0.3s; }
-            .mob-nav-item span { font-size: 9px; font-weight: 700; opacity: 0; transform: translateY(10px); transition: 0.3s; }
-            
-            .mob-nav-item.active { color: var(--primary); transform: translateY(-8px); }
-            .mob-nav-item.active i { filter: drop-shadow(0 4px 6px rgba(37,99,235,0.3)); }
-            .mob-nav-item.active span { opacity: 1; transform: translateY(0); }
-
-            /* Floating Action Button (Center) */
-            .fab-btn {
-                width: 56px; height: 56px; background: #84cc16; border-radius: 50%;
-                display: flex; align-items: center; justify-content: center;
-                color: white; font-size: 22px; box-shadow: 0 10px 20px rgba(132, 204, 22, 0.4);
-                transform: translateY(-24px); border: 4px solid #F8FAFC;
-                transition: 0.3s var(--ease-spring);
-            }
-            .fab-btn:active { transform: translateY(-20px) scale(0.9); }
-
-            /* Grid Overrides for Tables */
-            .grid-cols-12 { display: flex; flex-direction: column; gap: 10px; }
-            .res-grid-header { display: none !important; }
-            .res-grid-row { display: flex !important; flex-direction: column; align-items: flex-start !important; gap: 12px; }
-            .res-grid-row > div { width: 100%; justify-content: space-between; display: flex; }
+        /* --- MODAL --- */
+        #publish-modal {
+            position: fixed; inset: 0; background: rgba(0,0,0,0.4); backdrop-filter: blur(10px);
+            z-index: 300; display: none; align-items: center; justify-content: center;
         }
+        #publish-modal.active { display: flex; animation: fadeIn 0.3s forwards; }
+        .success-card { background: white; padding: 30px; border-radius: 24px; width: 90%; max-width: 400px; text-align: center; box-shadow: 0 25px 50px -12px rgba(0,0,0,0.25); transform: scale(0.9); opacity: 0; transition: 0.3s; }
+        #publish-modal.active .success-card { transform: scale(1); opacity: 1; }
+
         @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+
+        /* Badges & Tags */
+        .variant-tag { display: inline-flex; align-items: center; padding: 4px 10px; background: #ECFCCB; color: #365314; border-radius: 6px; font-size: 11px; font-weight: 600; margin-right: 6px; margin-bottom: 6px; }
+        .store-link-box { background: rgba(255,255,255,0.5); border: 1px solid rgba(255,255,255,0.6); border-radius: 12px; padding: 12px; margin-top: auto; margin-bottom: 12px; display: none; animation: fadeIn 0.5s ease; }
+        .store-link-box.visible { display: block; }
+        .link-text { font-family: 'JetBrains Mono', monospace; font-size: 10px; color: var(--primary); word-break: break-all; }
     </style>
 </head>
 <body>
@@ -270,10 +229,8 @@
             <div class="w-16 h-16 bg-lime-500 rounded-2xl flex items-center justify-center text-white font-bold text-3xl shadow-lg mx-auto mb-6">B</div>
             <h2 class="text-2xl font-bold text-gray-900 mb-2">Welcome Back</h2>
             <p class="text-sm text-gray-500 mb-8">Sign in to manage your digital empire</p>
-            
             <input id="login-email" type="email" class="input-3d mb-4" placeholder="Email Address">
             <input id="login-password" type="password" class="input-3d mb-6" placeholder="Password">
-            
             <button onclick="app.handleAuth('login')" class="w-full py-4 bg-blue-600 text-white font-bold rounded-xl shadow-lg hover:scale-[1.01] transition mb-3">Sign In</button>
             <button onclick="app.handleAuth('signup')" class="w-full py-4 bg-white border-2 border-gray-200 text-gray-600 font-bold rounded-xl hover:bg-gray-50 transition">Create Account</button>
         </div>
@@ -281,26 +238,20 @@
 
     <div class="noise-overlay"></div>
 
-    <div class="mobile-header">
-        <div class="flex items-center gap-3">
-            <div class="w-8 h-8 rounded-lg bg-lime-500 flex items-center justify-center text-white font-bold shadow-lg shadow-lime-500/30">B</div>
-            <h1 class="font-bold text-gray-900 tracking-tight">BiosOS</h1>
-        </div>
-        <div class="flex gap-3 items-center">
-            <div id="mob-live-badge" class="px-2 py-1 bg-gray-100 rounded text-[10px] font-bold text-gray-400">OFFLINE</div>
-            <div class="w-8 h-8 rounded-full bg-gray-200 border border-white shadow-sm flex items-center justify-center text-xs font-bold text-gray-500">A</div>
-        </div>
-    </div>
+    <div class="sidebar-backdrop" onclick="app.toggleSidebar()"></div>
 
     <div class="layout-wrapper" id="main-app">
         
-        <aside class="sidebar-container glass-panel">
-            <div class="px-6 py-6 mb-2 flex items-center gap-4">
-                <div class="w-10 h-10 bg-gradient-to-br from-lime-500 to-green-500 rounded-xl flex items-center justify-center text-white font-bold text-xl shadow-lg shadow-lime-500/30">B</div>
-                <div>
-                    <h1 class="font-bold text-sm tracking-wide text-gray-900">BiosOS</h1>
-                    <p class="text-[10px] text-gray-400 font-mono tracking-wider">v20 PRO</p>
+        <aside class="sidebar-container glass-panel" id="sidebar">
+            <div class="px-6 py-6 mb-2 flex items-center justify-between">
+                <div class="flex items-center gap-4">
+                    <div class="w-10 h-10 bg-gradient-to-br from-lime-500 to-green-500 rounded-xl flex items-center justify-center text-white font-bold text-xl shadow-lg shadow-lime-500/30">B</div>
+                    <div>
+                        <h1 class="font-bold text-sm tracking-wide text-gray-900">BiosOS</h1>
+                        <p class="text-[10px] text-gray-400 font-mono tracking-wider">v20 PRO</p>
+                    </div>
                 </div>
+                <button class="lg:hidden text-gray-400 p-2" onclick="app.toggleSidebar()"><i class="fa-solid fa-xmark text-xl"></i></button>
             </div>
             
             <div class="flex-1 overflow-y-auto px-2 space-y-1 no-scroll">
@@ -336,7 +287,16 @@
         </aside>
 
         <main class="workspace-container">
-            <header class="glass-panel px-8 py-5 flex justify-between items-center shrink-0">
+            
+            <div class="mobile-header">
+                <button onclick="app.toggleSidebar()" class="w-10 h-10 flex items-center justify-center bg-white rounded-xl shadow-sm border border-gray-100 text-gray-600">
+                    <i class="fa-solid fa-bars-staggered"></i>
+                </button>
+                <h1 class="font-bold text-lg text-gray-900" id="mob-page-title">BiosOS</h1>
+                <div class="w-10 h-10 flex items-center justify-center bg-gray-100 rounded-full text-xs font-bold text-gray-500">A</div>
+            </div>
+
+            <header class="glass-panel px-8 py-5 flex justify-between items-center shrink-0 desktop-header">
                 <div>
                     <h2 id="page-title" class="font-bold text-lg text-gray-900">Dashboard</h2>
                     <p class="text-xs text-gray-400 mt-0.5">Manage your digital empire</p>
@@ -354,58 +314,32 @@
                     <button onclick="app.viewStore()" class="w-10 h-10 rounded-full bg-white border border-gray-200 flex items-center justify-center text-gray-600 hover:text-blue-600 hover:border-blue-600 transition shadow-sm" title="View Live Store">
                         <i class="fa-regular fa-eye text-lg"></i>
                     </button>
-                    
                 </div>
             </header>
 
             <div id="workspace" class="content-scroll-area"></div>
         </main>
-
-        <div id="publish-modal" onclick="if(event.target===this) app.closePublishModal()">
-            <div class="success-card">
-                <div class="w-16 h-16 bg-lime-100 text-lime-600 rounded-full flex items-center justify-center mx-auto mb-4 text-2xl">
-                    <i class="fa-solid fa-check"></i>
-                </div>
-                <h2 class="text-2xl font-bold mb-2">You are Live!</h2>
-                <p class="text-gray-500 text-sm mb-6">Your store is now online and ready for the world.</p>
-                
-                <div class="bg-gray-100 p-3 rounded-xl flex justify-between items-center mb-6">
-                    <span id="modal-url" class="font-mono text-xs text-blue-600 truncate mr-2">bios.store/...</span>
-                    <button onclick="app.copyLink()" class="text-xs font-bold bg-white px-3 py-1.5 rounded shadow-sm hover:scale-105 transition">Copy</button>
-                </div>
-
-                <div class="flex gap-3">
-                    <button onclick="app.viewStore()" class="flex-1 py-3 bg-white border-2 border-gray-100 text-gray-700 rounded-xl font-bold hover:bg-gray-50">View Store</button>
-                    <button onclick="app.closePublishModal()" class="flex-1 py-3 bg-black text-white rounded-xl font-bold">Done</button>
-                </div>
-            </div>
-        </div>
-
     </div>
 
-    <nav class="mobile-nav-bar">
-        <div class="mob-nav-item active" onclick="app.setTab('dashboard')">
-            <i class="fa-solid fa-house"></i>
-            <span>Home</span>
-        </div>
-        <div class="mob-nav-item" onclick="app.setTab('orders')">
-            <i class="fa-solid fa-box-open"></i>
-            <span>Orders</span>
-        </div>
-        
-        <div class="fab-btn" onclick="app.setTab('add_product')">
-            <i class="fa-solid fa-plus"></i>
-        </div>
+    <div id="publish-modal" onclick="if(event.target===this) app.closePublishModal()">
+        <div class="success-card">
+            <div class="w-16 h-16 bg-lime-100 text-lime-600 rounded-full flex items-center justify-center mx-auto mb-4 text-2xl">
+                <i class="fa-solid fa-check"></i>
+            </div>
+            <h2 class="text-2xl font-bold mb-2">You are Live!</h2>
+            <p class="text-gray-500 text-sm mb-6">Your store is now online and ready for the world.</p>
+            
+            <div class="bg-gray-100 p-3 rounded-xl flex justify-between items-center mb-6">
+                <span id="modal-url" class="font-mono text-xs text-blue-600 truncate mr-2">bios.store/...</span>
+                <button onclick="app.copyLink()" class="text-xs font-bold bg-white px-3 py-1.5 rounded shadow-sm hover:scale-105 transition">Copy</button>
+            </div>
 
-        <div class="mob-nav-item" onclick="app.setTab('inventory')">
-            <i class="fa-solid fa-layer-group"></i>
-            <span>Items</span>
+            <div class="flex gap-3">
+                <button onclick="app.viewStore()" class="flex-1 py-3 bg-white border-2 border-gray-100 text-gray-700 rounded-xl font-bold hover:bg-gray-50">View Store</button>
+                <button onclick="app.closePublishModal()" class="flex-1 py-3 bg-black text-white rounded-xl font-bold">Done</button>
+            </div>
         </div>
-        <div class="mob-nav-item" onclick="app.setTab('branding')">
-            <i class="fa-solid fa-wand-magic-sparkles"></i>
-            <span>Style</span>
-        </div>
-    </nav>
+    </div>
 
     <script>
         // --- 1. CONFIGURATION ---
@@ -413,7 +347,7 @@
         const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InJ1am96Z3lzZG5heGxwcWFkcWZmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Njk0OTY1MTUsImV4cCI6MjA4NTA3MjUxNX0.zi4FwC0xfq0brTrYs3i18rwO3hbFeVhDBq6TpLQCyVs';
         const _supabase = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
-        // --- 2. CORE STATE (Production) ---
+        // --- 2. CORE STATE ---
         const store = {
             view: 'dashboard',
             user: null,
@@ -423,8 +357,8 @@
             payment: { method: 'manual', whatsappNumber: '', paymentLink: '' },
             collections: [],
             products: [],
-            orders: [], // Fetched from DB
-            customers: [], // Fetched from DB
+            orders: [],
+            customers: [],
             draftProduct: { id: null, name: '', price: '', category: '', stock: 10, images: [], variants: [] },
             draftCollection: { id: null, name: '', img: null },
             tempVariant: { name: '', valueStr: '' },
@@ -433,29 +367,20 @@
 
         const app = {
             init: async () => {
-                // Check session
                 const { data: { session } } = await _supabase.auth.getSession();
                 if (!session) {
                     document.getElementById('auth-screen').style.display = 'flex';
                     document.getElementById('main-app').style.filter = 'blur(10px)';
                     return;
                 }
-                
                 document.getElementById('auth-screen').style.display = 'none';
                 document.getElementById('main-app').style.filter = 'none';
                 store.user = session.user;
-                
                 await app.loadUserData();
                 app.setTab('dashboard');
-                
-                // HEARTBEAT: Keep Database Awake (Free Tier Hack)
-                setInterval(() => {
-                    _supabase.from('profiles').select('id').limit(1).then(() => console.log('Pulse sent'));
-                }, 300000); // 5 minutes
             },
 
             loadUserData: async () => {
-                // 1. Branding (Upsert if missing)
                 const { data: profile } = await _supabase.from('profiles').select('*').eq('id', store.user.id).single();
                 if (profile) {
                     store.branding = {
@@ -468,17 +393,13 @@
                         btnTextBuy: profile.btn_buy_text
                     };
                 } else {
-                    // Create default profile for new user
                     await _supabase.from('profiles').insert([{ id: store.user.id }]);
                 }
 
-                // 2. Collections
                 const { data: cols } = await _supabase.from('collections').select('*').eq('user_id', store.user.id).order('created_at', { ascending: true });
                 store.collections = cols || [];
 
-                // 3. Products
                 const { data: prods } = await _supabase.from('products').select('*').eq('user_id', store.user.id).order('created_at', { ascending: false });
-                // Map DB columns back to UI state structure
                 store.products = (prods || []).map(p => ({
                     id: p.id,
                     name: p.name,
@@ -495,7 +416,14 @@
                 app.updatePendingBadge();
             },
 
-            // --- AUTH ---
+            // --- MOBILE SIDEBAR TOGGLE ---
+            toggleSidebar: () => {
+                const sb = document.getElementById('sidebar');
+                const bd = document.querySelector('.sidebar-backdrop');
+                sb.classList.toggle('open');
+                bd.classList.toggle('open');
+            },
+
             handleAuth: async (type) => {
                 const email = document.getElementById('login-email').value;
                 const password = document.getElementById('login-password').value;
@@ -510,7 +438,6 @@
                     const { error: err } = await _supabase.auth.signInWithPassword({ email, password });
                     error = err;
                 }
-
                 if (error) alert(error.message);
                 else app.init();
             },
@@ -520,18 +447,15 @@
                 window.location.reload();
             },
 
-            // --- DATA ACTIONS ---
             saveProduct: async () => {
                 const p = store.draftProduct;
                 if(!p.name) return alert("Name required");
                 
-                // Find collection ID from name or dropdown
                 let colId = p.category_id;
                 if(!colId && p.category) {
                      const col = store.collections.find(c => c.name === p.category);
                      if(col) colId = col.id;
                 }
-                
                 if(!colId && store.collections.length > 0) colId = store.collections[0].id;
                 if(!colId) return alert("Create a collection first!");
 
@@ -546,9 +470,7 @@
                 };
 
                 const { error } = await _supabase.from('products').upsert(p.id ? { id: p.id, ...payload } : payload);
-                
                 if (error) return alert("Save failed: " + error.message);
-                
                 store.draftProduct = { id: null, name: '', price: '', category: '', stock: 10, images: [], variants: [] };
                 await app.loadUserData();
                 app.setTab('inventory');
@@ -557,23 +479,14 @@
             saveCollection: async () => {
                 const c = store.draftCollection;
                 if(!c.name) return alert("Name required");
-
-                const payload = { 
-                    user_id: store.user.id, 
-                    name: c.name, 
-                    img_url: c.img 
-                };
-
+                const payload = { user_id: store.user.id, name: c.name, img_url: c.img };
                 const { error } = await _supabase.from('collections').upsert(c.id ? { id: c.id, ...payload } : payload);
-                
                 if (error) return alert("Save failed: " + error.message);
-
                 store.draftCollection = { id: null, name: '', img: null };
                 await app.loadUserData();
                 app.setTab('collections');
             },
 
-            // --- CLOUD UPLOAD ---
             handleUpload: async (files, type) => {
                 if (!files.length) return;
                 const file = files[0];
@@ -581,18 +494,12 @@
                 const fileName = `${Date.now()}.${fileExt}`;
                 const filePath = `${store.user.id}/${fileName}`;
 
-                // 1. Upload
-                const { error: uploadError } = await _supabase.storage
-                    .from('store-assets')
-                    .upload(filePath, file);
-
+                const { error: uploadError } = await _supabase.storage.from('store-assets').upload(filePath, file);
                 if (uploadError) return alert("Upload failed: " + uploadError.message);
 
-                // 2. Get URL
                 const { data } = _supabase.storage.from('store-assets').getPublicUrl(filePath);
                 const url = data.publicUrl;
 
-                // 3. Assign
                 if (type === 'product') {
                     store.draftProduct.images.push(url);
                     app.renderWorkspace();
@@ -601,69 +508,55 @@
                     app.renderWorkspace();
                 } else if (type === 'logo') {
                     store.branding.logo_url = url;
-                    // Auto-save logo to profile
                     await _supabase.from('profiles').update({ logo_url: url }).eq('id', store.user.id);
                     app.renderWorkspace();
                 }
             },
             
             updateBranding: async (k, v) => {
-                // UI Update
                 if (k === 'name') store.branding.name = v;
                 if (k === 'tagline') store.branding.tagline = v;
                 if (k === 'color') store.branding.color = v;
                 if (k === 'font') store.branding.font = v;
                 if (k === 'btnTextCart') store.branding.btnTextCart = v;
                 if (k === 'btnTextBuy') store.branding.btnTextBuy = v;
-
                 if(k === 'name') app.updateStoreUrl();
-                
-                // Debounced Cloud Save (Simple implementation)
-                const dbKeyMap = {
-                    name: 'store_name', tagline: 'tagline', color: 'color', font: 'font_family',
-                    btnTextCart: 'btn_cart_text', btnTextBuy: 'btn_buy_text'
-                };
-                
-                if(dbKeyMap[k]) {
-                     await _supabase.from('profiles').update({ [dbKeyMap[k]]: v }).eq('id', store.user.id);
-                }
+                const dbKeyMap = { name: 'store_name', tagline: 'tagline', color: 'color', font: 'font_family', btnTextCart: 'btn_cart_text', btnTextBuy: 'btn_buy_text' };
+                if(dbKeyMap[k]) await _supabase.from('profiles').update({ [dbKeyMap[k]]: v }).eq('id', store.user.id);
             },
 
-            // --- DELETIONS ---
             deleteProduct: async (id) => {
                 if(!confirm("Delete product?")) return;
                 await _supabase.from('products').delete().eq('id', id);
                 await app.loadUserData();
                 app.renderWorkspace();
             },
-            
             deleteCollection: async (id) => {
                 if(!confirm("Delete collection?")) return;
                 await _supabase.from('collections').delete().eq('id', id);
                 await app.loadUserData();
                 app.renderWorkspace();
             },
-            
             deleteLogo: async () => {
                 store.branding.logo_url = '';
                 await _supabase.from('profiles').update({ logo_url: '' }).eq('id', store.user.id);
                 app.renderWorkspace();
             },
 
-            // --- STANDARD UI FUNCTIONS ---
             setTab: (tab) => {
                 store.view = tab;
                 document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active'));
-                const deskNav = document.querySelector(`.nav-item[onclick*="'${tab}'"]`);
-                if(deskNav) deskNav.classList.add('active');
-
-                document.querySelectorAll('.mob-nav-item').forEach(el => el.classList.remove('active'));
-                const mobNav = document.querySelector(`.mob-nav-item[onclick*="'${tab}'"]`);
-                if(mobNav) mobNav.classList.add('active');
+                const nav = document.querySelector(`.nav-item[onclick*="'${tab}'"]`);
+                if(nav) nav.classList.add('active');
                 
+                // Close sidebar on mobile after selection
+                const sb = document.getElementById('sidebar');
+                if(sb.classList.contains('open')) app.toggleSidebar();
+
                 const titleMap = { 'dashboard': 'Overview', 'orders': 'Orders Command', 'customers': 'Customer Database', 'payments': 'Payment Gateway', 'add_product': 'Create Product', 'collections': 'Collections', 'inventory': 'Inventory', 'branding': 'Store Appearance' };
-                const titleEl = document.getElementById('page-title');
-                if(titleEl) titleEl.innerText = titleMap[tab] || 'Dashboard';
+                const t = titleMap[tab] || 'Dashboard';
+                if(document.getElementById('page-title')) document.getElementById('page-title').innerText = t;
+                if(document.getElementById('mob-page-title')) document.getElementById('mob-page-title').innerText = t;
                 app.renderWorkspace();
             },
             
@@ -682,141 +575,80 @@
             },
 
             publishStore: () => {
-                // For a real SaaS, this would toggle a 'published' boolean in the profile table
                 store.isPublished = true; 
                 app.setLiveStatus(true);
                 app.updateStoreUrl();
                 document.getElementById('publish-modal').classList.add('active');
             },
-            
             toggleLive: () => {
                 if(!store.isPublished) return alert("Publish your store first!");
                 app.setLiveStatus(!store.liveState);
             },
-
             setLiveStatus: (status) => {
                 store.liveState = status;
                 const btn = document.getElementById('live-toggle');
                 const txt = document.getElementById('live-text');
                 const box = document.getElementById('sidebar-link-box');
-                const mobBadge = document.getElementById('mob-live-badge');
-                
-                if(status) {
-                    btn.classList.add('live'); txt.innerText = "STORE LIVE"; box.classList.add('visible');
-                    if(mobBadge) { mobBadge.innerText = "LIVE"; mobBadge.className = "px-2 py-1 bg-lime-100 text-lime-700 rounded text-[10px] font-bold"; }
-                } else {
-                    btn.classList.remove('live'); txt.innerText = "OFFLINE"; box.classList.remove('visible');
-                    if(mobBadge) { mobBadge.innerText = "OFFLINE"; mobBadge.className = "px-2 py-1 bg-gray-100 text-gray-400 rounded text-[10px] font-bold"; }
-                }
+                if(status) { btn.classList.add('live'); txt.innerText = "STORE LIVE"; box.classList.add('visible'); } 
+                else { btn.classList.remove('live'); txt.innerText = "OFFLINE"; box.classList.remove('visible'); }
             },
-
             closePublishModal: () => document.getElementById('publish-modal').classList.remove('active'),
             copyLink: () => { navigator.clipboard.writeText(`https://${store.storeUrl}`); alert("Link copied!"); },
-            viewStore: () => {
-                if(!store.isPublished) { if(confirm("Store is not published yet. Publish now to view?")) app.publishStore(); return; }
-                window.open('store.html', '_blank');
-            },
-            
-            // --- UI HELPERS ---
+            viewStore: () => { if(!store.isPublished) { if(confirm("Store not published. Publish?")) app.publishStore(); return; } window.open('store.html', '_blank'); },
             dragStart: (e, i) => { e.dataTransfer.setData('text/plain', i); e.currentTarget.classList.add('dragging'); },
             dragOver: (e) => { e.preventDefault(); },
-            dragDrop: (e, targetI) => {
-                e.preventDefault();
-                // Note: Reordering logic should also update 'display_order' in Supabase
-                // keeping it visual-only for now to save complexity
-                const sourceI = parseInt(e.dataTransfer.getData('text/plain'));
-                if (sourceI !== targetI) {
-                    const moved = store.collections.splice(sourceI, 1)[0];
-                    store.collections.splice(targetI, 0, moved);
-                    app.renderWorkspace();
-                }
-                document.querySelectorAll('.draggable-item').forEach(el => el.classList.remove('dragging'));
-            },
-
+            dragDrop: (e, targetI) => { e.preventDefault(); const sourceI = parseInt(e.dataTransfer.getData('text/plain')); if (sourceI !== targetI) { const moved = store.collections.splice(sourceI, 1)[0]; store.collections.splice(targetI, 0, moved); app.renderWorkspace(); } document.querySelectorAll('.draggable-item').forEach(el => el.classList.remove('dragging')); },
             editCollection: (id) => { const c = store.collections.find(x => x.id === id); if(c) { store.draftCollection = { ...c, img: c.img_url || c.img }; document.getElementById('workspace').scrollTo({top:0}); app.renderWorkspace(); } },
-            
-            addVariantToDraft: () => {
-                if(!store.tempVariant.name || !store.tempVariant.valueStr) return;
-                const values = store.tempVariant.valueStr.split(',').map(s => s.trim()).filter(s => s);
-                store.draftProduct.variants.push({ name: store.tempVariant.name, values: values });
-                store.tempVariant = { name: '', valueStr: '' }; app.renderWorkspace();
-            },
+            addVariantToDraft: () => { if(!store.tempVariant.name || !store.tempVariant.valueStr) return; const values = store.tempVariant.valueStr.split(',').map(s => s.trim()).filter(s => s); store.draftProduct.variants.push({ name: store.tempVariant.name, values: values }); store.tempVariant = { name: '', valueStr: '' }; app.renderWorkspace(); },
             removeVariantFromDraft: (i) => { store.draftProduct.variants.splice(i, 1); app.renderWorkspace(); },
             editProduct: (id) => { const p = store.products.find(x => x.id === id); if(p) { store.draftProduct = { ...p, images: p.images || [], category_id: p.category_id }; app.setTab('add_product'); } },
-
             savePaymentSettings: () => { alert("Payment Settings Saved!"); },
 
-            // --- RENDERERS ---
             renderWorkspace: () => {
                 const ws = document.getElementById('workspace'); ws.innerHTML = ''; ws.className = "content-scroll-area fade-in-up";
-                
                 if (store.view === 'dashboard') {
-                    // Real data stats
                     const rev = store.orders.reduce((acc, o) => acc + (o.total || 0), 0);
                     ws.innerHTML = `<div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8"><div class="tilt-card border-l-4 border-lime-500"><span class="label-3d">Revenue</span><div class="text-3xl font-black mt-2">₹${rev.toLocaleString()}</div></div><div class="tilt-card border-l-4 border-blue-500"><span class="label-3d">Orders</span><div class="text-3xl font-black mt-2">${store.orders.length}</div></div><div class="tilt-card border-l-4 border-indigo-500"><span class="label-3d">Products</span><div class="text-3xl font-black mt-2">${store.products.length}</div></div></div>`;
                 }
-                
                 else if (store.view === 'orders') {
                     if(store.orders.length === 0) { ws.innerHTML = `<div class="text-center text-gray-400 mt-20">No orders yet. Share your store link!</div>`; return; }
-                    // Order rendering logic...
                 }
-
                 else if (store.view === 'customers') {
-                    if (store.customers.length === 0) { ws.innerHTML = `<div class="text-center text-gray-400 mt-20">No customers yet.</div>`; } else {
-                         // Customer rendering logic...
-                    }
+                    if (store.customers.length === 0) { ws.innerHTML = `<div class="text-center text-gray-400 mt-20">No customers yet.</div>`; }
                 }
-
                 else if (store.view === 'payments') {
                     ws.innerHTML = `<div class="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-4xl mx-auto"><div class="tilt-card border-2 ${store.payment.method === 'manual' ? 'border-blue-500 ring-4 ring-blue-500/10' : 'border-transparent'}" onclick="store.payment.method='manual'; app.renderWorkspace()"><div class="flex justify-between items-start mb-4"><div class="w-12 h-12 bg-green-100 rounded-xl flex items-center justify-center text-green-600 text-2xl"><i class="fa-brands fa-whatsapp"></i></div>${store.payment.method === 'manual' ? '<i class="fa-solid fa-circle-check text-blue-500 text-xl"></i>' : '<i class="fa-regular fa-circle text-gray-300 text-xl"></i>'}</div><h3 class="font-bold text-lg mb-1">Manual (WhatsApp)</h3><p class="text-xs text-gray-500 mb-6">Redirect customers to your WhatsApp. You handle payment collection manually (UPI, Cash, etc) in chat.</p><label class="label-3d">Your WhatsApp Number</label><input type="text" class="input-3d" placeholder="e.g. 919876543210" value="${store.payment.whatsappNumber}" oninput="store.payment.whatsappNumber = this.value"></div><div class="tilt-card border-2 ${store.payment.method === 'auto' ? 'border-blue-500 ring-4 ring-blue-500/10' : 'border-transparent'}" onclick="store.payment.method='auto'; app.renderWorkspace()"><div class="flex justify-between items-start mb-4"><div class="w-12 h-12 bg-indigo-100 rounded-xl flex items-center justify-center text-indigo-600 text-2xl"><i class="fa-solid fa-link"></i></div>${store.payment.method === 'auto' ? '<i class="fa-solid fa-circle-check text-blue-500 text-xl"></i>' : '<i class="fa-regular fa-circle text-gray-300 text-xl"></i>'}</div><h3 class="font-bold text-lg mb-1">Automatic (Payment Link)</h3><p class="text-xs text-gray-500 mb-6">Automatically redirect customers to a specific payment page (Razorpay, Stripe, PayPal, etc) upon checkout.</p><label class="label-3d">Your Payment Link URL</label><input type="text" class="input-3d" placeholder="https://razorpay.me/@yourname" value="${store.payment.paymentLink}" oninput="store.payment.paymentLink = this.value"></div><button onclick="app.savePaymentSettings()" class="col-span-1 md:col-span-2 py-4 bg-black text-white font-bold rounded-xl shadow-lg hover:scale-[1.01] transition">Save Payment Settings</button></div>`;
                 }
-
                 else if (store.view === 'add_product') {
                     const noCol = store.collections.length === 0;
                     const isEdit = store.draftProduct.id !== null;
-                    ws.innerHTML = `
-                        <div class="flex gap-8 flex-col lg:flex-row">
-                            <div class="flex-1 space-y-6">
-                                ${noCol ? `<div class="p-4 bg-yellow-100 text-yellow-800 rounded-xl text-xs font-bold border border-yellow-200"><i class="fa-solid fa-triangle-exclamation mr-2"></i> You need to create a Collection before adding a product.</div>` : ''}
-                                <div class="tilt-card"><h3 class="font-bold text-lg mb-6">${isEdit ? 'Edit Product' : 'Create Product'}</h3><div class="space-y-4"><div><label class="label-3d">Name</label><input class="input-3d" value="${store.draftProduct.name}" oninput="store.draftProduct.name=this.value"></div><div class="grid grid-cols-2 gap-4"><div><label class="label-3d">Price</label><input type="number" class="input-3d" value="${store.draftProduct.price}" oninput="store.draftProduct.price=this.value"></div><div><label class="label-3d">Stock</label><input type="number" class="input-3d" value="${store.draftProduct.stock}" oninput="store.draftProduct.stock=this.value"></div></div><div><label class="label-3d">Category</label><select class="input-3d" ${noCol?'disabled':''} onchange="store.draftProduct.category_id=this.value; store.draftProduct.category=this.options[this.selectedIndex].text">${store.collections.length ? store.collections.map(c => `<option value="${c.id}" ${store.draftProduct.category_id===c.id?'selected':''}>${c.name}</option>`).join('') : '<option>Create a Collection First</option>'}</select></div></div></div><div class="tilt-card"><h3 class="font-bold text-lg mb-4">Variants</h3><div class="flex gap-2 mb-4"><input class="input-3d" placeholder="Name (e.g. Size)" value="${store.tempVariant.name}" oninput="store.tempVariant.name=this.value"><input class="input-3d" placeholder="Values (S, M)" value="${store.tempVariant.valueStr}" oninput="store.tempVariant.valueStr=this.value"><button class="bg-black text-white px-4 rounded-xl text-xs font-bold" onclick="app.addVariantToDraft()">Add</button></div><div class="space-y-2">${store.draftProduct.variants.map((v,i)=>`<div class="p-3 bg-gray-50 rounded-lg flex justify-between items-center"><div><span class="font-bold text-xs uppercase mr-2">${v.name}:</span>${v.values.map(val=>`<span class="variant-tag">${val}</span>`).join('')}</div><i class="fa-solid fa-trash text-red-500 cursor-pointer" onclick="app.removeVariantFromDraft(${i})"></i></div>`).join('')}</div></div><button onclick="${noCol ? "app.setTab('collections')" : "app.saveProduct()"}" class="w-full py-4 bg-blue-600 text-white font-bold rounded-xl shadow-lg hover:scale-[1.01] transition">${noCol ? "Go to Collections" : (isEdit ? "Update Product" : "Publish Product")}</button></div>
-                                <div class="w-full lg:w-1/3"><div class="tilt-card"><h3 class="font-bold text-lg mb-4">Gallery</h3><div class="grid grid-cols-2 gap-3 mb-3">${store.draftProduct.images.map(img => `<div class="img-upload-box border-none shadow-sm relative group"><img src="${img}"><div class="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition flex items-center justify-center rounded-xl"><i class="fa-solid fa-trash text-white"></i></div></div>`).join('')}<div class="img-upload-box" onclick="document.getElementById('p-up').click()"><div class="text-center"><i class="fa-solid fa-camera-retro text-blue-500 text-2xl mb-1"></i><p class="text-[9px] font-black text-gray-400 uppercase tracking-tighter">Choose Media</p></div></div></div><input type="file" id="p-up" hidden accept="image/*" onchange="app.handleUpload(this.files, 'product')"></div></div>
-                        </div>`;
+                    ws.innerHTML = `<div class="flex gap-8 flex-col lg:flex-row"><div class="flex-1 space-y-6">${noCol ? `<div class="p-4 bg-yellow-100 text-yellow-800 rounded-xl text-xs font-bold border border-yellow-200"><i class="fa-solid fa-triangle-exclamation mr-2"></i> You need to create a Collection before adding a product.</div>` : ''}<div class="tilt-card"><h3 class="font-bold text-lg mb-6">${isEdit ? 'Edit Product' : 'Create Product'}</h3><div class="space-y-4"><div><label class="label-3d">Name</label><input class="input-3d" value="${store.draftProduct.name}" oninput="store.draftProduct.name=this.value"></div><div class="grid grid-cols-2 gap-4"><div><label class="label-3d">Price</label><input type="number" class="input-3d" value="${store.draftProduct.price}" oninput="store.draftProduct.price=this.value"></div><div><label class="label-3d">Stock</label><input type="number" class="input-3d" value="${store.draftProduct.stock}" oninput="store.draftProduct.stock=this.value"></div></div><div><label class="label-3d">Category</label><select class="input-3d" ${noCol?'disabled':''} onchange="store.draftProduct.category_id=this.value; store.draftProduct.category=this.options[this.selectedIndex].text">${store.collections.length ? store.collections.map(c => `<option value="${c.id}" ${store.draftProduct.category_id===c.id?'selected':''}>${c.name}</option>`).join('') : '<option>Create a Collection First</option>'}</select></div></div></div><div class="tilt-card"><h3 class="font-bold text-lg mb-4">Variants</h3><div class="flex gap-2 mb-4"><input class="input-3d" placeholder="Name (e.g. Size)" value="${store.tempVariant.name}" oninput="store.tempVariant.name=this.value"><input class="input-3d" placeholder="Values (S, M)" value="${store.tempVariant.valueStr}" oninput="store.tempVariant.valueStr=this.value"><button class="bg-black text-white px-4 rounded-xl text-xs font-bold" onclick="app.addVariantToDraft()">Add</button></div><div class="space-y-2">${store.draftProduct.variants.map((v,i)=>`<div class="p-3 bg-gray-50 rounded-lg flex justify-between items-center"><div><span class="font-bold text-xs uppercase mr-2">${v.name}:</span>${v.values.map(val=>`<span class="variant-tag">${val}</span>`).join('')}</div><i class="fa-solid fa-trash text-red-500 cursor-pointer" onclick="app.removeVariantFromDraft(${i})"></i></div>`).join('')}</div></div><button onclick="${noCol ? "app.setTab('collections')" : "app.saveProduct()"}" class="w-full py-4 bg-blue-600 text-white font-bold rounded-xl shadow-lg hover:scale-[1.01] transition">${noCol ? "Go to Collections" : (isEdit ? "Update Product" : "Publish Product")}</button></div><div class="w-full lg:w-1/3"><div class="tilt-card"><h3 class="font-bold text-lg mb-4">Gallery</h3><div class="grid grid-cols-2 gap-3 mb-3">${store.draftProduct.images.map(img => `<div class="img-upload-box border-none shadow-sm relative group"><img src="${img}"><div class="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition flex items-center justify-center rounded-xl"><i class="fa-solid fa-trash text-white"></i></div></div>`).join('')}<div class="img-upload-box" onclick="document.getElementById('p-up').click()"><div class="text-center"><i class="fa-solid fa-camera-retro text-blue-500 text-2xl mb-1"></i><p class="text-[9px] font-black text-gray-400 uppercase tracking-tighter">Choose Media</p></div></div></div><input type="file" id="p-up" hidden accept="image/*" onchange="app.handleUpload(this.files, 'product')"></div></div></div>`;
                 }
-
                 else if (store.view === 'inventory') {
-                    ws.innerHTML = `
-                        <div class="glass-panel overflow-hidden border border-white/40 shadow-2xl fade-in-up">
-                            <div class="grid grid-cols-12 gap-4 p-5 border-b border-gray-200/50 font-black text-[11px] text-gray-400 uppercase bg-gray-50/50 tracking-widest res-grid-header">
-                                <div class="col-span-5">Product Details</div><div class="col-span-2">Category</div><div class="col-span-2 text-center">Stock Level</div><div class="col-span-2 text-right">Unit Price</div><div class="col-span-1"></div>
-                            </div>
-                            <div class="max-h-[650px] overflow-y-auto no-scroll p-2 md:p-0">
-                                ${store.products.length === 0 ? `<div class="text-center py-20"><i class="fa-solid fa-boxes-stacked text-gray-200 text-6xl mb-4"></i><p class="text-gray-400 font-bold">Your inventory is currently empty</p><button onclick="app.setTab('add_product')" class="mt-4 text-blue-500 text-xs font-black uppercase tracking-widest hover:underline">Add your first product</button></div>` : 
-                                store.products.map(p => {
-                                    const isLowStock = p.stock < 5;
-                                    const stockColor = isLowStock ? 'bg-red-50 text-red-600 border-red-100' : 'bg-lime-50 text-lime-700 border-lime-100';
-                                    return `
-                                    <div class="grid grid-cols-12 gap-4 p-4 items-center hover:bg-white/80 transition-all duration-300 border-b border-gray-100/50 group res-grid-row mx-2 my-2 md:mx-0 md:my-0 rounded-2xl md:rounded-none bg-white md:bg-transparent shadow-sm md:shadow-none">
-                                        <div class="col-span-5 flex items-center gap-4"><div class="relative"><img src="${p.img || 'https://via.placeholder.com/50'}" class="w-12 h-12 rounded-xl bg-gray-200 object-cover shadow-md border-2 border-white">${isLowStock ? `<div class="absolute -top-1 -right-1 w-3 h-3 bg-red-500 rounded-full border-2 border-white animate-pulse"></div>` : ''}</div><div class="truncate"><div class="truncate font-extrabold text-sm text-gray-800">${p.name}</div><div class="text-[9px] text-gray-400 font-mono">ID: #${p.id.toString().slice(-6)}</div></div></div>
-                                        <div class="col-span-2"><span class="px-2.5 py-1 bg-blue-50 text-blue-600 rounded-lg text-[10px] font-black uppercase tracking-tighter border border-blue-100 shadow-sm">${p.category}</span></div>
-                                        <div class="col-span-2 text-center"><div class="inline-flex items-center gap-2 px-3 py-1 rounded-full border ${stockColor} shadow-inner"><span class="w-1.5 h-1.5 rounded-full ${isLowStock ? 'bg-red-500' : 'bg-lime-500'}"></span><span class="text-[11px] font-bold">${p.stock} Units</span></div></div>
-                                        <div class="col-span-2 text-right"><span class="font-mono text-sm font-black text-gray-800 tracking-tight">₹${p.price.toLocaleString()}</span></div>
-                                        <div class="col-span-1 text-right flex justify-end gap-1"><button onclick="app.editProduct('${p.id}')" class="w-8 h-8 rounded-lg flex items-center justify-center text-blue-500 hover:bg-blue-100 transition opacity-100 md:opacity-0 md:group-hover:opacity-100"><i class="fa-solid fa-pen-to-square"></i></button><button onclick="app.deleteProduct('${p.id}')" class="w-8 h-8 rounded-lg flex items-center justify-center text-red-400 hover:bg-red-50 transition opacity-100 md:opacity-0 md:group-hover:opacity-100"><i class="fa-solid fa-trash-can"></i></button></div>
-                                    </div>`
-                                }).join('')}
-                            </div>
-                        </div>`;
+                    ws.innerHTML = `<div class="glass-panel overflow-hidden border border-white/40 shadow-2xl fade-in-up">
+                        <div class="max-h-[650px] overflow-y-auto no-scroll p-2 md:p-0">
+                            ${store.products.length === 0 ? `<div class="text-center py-20"><i class="fa-solid fa-boxes-stacked text-gray-200 text-6xl mb-4"></i><p class="text-gray-400 font-bold">Your inventory is currently empty</p><button onclick="app.setTab('add_product')" class="mt-4 text-blue-500 text-xs font-black uppercase tracking-widest hover:underline">Add your first product</button></div>` : store.products.map(p => {
+                                const isLowStock = p.stock < 5;
+                                const stockColor = isLowStock ? 'bg-red-50 text-red-600 border-red-100' : 'bg-lime-50 text-lime-700 border-lime-100';
+                                return `<div class="flex flex-col md:flex-row gap-4 p-4 items-start md:items-center bg-white rounded-xl shadow-sm border border-gray-100 mb-2">
+                                    <div class="flex items-center gap-4 w-full md:w-auto"><div class="relative"><img src="${p.img || 'https://via.placeholder.com/50'}" class="w-14 h-14 rounded-xl bg-gray-200 object-cover shadow-sm"></div><div class="flex-1"><div class="font-extrabold text-sm text-gray-800">${p.name}</div><div class="text-[10px] text-gray-400 font-mono">ID: #${p.id.toString().slice(-6)}</div></div></div>
+                                    <div class="flex justify-between items-center w-full md:w-auto gap-4 mt-2 md:mt-0">
+                                        <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full border ${stockColor}"><span class="w-1.5 h-1.5 rounded-full ${isLowStock ? 'bg-red-500' : 'bg-lime-500'}"></span><span class="text-[11px] font-bold">${p.stock} Units</span></div>
+                                        <span class="font-mono text-sm font-black text-gray-800">₹${p.price.toLocaleString()}</span>
+                                    </div>
+                                    <div class="flex gap-2 w-full md:w-auto justify-end mt-2 md:mt-0">
+                                        <button onclick="app.editProduct('${p.id}')" class="p-2 text-blue-500 bg-blue-50 rounded-lg"><i class="fa-solid fa-pen-to-square"></i></button>
+                                        <button onclick="app.deleteProduct('${p.id}')" class="p-2 text-red-500 bg-red-50 rounded-lg"><i class="fa-solid fa-trash-can"></i></button>
+                                    </div>
+                                </div>`;
+                            }).join('')}
+                        </div></div>`;
                 }
-
                 else if (store.view === 'collections') {
-                    ws.innerHTML = `
-                        <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
-                            <div class="tilt-card h-fit sticky top-0"><h3 class="font-bold mb-6 text-lg text-gray-900">${store.draftCollection.id ? 'Edit' : 'Create'} Collection</h3><div class="space-y-5"><div><label class="label-3d">Collection Name</label><input class="input-3d" placeholder="e.g. Summer Wear" value="${store.draftCollection.name || ''}" oninput="store.draftCollection.name=this.value"></div><div><label class="label-3d">Cover Image</label><div class="img-upload-box h-48 w-full relative" onclick="document.getElementById('c-up').click()">${store.draftCollection.img ? `<img src="${store.draftCollection.img}" class="w-full h-full object-cover rounded-xl shadow-inner">` : `<div class="text-center p-4"><i class="fa-solid fa-cloud-arrow-up text-lime-500 text-3xl mb-3"></i><p class="text-xs text-gray-400 font-bold uppercase tracking-widest">Select Cover Photo</p><p class="text-[10px] text-gray-300 mt-1">Take Photo • Library • Browse</p></div>`}</div><input type="file" id="c-up" hidden accept="image/*" onchange="app.handleUpload(this.files, 'collection')"></div><button onclick="app.saveCollection()" class="btn-primary w-full py-4" style="background: linear-gradient(135deg, #84cc16, #65a30d); border: none; color: white; border-radius: 14px; font-weight: 700;"><i class="fa-solid fa-check mr-2"></i> ${store.draftCollection.id ? 'Update Collection' : 'Create Collection'}</button>${store.draftCollection.id ? `<button onclick="store.draftCollection={id:null, name:'', img:null}; app.renderWorkspace();" class="w-full text-xs font-bold text-gray-400 mt-4 uppercase tracking-widest hover:text-red-400 transition">Discard Changes</button>` : ''}</div></div>
-                            <div class="space-y-4"><div class="flex items-center justify-between mb-2"><h3 class="font-bold text-lg text-gray-900">Active Collections</h3><span class="px-2 py-0.5 bg-gray-100 text-gray-500 rounded-md text-[10px] font-black">${store.collections.length}</span></div>${store.collections.length === 0 ? `<div class="glass-panel p-12 text-center border-dashed border-2 border-gray-200"><i class="fa-solid fa-folder-plus text-gray-200 text-5xl mb-4"></i><p class="text-gray-400 font-medium">No collections created yet.</p></div>` : store.collections.map((c, i) => { const productsInCol = store.products.filter(p => p.category_id === c.id); return `<div class="glass-panel p-4 draggable-item group" draggable="true" ondragstart="app.dragStart(event, ${i})" ondragover="app.dragOver(event)" ondrop="app.dragDrop(event, ${i})"><div class="flex items-center gap-4 mb-4 border-b border-gray-100/50 pb-4"><div class="text-gray-200 cursor-grab hover:text-gray-400"><i class="fa-solid fa-grip-vertical"></i></div><img src="${c.img_url || 'https://via.placeholder.com/150'}" class="w-14 h-14 rounded-xl object-cover bg-gray-100 shadow-sm border border-white"><div class="flex-1"><div class="font-bold text-gray-800 leading-tight">${c.name}</div><div class="text-[10px] text-lime-600 font-bold uppercase mt-1 tracking-tighter">${productsInCol.length} Products Linked</div></div><div class="flex gap-1"><button onclick="app.editCollection('${c.id}')" class="w-8 h-8 rounded-lg flex items-center justify-center text-blue-500 hover:bg-blue-50 transition"><i class="fa-solid fa-pen-to-square"></i></button><button onclick="app.deleteCollection('${c.id}')" class="w-8 h-8 rounded-lg flex items-center justify-center text-red-400 hover:bg-red-50 transition"><i class="fa-solid fa-trash-can"></i></button></div></div><div class="flex flex-wrap gap-2">${productsInCol.length > 0 ? productsInCol.slice(0, 5).map(p => `<div class="flex items-center gap-2 bg-white/60 border border-gray-100 px-2 py-1 rounded-lg shadow-sm"><img src="${p.img || 'https://via.placeholder.com/50'}" class="w-6 h-6 rounded-md object-cover"><span class="text-[9px] font-bold text-gray-500 truncate max-w-[50px]">${p.name}</span></div>`).join('') + (productsInCol.length > 5 ? `<div class="text-[9px] font-bold text-gray-400 flex items-center">+${productsInCol.length - 5}</div>` : '') : `<p class="text-[9px] text-gray-300 italic">This collection is empty</p>`}</div></div>`; }).join('')}</div>
-                        </div>`;
+                    ws.innerHTML = `<div class="grid grid-cols-1 lg:grid-cols-2 gap-8"><div class="tilt-card h-fit sticky top-0"><h3 class="font-bold mb-6 text-lg text-gray-900">${store.draftCollection.id ? 'Edit' : 'Create'} Collection</h3><div class="space-y-5"><div><label class="label-3d">Collection Name</label><input class="input-3d" placeholder="e.g. Summer Wear" value="${store.draftCollection.name || ''}" oninput="store.draftCollection.name=this.value"></div><div><label class="label-3d">Cover Image</label><div class="img-upload-box h-48 w-full relative" onclick="document.getElementById('c-up').click()">${store.draftCollection.img ? `<img src="${store.draftCollection.img}" class="w-full h-full object-cover rounded-xl shadow-inner">` : `<div class="text-center p-4"><i class="fa-solid fa-cloud-arrow-up text-lime-500 text-3xl mb-3"></i><p class="text-xs text-gray-400 font-bold uppercase tracking-widest">Select Cover Photo</p></div>`}</div><input type="file" id="c-up" hidden accept="image/*" onchange="app.handleUpload(this.files, 'collection')"></div><button onclick="app.saveCollection()" class="btn-primary w-full py-4" style="background: linear-gradient(135deg, #84cc16, #65a30d); border: none; color: white; border-radius: 14px; font-weight: 700;">${store.draftCollection.id ? 'Update Collection' : 'Create Collection'}</button></div></div><div class="space-y-4">${store.collections.length === 0 ? `<div class="glass-panel p-12 text-center border-dashed border-2 border-gray-200"><p class="text-gray-400 font-medium">No collections created yet.</p></div>` : store.collections.map((c, i) => { const productsInCol = store.products.filter(p => p.category_id === c.id); return `<div class="glass-panel p-4"><div class="flex items-center gap-4 mb-4 border-b border-gray-100/50 pb-4"><img src="${c.img_url || 'https://via.placeholder.com/150'}" class="w-14 h-14 rounded-xl object-cover bg-gray-100 shadow-sm border border-white"><div class="flex-1"><div class="font-bold text-gray-800 leading-tight">${c.name}</div><div class="text-[10px] text-lime-600 font-bold uppercase mt-1 tracking-tighter">${productsInCol.length} Products Linked</div></div><div class="flex gap-1"><button onclick="app.editCollection('${c.id}')" class="w-8 h-8 rounded-lg flex items-center justify-center text-blue-500 hover:bg-blue-50 transition"><i class="fa-solid fa-pen-to-square"></i></button><button onclick="app.deleteCollection('${c.id}')" class="w-8 h-8 rounded-lg flex items-center justify-center text-red-400 hover:bg-red-50 transition"><i class="fa-solid fa-trash-can"></i></button></div></div></div>`; }).join('')}</div></div>`;
                 }
-
                 else if (store.view === 'branding') {
-                      ws.innerHTML = `<div class="max-w-md mx-auto space-y-6"><div class="tilt-card"><h3 class="font-bold text-lg mb-6">Core Identity</h3><div class="space-y-5"><div><label class="label-3d">Name</label><input class="input-3d" value="${store.branding.name}" oninput="app.updateBranding('name', this.value)"></div><div><label class="label-3d">Tagline</label><input class="input-3d" value="${store.branding.tagline}" oninput="app.updateBranding('tagline', this.value)"></div><div><label class="label-3d">Color</label><input type="color" class="w-full h-10 rounded-xl" value="${store.branding.color}" oninput="app.updateBranding('color', this.value)"></div><div><label class="label-3d">Logo</label><div class="img-upload-box h-32 w-full" onclick="document.getElementById('l-up').click()">${store.branding.logo_url ? `<img src="${store.branding.logo_url}" class="object-contain p-4"><div class="absolute top-2 right-2 w-6 h-6 bg-red-500 text-white rounded-full flex items-center justify-center shadow hover:bg-red-600 transition" onclick="event.stopPropagation(); app.deleteLogo()"><i class="fa-solid fa-trash text-xs"></i></div>` : `Upload / Take Photo`}</div><input type="file" id="l-up" hidden accept="image/*" onchange="app.handleUpload(this.files, 'logo')"></div></div></div><div class="tilt-card border-l-4 border-purple-500"><h3 class="font-bold text-lg mb-6">Store Interface</h3><div class="space-y-5"><div><label class="label-3d">Typography (Fonts)</label><select class="input-3d" onchange="app.updateBranding('font', this.value)"><option value="Inter" ${store.branding.font==='Inter'?'selected':''}>Inter (Clean, Default)</option><option value="Roboto" ${store.branding.font==='Roboto'?'selected':''}>Roboto (Standard)</option><option value="Playfair Display" ${store.branding.font==='Playfair Display'?'selected':''}>Playfair Display (Luxury/Serif)</option><option value="Poppins" ${store.branding.font==='Poppins'?'selected':''}>Poppins (Friendly/Round)</option><option value="JetBrains Mono" ${store.branding.font==='JetBrains Mono'?'selected':''}>Mono (Technical)</option></select></div><div><label class="label-3d">"Add to Cart" Button Text</label><input class="input-3d" value="${store.branding.btnTextCart}" oninput="app.updateBranding('btnTextCart', this.value)" placeholder="e.g. Add to Cart"></div><div><label class="label-3d">"Buy Now" Button Text</label><input class="input-3d" value="${store.branding.btnTextBuy}" oninput="app.updateBranding('btnTextBuy', this.value)" placeholder="e.g. Buy Now"></div></div></div></div>`;
+                    ws.innerHTML = `<div class="max-w-md mx-auto space-y-6"><div class="tilt-card"><h3 class="font-bold text-lg mb-6">Core Identity</h3><div class="space-y-5"><div><label class="label-3d">Name</label><input class="input-3d" value="${store.branding.name}" oninput="app.updateBranding('name', this.value)"></div><div><label class="label-3d">Tagline</label><input class="input-3d" value="${store.branding.tagline}" oninput="app.updateBranding('tagline', this.value)"></div><div><label class="label-3d">Color</label><input type="color" class="w-full h-10 rounded-xl" value="${store.branding.color}" oninput="app.updateBranding('color', this.value)"></div><div><label class="label-3d">Logo</label><div class="img-upload-box h-32 w-full" onclick="document.getElementById('l-up').click()">${store.branding.logo_url ? `<img src="${store.branding.logo_url}" class="object-contain p-4"><div class="absolute top-2 right-2 w-6 h-6 bg-red-500 text-white rounded-full flex items-center justify-center shadow hover:bg-red-600 transition" onclick="event.stopPropagation(); app.deleteLogo()"><i class="fa-solid fa-trash text-xs"></i></div>` : `Upload / Take Photo`}</div><input type="file" id="l-up" hidden accept="image/*" onchange="app.handleUpload(this.files, 'logo')"></div></div></div></div>`;
                 }
             }
         };
