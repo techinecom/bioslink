@@ -224,6 +224,8 @@
 </head>
 <body>
 
+    <input type="hidden" id="store-name-input">
+
     <div id="auth-screen" style="display: none;">
         <div class="auth-box">
             <div class="w-16 h-16 bg-lime-500 rounded-2xl flex items-center justify-center text-white font-bold text-3xl shadow-lg mx-auto mb-6">B</div>
@@ -321,25 +323,21 @@
         </main>
     </div>
 
-    <div id="publish-modal" onclick="if(event.target===this) app.closePublishModal()">
-        <div class="success-card">
-            <div class="w-16 h-16 bg-lime-100 text-lime-600 rounded-full flex items-center justify-center mx-auto mb-4 text-2xl">
-                <i class="fa-solid fa-check"></i>
-            </div>
-            <h2 class="text-2xl font-bold mb-2">You are Live!</h2>
-            <p class="text-gray-500 text-sm mb-6">Your store is now online and ready for the world.</p>
-            
-            <div class="bg-gray-100 p-3 rounded-xl flex justify-between items-center mb-6">
-                <span id="modal-url" class="font-mono text-xs text-blue-600 truncate mr-2">bios.store/...</span>
-                <button onclick="app.copyLink()" class="text-xs font-bold bg-white px-3 py-1.5 rounded shadow-sm hover:scale-105 transition">Copy</button>
-            </div>
+<div class="publish-zone p-6 bg-gray-900 rounded-3xl border border-white/10 mt-6" style="max-width: 500px; margin: 20px auto; display: none;" id="bottom-publish-container">
+    <h3 class="text-xl font-bold mb-4 text-white">Store Visibility</h3>
+    
+    <button onclick="handlePublish()" id="publish-btn" class="w-full bg-[#DFFF00] text-black py-4 rounded-2xl font-black text-lg shadow-xl hover:scale-105 active:scale-95 transition">
+        PUBLISH STORE
+    </button>
 
-            <div class="flex gap-3">
-                <button onclick="app.viewStore()" class="flex-1 py-3 bg-white border-2 border-gray-100 text-gray-700 rounded-xl font-bold hover:bg-gray-50">View Store</button>
-                <button onclick="app.closePublishModal()" class="flex-1 py-3 bg-black text-white rounded-xl font-bold">Done</button>
-            </div>
+    <div id="link-display" class="hidden mt-4 p-4 bg-white/5 border border-dashed border-white/20 rounded-xl">
+        <p class="text-xs text-gray-400 uppercase font-black mb-2">Your Live Link:</p>
+        <div class="flex items-center justify-between">
+            <span id="live-url" class="text-[#DFFF00] font-bold truncate mr-2"></span>
+            <button onclick="copyLink()" class="text-white hover:text-[#DFFF00]"><i class="ph ph-copy"></i></button>
         </div>
     </div>
+</div>
 
     <script>
         // --- 1. CONFIGURATION ---
@@ -392,6 +390,9 @@
                         btnTextCart: profile.btn_cart_text,
                         btnTextBuy: profile.btn_buy_text
                     };
+                    store.isPublished = profile.is_published;
+                    // SYNC HIDDEN INPUT FOR PUBLISH LOGIC
+                    document.getElementById('store-name-input').value = profile.store_name || '';
                 } else {
                     await _supabase.from('profiles').insert([{ id: store.user.id }]);
                 }
@@ -414,6 +415,7 @@
 
                 app.updateStoreUrl();
                 app.updatePendingBadge();
+                app.setLiveStatus(store.isPublished);
             },
 
             // --- MOBILE SIDEBAR TOGGLE ---
@@ -514,7 +516,10 @@
             },
             
             updateBranding: async (k, v) => {
-                if (k === 'name') store.branding.name = v;
+                if (k === 'name') {
+                    store.branding.name = v;
+                    document.getElementById('store-name-input').value = v; // Sync hidden input
+                }
                 if (k === 'tagline') store.branding.tagline = v;
                 if (k === 'color') store.branding.color = v;
                 if (k === 'font') store.branding.font = v;
@@ -569,17 +574,76 @@
             updateStoreUrl: () => {
                 const slug = store.branding.name.toLowerCase().replace(/ /g, '-').replace(/[^\w-]+/g, '');
                 store.storeUrl = `bios.store/${slug}`;
-                document.getElementById('sidebar-url').innerText = store.storeUrl;
-                document.getElementById('sidebar-url').href = `https://${store.storeUrl}`;
-                document.getElementById('modal-url').innerText = store.storeUrl;
+                if(document.getElementById('sidebar-url')) {
+                    document.getElementById('sidebar-url').innerText = store.storeUrl;
+                    document.getElementById('sidebar-url').href = `https://${store.storeUrl}`;
+                }
             },
 
-            publishStore: () => {
-                store.isPublished = true; 
-                app.setLiveStatus(true);
-                app.updateStoreUrl();
-                document.getElementById('publish-modal').classList.add('active');
+            // --- FIXED: Function now properly inside app object ---
+            publishStore: async () => {
+                // 1. Get the store name from hidden input or state
+                const rawName = document.getElementById('store-name-input').value; 
+
+                if (!rawName) return alert("Please set a Store Name first in Appearance tab!");
+
+                // 2. Create the URL-friendly slug
+                const slug = rawName.toLowerCase()
+                    .trim()
+                    .replace(/[^\w\s-]/g, '') // Remove symbols
+                    .replace(/[\s_-]+/g, '-') // Spaces to dashes
+                    .replace(/^-+|-+$/g, ''); // Trim dashes
+
+                const btn = document.querySelector('.publish-btn'); // Target header btn
+                const bottomBtn = document.getElementById('publish-btn'); // Target bottom btn
+                
+                if(btn) btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin mr-2"></i>Publishing...';
+                if(bottomBtn) { bottomBtn.innerText = "PUBLISHING..."; bottomBtn.disabled = true; }
+
+                // 3. Update Supabase
+                const { data: { user } } = await _supabase.auth.getUser();
+                const { error } = await _supabase
+                    .from('profiles')
+                    .update({ 
+                        store_slug: slug, 
+                        is_published: true,
+                        store_name: rawName 
+                    })
+                    .eq('id', user.id);
+
+                if (error) {
+                    alert("Error: " + error.message);
+                    if(btn) btn.innerHTML = '<i class="fa-solid fa-rocket mr-2"></i>Publish Live';
+                    if(bottomBtn) { bottomBtn.innerText = "PUBLISH STORE"; bottomBtn.disabled = false; }
+                } else {
+                    // 4. Success! Show the link
+                    const finalUrl = `${window.location.origin}/${slug}`;
+                    store.isPublished = true;
+                    
+                    if(btn) btn.innerHTML = '<i class="fa-solid fa-check mr-2"></i>Live!';
+                    if(bottomBtn) { 
+                        bottomBtn.innerText = "STORE LIVE!";
+                        bottomBtn.classList.replace('bg-[#DFFF00]', 'bg-green-500');
+                    }
+
+                    const linkDisplay = document.getElementById('link-display');
+                    if(linkDisplay) {
+                        linkDisplay.classList.remove('hidden');
+                        document.getElementById('live-url').innerText = finalUrl;
+                    }
+                    
+                    app.setLiveStatus(true);
+                    alert(`Success! Store live at: ${finalUrl}`);
+                }
             },
+
+            // --- FIXED: Helper now inside app object ---
+            copyLink: () => { 
+                const url = document.getElementById('live-url')?.innerText || `https://${store.storeUrl}`;
+                navigator.clipboard.writeText(url);
+                alert("Link copied!"); 
+            },
+
             toggleLive: () => {
                 if(!store.isPublished) return alert("Publish your store first!");
                 app.setLiveStatus(!store.liveState);
@@ -593,8 +657,14 @@
                 else { btn.classList.remove('live'); txt.innerText = "OFFLINE"; box.classList.remove('visible'); }
             },
             closePublishModal: () => document.getElementById('publish-modal').classList.remove('active'),
-            copyLink: () => { navigator.clipboard.writeText(`https://${store.storeUrl}`); alert("Link copied!"); },
-            viewStore: () => { if(!store.isPublished) { if(confirm("Store not published. Publish?")) app.publishStore(); return; } window.open('store.html', '_blank'); },
+            
+            viewStore: () => { 
+                if(!store.isPublished) { if(confirm("Store not published. Publish?")) app.publishStore(); return; } 
+                // Open dynamic slug
+                const slug = store.branding.name.toLowerCase().replace(/ /g, '-').replace(/[^\w-]+/g, '');
+                window.open(`/${slug}`, '_blank'); 
+            },
+            
             dragStart: (e, i) => { e.dataTransfer.setData('text/plain', i); e.currentTarget.classList.add('dragging'); },
             dragOver: (e) => { e.preventDefault(); },
             dragDrop: (e, targetI) => { e.preventDefault(); const sourceI = parseInt(e.dataTransfer.getData('text/plain')); if (sourceI !== targetI) { const moved = store.collections.splice(sourceI, 1)[0]; store.collections.splice(targetI, 0, moved); app.renderWorkspace(); } document.querySelectorAll('.draggable-item').forEach(el => el.classList.remove('dragging')); },
@@ -609,6 +679,12 @@
                 if (store.view === 'dashboard') {
                     const rev = store.orders.reduce((acc, o) => acc + (o.total || 0), 0);
                     ws.innerHTML = `<div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8"><div class="tilt-card border-l-4 border-lime-500"><span class="label-3d">Revenue</span><div class="text-3xl font-black mt-2">₹${rev.toLocaleString()}</div></div><div class="tilt-card border-l-4 border-blue-500"><span class="label-3d">Orders</span><div class="text-3xl font-black mt-2">${store.orders.length}</div></div><div class="tilt-card border-l-4 border-indigo-500"><span class="label-3d">Products</span><div class="text-3xl font-black mt-2">${store.products.length}</div></div></div>`;
+                    
+                    // Show publishing widget in dashboard view if not published
+                    if(document.getElementById('bottom-publish-container')) {
+                         document.getElementById('bottom-publish-container').style.display = 'block';
+                         ws.appendChild(document.getElementById('bottom-publish-container'));
+                    }
                 }
                 else if (store.view === 'orders') {
                     if(store.orders.length === 0) { ws.innerHTML = `<div class="text-center text-gray-400 mt-20">No orders yet. Share your store link!</div>`; return; }
@@ -652,6 +728,10 @@
                 }
             }
         };
+
+        // Bridge to support the bottom button click handler
+        window.handlePublish = app.publishStore;
+        window.copyLink = app.copyLink;
 
         window.onload = app.init;
     </script>
