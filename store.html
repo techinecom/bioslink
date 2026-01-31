@@ -1,0 +1,640 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <title>Urban Ultra | Flagship Store</title>
+    
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Syncopate:wght@400;700&display=swap" rel="stylesheet">
+    
+    <script src="https://unpkg.com/@phosphor-icons/web"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+    <style>
+        /* =========================================
+           1. CORE VARIABLES & THEME
+           ========================================= */
+        :root {
+            --primary: #DFFF00; /* Acid Green */
+            --primary-glow: rgba(223, 255, 0, 0.4);
+            --dark: #050505;
+            --surface: #121212;
+            --text-main: #FFFFFF;
+            --text-muted: #888888;
+            --border: rgba(255,255,255,0.1);
+            
+            --max-w: 480px;
+            --ease-out: cubic-bezier(0.23, 1, 0.32, 1);
+            --font-main: 'Plus Jakarta Sans', sans-serif;
+            --font-head: 'Syncopate', sans-serif;
+            
+            --bg-top: #000000;
+            --bg-bottom: #FFFFFF;
+        }
+
+        /* RESET */
+        * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; outline: none; }
+        
+        body {
+            font-family: var(--font-main);
+            background-color: var(--dark);
+            color: var(--text-main);
+            min-height: 100vh;
+            overflow-y: auto; 
+            display: flex; justify-content: center;
+        }
+
+        .hide-scroll::-webkit-scrollbar { display: none; }
+        .hide-scroll { -ms-overflow-style: none; scrollbar-width: none; }
+
+        /* =========================================
+           2. INTRO LAYER
+           ========================================= */
+        #intro-layer {
+            position: fixed; inset: 0; background: #000; z-index: 9999;
+            display: flex; justify-content: center; align-items: center;
+            transition: opacity 0.8s var(--ease-out);
+        }
+        .intro-card { text-align: center; border: 1px solid var(--primary); padding: 50px; border-radius: 40px; box-shadow: 0 0 30px var(--primary-glow); }
+        .brand-logo { font-family: var(--font-head); font-weight: 700; font-size: 2.2rem; color: #fff; text-transform: uppercase; margin-bottom: 20px;}
+        .enter-btn { background: var(--primary); color: #000; padding: 16px 40px; border-radius: 100px; border: none; font-weight: 800; cursor: pointer; text-transform: uppercase; letter-spacing: 1px; }
+
+        /* =========================================
+           3. MAIN APP LAYER
+           ========================================= */
+        #app-layer { opacity: 0; pointer-events: none; transition: opacity 0.8s ease; width: 100%; display: flex; justify-content: center; }
+        .mobile-shell { width: 100%; max-width: var(--max-w); min-height: 100vh; background: var(--bg-bottom); position: relative; padding-bottom: 80px; }
+
+        /* Zones */
+        .zone-top { background-color: var(--bg-top); padding-bottom: 30px; border-bottom-left-radius: 40px; border-bottom-right-radius: 40px; box-shadow: 0 10px 30px rgba(0,0,0,0.5); position: relative; z-index: 2; }
+        .zone-bottom { background-color: var(--bg-bottom); padding-top: 30px; min-height: 50vh; position: relative; z-index: 1; }
+        .zone-bottom h3 { color: #000; }
+
+        /* Header */
+        .app-header { position: sticky; top: 0; z-index: 100; background: rgba(0, 0, 0, 0.9); backdrop-filter: blur(20px); padding: 20px 24px; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--border); }
+        .logo-sm { font-family: var(--font-head); font-weight: 700; color: #fff; }
+        
+        /* Cart Badge */
+        .bag-wrap { position: relative; cursor: pointer; }
+        .cart-badge { 
+            position: absolute; top: -5px; right: -8px; background: var(--primary); color: #000; 
+            font-size: 0.7rem; font-weight: 800; width: 18px; height: 18px; border-radius: 50%; 
+            display: flex; align-items: center; justify-content: center; 
+            opacity: 0; transform: scale(0); transition: 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+        .cart-badge.show { opacity: 1; transform: scale(1); }
+
+        /* Hero Banner */
+        .hero-banner { margin: 24px; height: 240px; border-radius: 32px; position: relative; overflow: hidden; display: flex; align-items: center; padding: 30px; background: #000; border: 1px solid var(--border); }
+        .hero-bg { position: absolute; inset: 0; background: url('https://images.unsplash.com/photo-1600609842360-12863925e0c5?auto=format&fit=crop&w=800&q=80') center/cover; opacity: 0.5; transition: 0.5s; filter: grayscale(100%); }
+        .hero-text { position: relative; z-index: 2; }
+        .hero-text h2 { font-size: 2rem; font-family: var(--font-head); color: var(--primary); text-transform: uppercase; }
+
+        /* =========================================
+           4. CATEGORIES (WITH SCROLL BUTTONS)
+           ========================================= */
+        .section-head { padding: 0 24px 15px; display: flex; justify-content: space-between; align-items: flex-end; }
+        .section-head h3 { font-size: 1.3rem; font-weight: 800; color: #fff; font-family: var(--font-head); }
+
+        .cat-scroll-wrapper { position: relative; width: 100%; display: flex; align-items: center; }
+        
+        .cat-horizontal-scroll {
+            display: flex; flex-direction: row; flex-wrap: nowrap !important;
+            gap: 20px; overflow-x: auto; padding: 10px 24px 30px;
+            scroll-snap-type: x mandatory; scroll-behavior: smooth; width: 100%;
+        }
+
+        .nav-btn-circle {
+            position: absolute; width: 40px; height: 40px; background: rgba(20,20,20,0.8);
+            backdrop-filter: blur(10px); border: 1px solid var(--border); border-radius: 50%;
+            color: #fff; display: flex; align-items: center; justify-content: center;
+            z-index: 10; cursor: pointer; transition: 0.3s;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.5);
+        }
+        .nav-btn-circle:hover { background: var(--primary); color: #000; }
+        .btn-left { left: 10px; }
+        .btn-right { right: 10px; }
+
+        .cat-item-round { flex: 0 0 auto; width: 100px; display: flex; flex-direction: column; align-items: center; gap: 12px; cursor: pointer; scroll-snap-align: center; }
+        .cat-circle-img { width: 90px; height: 90px; border-radius: 50%; overflow: hidden; border: 2px solid rgba(255,255,255,0.1); background: #222; }
+        .cat-circle-img img { width: 100%; height: 100%; object-fit: cover; }
+        .cat-item-round.active .cat-circle-img { border-color: var(--primary); box-shadow: 0 0 20px var(--primary-glow); }
+        .cat-name-below { font-size: 0.75rem; font-weight: 700; color: #888; text-transform: uppercase; }
+
+        /* =========================================
+           5. PRODUCT GRID
+           ========================================= */
+        .prod-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; padding: 0 24px 40px; }
+        .prod-card { background: #181818; border-radius: 28px; padding: 12px; cursor: pointer; transition: 0.3s; border: 1px solid transparent; }
+        .prod-card:hover { border-color: var(--primary); transform: translateY(-5px); }
+        .prod-img-box { width: 100%; aspect-ratio: 1/1.1; background: #151515; border-radius: 20px; overflow: hidden; margin-bottom: 15px; position: relative; }
+        .prod-img { width: 100%; height: 100%; object-fit: cover; }
+        .prod-title { font-size: 0.95rem; font-weight: 700; color: #fff; margin-bottom: 6px; }
+        .prod-price { font-size: 1rem; font-weight: 600; color: var(--primary); font-family: var(--font-head); }
+        .empty-state { grid-column: span 2; text-align: center; padding: 50px 20px; color: #666; }
+
+        /* =========================================
+           6. OVERLAYS (DETAILS & CART)
+           ========================================= */
+        .overlay-view { position: fixed; inset: 0; z-index: 200; pointer-events: none; visibility: hidden; display: flex; flex-direction: column; justify-content: flex-end; }
+        .overlay-view.active { pointer-events: all; visibility: visible; }
+        .overlay-backdrop { position: absolute; inset: 0; background: rgba(0,0,0,0.8); backdrop-filter: blur(8px); opacity: 0; transition: 0.5s; }
+        .overlay-view.active .overlay-backdrop { opacity: 1; }
+        .overlay-card { background: #181818; width: 100%; height: 90vh; border-top-left-radius: 40px; border-top-right-radius: 40px; position: relative; transform: translateY(110%); transition: transform 0.5s var(--ease-out); display: flex; flex-direction: column; box-shadow: 0 -20px 50px rgba(0,0,0,0.8); }
+        .overlay-view.active .overlay-card { transform: translateY(0); }
+        .close-btn { position: absolute; top: 20px; right: 20px; z-index: 50; width: 40px; height: 40px; border-radius: 50%; background: rgba(0,0,0,0.5); color: #fff; display: flex; align-items: center; justify-content: center; cursor: pointer; border: 1px solid rgba(255,255,255,0.2); }
+
+        /* Gallery */
+        .gallery-wrap { height: 45%; position: relative; width: 100%; flex-shrink: 0; }
+        .gallery-scroll { width: 100%; height: 100%; display: flex; overflow-x: auto; scroll-snap-type: x mandatory; scroll-behavior: smooth; }
+        .g-item { min-width: 100%; height: 100%; scroll-snap-align: center; position: relative; }
+        .g-img { width: 100%; height: 100%; object-fit: cover; border-top-left-radius: 40px; border-top-right-radius: 40px; }
+        .gal-btn { position: absolute; top: 50%; transform: translateY(-50%); width: 44px; height: 44px; background: rgba(0,0,0,0.6); border-radius: 50%; color: #fff; display: flex; align-items: center; justify-content: center; border: 1px solid rgba(255,255,255,0.2); cursor: pointer; z-index: 20; transition: 0.2s; }
+        .gal-btn:active { transform: translateY(-50%) scale(0.9); }
+        .gal-prev { left: 20px; }
+        .gal-next { right: 20px; }
+
+        /* Details Content */
+        .details-content { flex: 1; padding: 30px 24px; overflow-y: auto; color: #fff; }
+        .d-title { font-size: 1.6rem; font-family: var(--font-head); font-weight: 700; text-transform: uppercase; }
+        .d-price { font-size: 1.5rem; color: var(--primary); font-weight: 700; font-family: var(--font-head); margin-top: 10px; }
+        .d-desc { color: #aaa; margin-top: 20px; line-height: 1.6; font-size: 0.9rem; }
+        .d-footer { padding: 20px 24px 40px; border-top: 1px solid var(--border); display: flex; gap: 15px; background: #181818; }
+        
+        .btn-primary-action { flex: 1; padding: 18px; border-radius: 100px; border: none; background: var(--primary); color: #000; font-weight: 800; cursor: pointer; text-transform: uppercase; letter-spacing: 1px; }
+        .btn-primary-action:active { transform: scale(0.95); }
+
+        /* CART SPECIFIC */
+        .cart-title { font-size: 2rem; font-family: var(--font-head); font-weight: 700; padding: 30px 24px 10px; color: #fff; }
+        .cart-items-wrap { flex: 1; overflow-y: auto; padding: 0 24px; }
+        .cart-item { display: flex; justify-content: space-between; align-items: center; padding: 20px 0; border-bottom: 1px solid var(--border); }
+        .ci-info h4 { font-size: 1rem; color: #fff; margin-bottom: 5px; }
+        .ci-info p { color: #666; font-size: 0.8rem; }
+        .ci-right { text-align: right; display: flex; flex-direction: column; align-items: flex-end; gap: 10px; }
+        .ci-price { color: var(--primary); font-family: var(--font-head); font-weight: 700; }
+        .ci-remove { color: #ff4444; font-size: 0.8rem; cursor: pointer; display: flex; align-items: center; gap: 4px; }
+        .cart-total-bar { display: flex; justify-content: space-between; padding: 20px 24px; font-size: 1.2rem; font-weight: 700; color: #fff; }
+
+        /* Toast Notification */
+        #toast { 
+            position: fixed; top: 100px; left: 50%; transform: translateX(-50%) translateY(-20px); 
+            background: rgba(255,255,255,0.9); color: #000; padding: 12px 24px; 
+            border-radius: 50px; font-weight: 600; opacity: 0; pointer-events: none; 
+            transition: 0.3s; z-index: 300; box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+            display: flex; align-items: center; gap: 8px;
+        }
+        #toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+
+        /* Nav Bar */
+        .nav-bar { position: fixed; bottom: 30px; left: 50%; transform: translateX(-50%); width: calc(100% - 48px); max-width: 400px; height: 70px; background: rgba(20, 20, 20, 0.9); backdrop-filter: blur(20px); border: 1px solid rgba(255,255,255,0.15); border-radius: 24px; display: flex; justify-content: space-evenly; align-items: center; z-index: 90; }
+        .nav-item { color: #888; font-size: 1.6rem; cursor: pointer; }
+        .nav-item.active { color: var(--primary); }
+
+        /* Desktop Adjustments */
+        @media (min-width: 768px) {
+            :root { --max-w: 100%; }
+            .mobile-shell { max-width: 100%; border: none; }
+            .zone-top, .zone-bottom { padding-left: 50px; padding-right: 50px; }
+            .prod-grid { grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); }
+            .overlay-card { width: 800px; height: 600px; margin: auto; border-radius: 30px; top: 50%; transform: translateY(-50%); position: absolute; }
+            .overlay-view { align-items: center; justify-content: center; }
+            .overlay-view.active .overlay-card { transform: translateY(-50%); }
+            
+            /* Split layout for details */
+            #product-view .gallery-wrap { height: 100%; width: 50%; float: left; }
+            #product-view .details-content { height: 100%; width: 50%; float: left; padding-bottom: 100px; }
+            #product-view .d-footer { position: absolute; bottom: 0; right: 0; width: 50%; border-top: none; }
+            .g-img { border-radius: 0; }
+        }
+    </style>
+</head>
+<body>
+
+    <div id="toast"><i class="ph-fill ph-check-circle" style="color:green;"></i> Added to Bag</div>
+
+    <div id="intro-layer">
+        <div class="intro-card">
+            <div class="brand-logo" id="intro-brand">Urban<br>Ultra</div>
+            <p style="color:#888; margin-bottom:30px; font-size:0.8rem;">OFFICIAL STOREFRONT</p>
+            <button class="enter-btn" onclick="enterApp()">Enter Experience</button>
+        </div>
+    </div>
+
+    <div id="app-layer">
+        <div class="mobile-shell hide-scroll">
+            
+            <div class="zone-top">
+                <header class="app-header">
+                    <div class="logo-sm" id="header-brand">U / ULTRA</div>
+                    <div class="bag-wrap" onclick="openCart()">
+                        <i class="ph ph-bag" style="color:#fff; font-size:1.5rem;"></i>
+                        <div class="cart-badge" id="cart-count">0</div>
+                    </div>
+                </header>
+
+                <div class="hero-banner">
+                    <div class="hero-bg"></div>
+                    <div class="hero-text">
+                        <h2>New<br>Collection</h2>
+                        <p style="color:#fff; opacity:0.8;">2026 Arrivals</p>
+                    </div>
+                </div>
+
+                <div class="section-head">
+                    <h3>Collections</h3>
+                </div>
+                
+                <div class="cat-scroll-wrapper">
+                    <div class="nav-btn-circle btn-left" onclick="scrollCats(-150)"><i class="ph-bold ph-caret-left"></i></div>
+                    <div class="cat-horizontal-scroll hide-scroll" id="cat-container"></div>
+                    <div class="nav-btn-circle btn-right" onclick="scrollCats(150)"><i class="ph-bold ph-caret-right"></i></div>
+                </div>
+            </div>
+
+            <div class="zone-bottom">
+                <div class="section-head">
+                    <h3>Trending Now</h3>
+                </div>
+                
+                <div class="prod-grid" id="product-grid">
+                    <div class="empty-state">
+                        <i class="ph ph-spinner" style="font-size:2rem; animation: spin 1s infinite;"></i>
+                        <p style="margin-top:10px;">Loading Products...</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <nav class="nav-bar">
+            <div class="nav-item active"><i class="ph-fill ph-house"></i></div>
+            <div class="nav-item"><i class="ph ph-magnifying-glass"></i></div>
+            <div class="nav-item" onclick="openCart()"><i class="ph ph-shopping-cart"></i></div>
+        </nav>
+    </div>
+
+    <div id="product-view" class="overlay-view">
+        <div class="overlay-backdrop" onclick="closeOverlay('product-view')"></div>
+        <div class="overlay-card">
+            <div class="close-btn" onclick="closeOverlay('product-view')"><i class="ph-bold ph-x"></i></div>
+            
+            <div class="gallery-wrap">
+                <div class="gal-btn gal-prev" onclick="scrollGallery(-1)"><i class="ph-bold ph-caret-left"></i></div>
+                <div class="gallery-scroll hide-scroll" id="gallery-scroller"></div>
+                <div class="gal-btn gal-next" onclick="scrollGallery(1)"><i class="ph-bold ph-caret-right"></i></div>
+            </div>
+
+            <div class="details-content">
+                <div class="d-title" id="d-title">Product Name</div>
+                <div class="d-price" id="d-price">$0.00</div>
+                <p class="d-desc" id="d-desc">Description...</p>
+                
+                <div style="margin-top:30px;">
+                    <div style="font-weight:700; font-size:0.8rem; text-transform:uppercase; color:#888; margin-bottom:10px;">Select Size</div>
+                    <div style="display:flex; gap:10px;">
+                        <div style="border:1px solid #444; padding:8px 15px; border-radius:8px; cursor:pointer;">S</div>
+                        <div style="border:1px solid #fff; padding:8px 15px; border-radius:8px; cursor:pointer; background:#fff; color:#000;">M</div>
+                        <div style="border:1px solid #444; padding:8px 15px; border-radius:8px; cursor:pointer;">L</div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="d-footer">
+                <button class="btn-primary-action" id="add-btn">Add to Bag</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="cart-view" class="overlay-view">
+        <div class="overlay-backdrop" onclick="closeOverlay('cart-view')"></div>
+        <div class="overlay-card">
+            <div class="close-btn" onclick="closeOverlay('cart-view')"><i class="ph-bold ph-x"></i></div>
+            
+            <div class="cart-title">Your Bag</div>
+            
+            <div class="cart-items-wrap hide-scroll" id="cart-items-container">
+                </div>
+            
+            <div class="cart-total-bar">
+                <span>Total</span>
+                <span id="cart-total">$0.00</span>
+            </div>
+            
+            <div class="d-footer">
+                <button class="btn-primary-action" onclick="checkout()">Checkout</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // ===========================================
+        // SUPABASE CONFIGURATION
+        // ===========================================
+        const SUPABASE_URL = 'https://rujozgysdnaxlpqadqff.supabase.co';
+        // Use the Anon Key provided in your previous steps
+        const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InJ1am96Z3lzZG5heGxwcWFkcWZmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Njk0OTY1MTUsImV4cCI6MjA4NTA3MjUxNX0.zi4FwC0xfq0brTrYs3i18rwO3hbFeVhDBq6TpLQCyVs';
+        const _supabase = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
+        const CART_KEY = 'urban_store_cart';
+        
+        let products = [];
+        let cart = [];
+        let categories = [];
+        let currentProfile = null;
+
+        // ===========================================
+        // INITIALIZATION
+        // ===========================================
+        function enterApp() {
+            document.getElementById('intro-layer').style.opacity = '0';
+            setTimeout(() => {
+                document.getElementById('intro-layer').style.display = 'none';
+                document.getElementById('app-layer').style.opacity = '1';
+                document.getElementById('app-layer').style.pointerEvents = 'all';
+                // Note: We already call loadData on window.onload now
+            }, 800);
+        }
+
+        // Run immediately on page load to fetch data
+        window.onload = loadData;
+
+        async function loadData() {
+            // 1. Get the Slug (e.g., "rahul-shoes")
+            // We strip the leading "/"
+            let slug = window.location.pathname.substring(1);
+            
+            // If empty or "store.html", we might be in dev mode or root.
+            // You can hardcode a slug here for testing if you want, e.g. slug = 'my-shop';
+            if(!slug || slug === 'store.html') {
+                console.log("No slug found, waiting for user...");
+                // Ideally, show an error or a "Create Store" button here
+                // For now, we return so it doesn't crash
+                // return; 
+            }
+
+            // 2. Fetch Profile from Supabase
+            const { data: profile, error } = await _supabase
+                .from('profiles')
+                .select('*')
+                .eq('store_slug', slug)
+                .single();
+
+            if (error || !profile) {
+                // If store not found, show empty state
+                document.getElementById('intro-brand').innerHTML = "Store<br>Not Found";
+                showEmptyStore();
+                return;
+            }
+
+            currentProfile = profile;
+            
+            // 3. Apply Branding
+            document.title = `${profile.store_name} | BiosSTORE`;
+            document.getElementById('intro-brand').innerHTML = profile.store_name.replace(" ", "<br>");
+            document.getElementById('header-brand').innerText = profile.store_name.toUpperCase();
+            
+            // Optional: Set primary color if you stored it in profile
+            // if(profile.theme_color) {
+            //     document.documentElement.style.setProperty('--primary', profile.theme_color);
+            // }
+
+            // 4. Fetch Products for this User
+            const { data: dbProducts } = await _supabase
+                .from('products')
+                .select('*')
+                .eq('user_id', profile.id);
+
+            // Map DB structure to UI structure if needed, or use directly
+            // Our UI expects: id, name, price, image (string), category, description, images (array)
+            if (dbProducts) {
+                products = dbProducts.map(p => ({
+                    id: p.id,
+                    name: p.name,
+                    price: p.price,
+                    category: p.category,
+                    description: p.description,
+                    // Handle image array vs string logic
+                    image: (p.images && p.images.length > 0) ? p.images[0] : 'https://placehold.co/400',
+                    images: (p.images && p.images.length > 0) ? p.images : ['https://placehold.co/400']
+                }));
+            }
+
+            // 5. Initialize Cart (Local Session)
+            const cartData = localStorage.getItem(CART_KEY);
+            if (cartData) {
+                cart = JSON.parse(cartData);
+            }
+
+            updateStoreUI();
+            updateCartUI();
+        }
+
+        function showEmptyStore() {
+            document.getElementById('product-grid').innerHTML = `
+                <div class="empty-state">
+                    <i class="ph ph-warning-circle" style="font-size:2rem; color: #ccc;"></i>
+                    <p style="margin-top:10px;">Store not found or empty.</p>
+                </div>
+            `;
+            document.getElementById('cat-container').innerHTML = '<div style="color:#666; font-size:0.8rem; padding:10px;">-</div>';
+        }
+
+        // ===========================================
+        // STORE LOGIC
+        // ===========================================
+        function updateStoreUI() {
+            // 1. Categories
+            if (products.length > 0) {
+                const rawCats = products.map(p => p.category);
+                categories = ['All', ...new Set(rawCats)];
+                renderCategories();
+                renderProducts(products);
+            } else {
+                showEmptyStore();
+            }
+        }
+
+        function renderCategories() {
+            const container = document.getElementById('cat-container');
+            const defaultImg = 'https://images.unsplash.com/photo-1552346154-21d32810aba3?auto=format&fit=crop&w=150';
+            
+            if(categories.length === 1 && categories[0] === 'All' && products.length === 0) return;
+
+            container.innerHTML = categories.map(cat => {
+                const productInCat = products.find(p => p.category === cat);
+                const img = (cat === 'All' && products.length > 0) ? products[0].image : (productInCat ? productInCat.image : defaultImg);
+                
+                return `
+                    <div class="cat-item-round ${cat === 'All' ? 'active' : ''}" onclick="filterProducts('${cat}', this)">
+                        <div class="cat-circle-img">
+                            <img src="${img}" onerror="this.src='${defaultImg}'">
+                        </div>
+                        <div class="cat-name-below">${cat}</div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        function renderProducts(list) {
+            const grid = document.getElementById('product-grid');
+            if(list.length === 0 && products.length > 0) {
+                grid.innerHTML = '<div class="empty-state">No products found in this category.</div>';
+                return;
+            } else if (products.length === 0) {
+                return; // Already showed empty state in loadData
+            }
+
+            grid.innerHTML = list.map(p => `
+                <div class="prod-card" onclick="openProduct('${p.id}')">
+                    <div class="prod-img-box">
+                        <img src="${p.image}" class="prod-img" loading="lazy">
+                    </div>
+                    <div class="prod-title">${p.name}</div>
+                    <div class="prod-price">₹${p.price}</div>
+                </div>
+            `).join('');
+        }
+
+        function filterProducts(cat, el) {
+            document.querySelectorAll('.cat-item-round').forEach(c => c.classList.remove('active'));
+            el.classList.add('active');
+            if (cat === 'All') {
+                renderProducts(products);
+            } else {
+                renderProducts(products.filter(p => p.category === cat));
+            }
+        }
+
+        // ===========================================
+        // CART LOGIC
+        // ===========================================
+        function addToCart(productId) {
+            const product = products.find(p => p.id == productId);
+            if (!product) return;
+
+            // Add to cart array
+            cart.push(product);
+            
+            // Save to localStorage
+            localStorage.setItem(CART_KEY, JSON.stringify(cart));
+
+            // Update UI
+            updateCartUI();
+            
+            // Show Feedback
+            showToast();
+            closeOverlay('product-view');
+        }
+
+        function removeFromCart(index) {
+            cart.splice(index, 1);
+            localStorage.setItem(CART_KEY, JSON.stringify(cart));
+            updateCartUI();
+        }
+
+        function updateCartUI() {
+            // 1. Badge
+            const badge = document.getElementById('cart-count');
+            badge.innerText = cart.length;
+            if(cart.length > 0) badge.classList.add('show');
+            else badge.classList.remove('show');
+
+            // 2. Cart List
+            const container = document.getElementById('cart-items-container');
+            const totalEl = document.getElementById('cart-total');
+            let total = 0;
+
+            if (cart.length === 0) {
+                container.innerHTML = '<div class="empty-state">Your bag is empty.</div>';
+                totalEl.innerText = '₹0.00';
+                return;
+            }
+
+            container.innerHTML = cart.map((item, index) => {
+                total += parseFloat(item.price);
+                return `
+                    <div class="cart-item">
+                        <div class="ci-info">
+                            <h4>${item.name}</h4>
+                            <p>${item.category} | Size: M</p>
+                        </div>
+                        <div class="ci-right">
+                            <div class="ci-price">₹${item.price}</div>
+                            <div class="ci-remove" onclick="removeFromCart(${index})"><i class="ph-bold ph-trash"></i> Remove</div>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+
+            totalEl.innerText = '₹' + total.toFixed(2);
+        }
+
+        function openCart() {
+            updateCartUI();
+            document.getElementById('cart-view').classList.add('active');
+        }
+
+        function checkout() {
+            if(cart.length === 0) return;
+            // Integrate WhatsApp Order or Payment Gateway here
+            // For now, construct a WhatsApp message
+            let msg = `Hi ${currentProfile ? currentProfile.store_name : 'Store'}, I want to order:\n`;
+            cart.forEach(c => msg += `- ${c.name} (₹${c.price})\n`);
+            msg += `Total: ${document.getElementById('cart-total').innerText}`;
+            
+            alert(msg); // Testing
+            
+            // Reset
+            cart = [];
+            localStorage.setItem(CART_KEY, JSON.stringify(cart));
+            updateCartUI();
+            closeOverlay('cart-view');
+        }
+
+        // ===========================================
+        // UI HELPERS (SCROLL, OVERLAYS, TOAST)
+        // ===========================================
+        function openProduct(id) {
+            // Important: ID might be string (UUID) or number depending on DB
+            const product = products.find(p => p.id == id);
+            if (!product) return;
+
+            document.getElementById('d-title').innerText = product.name;
+            document.getElementById('d-price').innerText = '₹' + product.price;
+            document.getElementById('d-desc').innerText = product.description || "No description.";
+
+            // Bind Add Button to this ID
+            const btn = document.getElementById('add-btn');
+            btn.onclick = function() { addToCart(id); };
+
+            // Gallery
+            const scroller = document.getElementById('gallery-scroller');
+            const images = product.images || [product.image]; // Fallback
+            scroller.innerHTML = images.map(img => `<div class="g-item"><img src="${img}" class="g-img"></div>`).join('');
+
+            document.getElementById('product-view').classList.add('active');
+        }
+
+        function closeOverlay(id) {
+            document.getElementById(id).classList.remove('active');
+        }
+
+        function scrollCats(amount) {
+            document.getElementById('cat-container').scrollBy({ left: amount, behavior: 'smooth' });
+        }
+
+        function scrollGallery(direction) {
+            const scroller = document.getElementById('gallery-scroller');
+            scroller.scrollBy({ left: direction * scroller.offsetWidth, behavior: 'smooth' });
+        }
+
+        function showToast() {
+            const t = document.getElementById('toast');
+            t.classList.add('show');
+            setTimeout(() => { t.classList.remove('show'); }, 2000);
+        }
+    </script>
+</body>
+</html>
