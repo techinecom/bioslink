@@ -16,11 +16,11 @@
             /* --- PREMIUM THEME VARIABLES --- */
             --primary: #2563EB;
             --accent: #84cc16;
-            --surface: rgba(255, 255, 255, 0.75);
-            --glass-border: 1px solid rgba(255, 255, 255, 0.6);
-            --inner-glow: inset 0 1px 0 0 rgba(255, 255, 255, 0.9);
-            --shadow-lg: 0 20px 40px -10px rgba(0,0,0,0.1), 0 0 0 1px rgba(255,255,255,0.4) inset;
-            --ease-spring: cubic-bezier(0.34, 1.56, 0.64, 1);
+            --surface: rgba(255, 255, 255, 0.65);
+            --glass-border: 1px solid rgba(255, 255, 255, 0.5);
+            --inner-glow: inset 0 1px 0 0 rgba(255, 255, 255, 0.8);
+            --shadow-lg: 0 20px 40px -10px rgba(0,0,0,0.08), 0 0 0 1px rgba(255,255,255,0.3) inset;
+            --ease-spring: cubic-bezier(0.34, 1.56, 0.64, 1); /* Bouncy Physics */
         }
 
         body {
@@ -28,8 +28,7 @@
             font-family: 'Plus Jakarta Sans', sans-serif;
             color: #0F172A;
             margin: 0; padding: 0;
-            height: 100dvh; /* FIXED: Dynamic viewport height for mobile */
-            overflow: hidden;
+            height: 100vh; overflow: hidden;
             background-image: 
                 radial-gradient(at 0% 0%, rgba(59, 130, 246, 0.15) 0px, transparent 50%),
                 radial-gradient(at 100% 0%, rgba(132, 204, 22, 0.15) 0px, transparent 50%),
@@ -38,6 +37,7 @@
             -webkit-tap-highlight-color: transparent;
         }
 
+        /* --- TEXTURE OVERLAY (REALISM) --- */
         .noise-overlay {
             position: fixed; inset: 0; pointer-events: none; z-index: 0; opacity: 0.03;
             background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E");
@@ -46,19 +46,14 @@
         /* --- UTILS --- */
         .no-scroll::-webkit-scrollbar { display: none; }
         .no-scroll { -ms-overflow-style: none; scrollbar-width: none; }
-        
-        /* COMPLEX ANIMATION: Staggered Fade In */
-        .fade-in-up { animation: fadeInUp 0.5s var(--ease-spring) forwards; opacity: 0; transform: translateY(15px); }
-        .stagger-1 { animation-delay: 0.05s; }
-        .stagger-2 { animation-delay: 0.1s; }
-        .stagger-3 { animation-delay: 0.15s; }
+        .fade-in-up { animation: fadeInUp 0.6s var(--ease-spring) forwards; opacity: 0; transform: translateY(20px); }
         @keyframes fadeInUp { to { opacity: 1; transform: translateY(0); } }
 
-        /* --- GLASS COMPONENTS --- */
+        /* --- 3D GLASS COMPONENTS --- */
         .glass-panel {
             background: var(--surface);
-            backdrop-filter: blur(25px) saturate(180%);
-            -webkit-backdrop-filter: blur(25px) saturate(180%);
+            backdrop-filter: blur(20px) saturate(180%);
+            -webkit-backdrop-filter: blur(20px) saturate(180%);
             border: var(--glass-border);
             box-shadow: var(--shadow-lg);
             border-radius: 24px;
@@ -66,14 +61,18 @@
         }
 
         .tilt-card {
-            background: rgba(255, 255, 255, 0.85);
-            border: 1px solid rgba(255,255,255,0.7);
+            background: rgba(255, 255, 255, 0.8);
+            border: 1px solid rgba(255,255,255,0.6);
             border-radius: 20px; padding: 24px;
             box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.02), var(--inner-glow);
-            transition: transform 0.3s var(--ease-spring), box-shadow 0.3s;
+            transition: transform 0.4s var(--ease-spring), box-shadow 0.4s;
             transform-style: preserve-3d; position: relative;
         }
-        .tilt-card:active { transform: scale(0.98); } /* Tactile feedback */
+        .tilt-card:hover { 
+            transform: translateY(-5px) scale(1.01); 
+            box-shadow: 0 20px 30px -10px rgba(0,0,0,0.1), var(--inner-glow); 
+            background: #FFF; z-index: 20; 
+        }
 
         /* --- INPUTS --- */
         .input-3d {
@@ -81,7 +80,7 @@
             border-radius: 14px; outline: none; font-size: 14px; font-weight: 600; transition: all 0.3s;
             box-shadow: inset 0 2px 4px rgba(0,0,0,0.02);
         }
-        .input-3d:focus { background: #FFF; border-color: var(--primary); box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.15); transform: translateY(-1px); }
+        .input-3d:focus { background: #FFF; border-color: var(--primary); box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.1); transform: translateY(-1px); }
         .label-3d { font-size: 11px; font-weight: 800; text-transform: uppercase; letter-spacing: 0.05em; color: #64748B; margin-bottom: 8px; display: block; }
 
         /* --- IMAGE UPLOAD --- */
@@ -95,14 +94,14 @@
         /* --- ENGINE BUTTON --- */
         .engine-btn {
             padding: 8px 20px; border-radius: 99px; font-weight: 800; font-size: 11px; text-transform: uppercase; letter-spacing: 0.05em;
-            cursor: pointer; transition: all 0.4s;
+            cursor: pointer; transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
             border: 2px solid #E2E8F0; background: #F1F5F9; color: #94A3B8;
             display: flex; align-items: center; gap: 8px; box-shadow: inset 0 2px 4px rgba(0,0,0,0.05);
         }
         .engine-btn.live {
             background: var(--accent); color: white; border-color: #65a30d;
-            box-shadow: 0 0 20px rgba(132, 204, 22, 0.6);
-            animation: engine-pulse 2s infinite;
+            box-shadow: 0 0 20px rgba(132, 204, 22, 0.6), inset 0 -2px 5px rgba(0,0,0,0.2);
+            text-shadow: 0 1px 2px rgba(0,0,0,0.2); animation: engine-pulse 2s infinite;
         }
         .engine-indicator { width: 8px; height: 8px; border-radius: 50%; background: #CBD5E1; transition: 0.3s; }
         .engine-btn.live .engine-indicator { background: #FFF; box-shadow: 0 0 10px #FFF; }
@@ -113,74 +112,114 @@
             background: var(--primary); color: white; padding: 10px 24px; border-radius: 14px; font-weight: 700; font-size: 12px;
             box-shadow: 0 10px 20px -5px rgba(59, 130, 246, 0.3), inset 0 1px 0 rgba(255,255,255,0.2); transition: transform 0.2s;
         }
-        .publish-btn:active { transform: scale(0.95); }
-
-        /* --- COMPLEX ACTION BAR --- */
-        #action-bar {
-            position: fixed; bottom: 40px; left: 50%; transform: translateX(-50%) translateY(150px);
-            background: rgba(15, 23, 42, 0.95); backdrop-filter: blur(12px);
-            padding: 8px 10px 8px 20px; border-radius: 99px; display: flex; gap: 16px; align-items: center;
-            box-shadow: 0 20px 50px rgba(0,0,0,0.4), 0 0 0 1px rgba(255,255,255,0.1); 
-            z-index: 99999; transition: transform 0.5s var(--ease-spring);
-            border: 1px solid rgba(255,255,255,0.15);
-        }
-        #action-bar.visible { transform: translateX(-50%) translateY(0); }
-        .action-save { 
-            background: #84cc16; color: black; padding: 12px 28px; border-radius: 99px; 
-            font-weight: 800; font-size: 12px; cursor: pointer; transition: 0.2s;
-            box-shadow: 0 0 20px rgba(132, 204, 22, 0.4);
-        }
-        .action-save:active { transform: scale(0.95); }
-        .action-discard { color: #94A3B8; padding: 10px 5px; font-weight: 700; font-size: 12px; cursor: pointer; transition: 0.2s; }
-        .action-discard:hover { color: white; }
+        .publish-btn:hover { transform: translateY(-2px); background: #2563EB; }
+        .publish-btn:active { transform: translateY(0); }
 
         /* --- LAYOUT WRAPPER --- */
         .layout-wrapper { 
-            display: flex; width: 100%; height: 100%; padding: 24px; gap: 24px; 
+            display: flex; width: 100%; height: 100vh; padding: 24px; gap: 24px; 
             position: relative; z-index: 1; box-sizing: border-box; 
         }
         
-/* --- SIDEBAR DRAWER (FIXED ACCESSIBILITY) --- */
+        /* --- SIDEBAR DRAWER (MOBILE READY) --- */
         .sidebar-container { 
-            width: 270px; 
-            display: flex; 
-            flex-direction: column; 
-            /* INCREASED to 10002 to be the literal top layer */
-            z-index: 10002 !important; 
-            flex-shrink: 0;
-            height: 100%; 
-            transition: transform 0.3s var(--ease-spring);
-            /* This ensures the buttons inside are clickable */
-            pointer-events: auto !important; 
+            width: 270px; display: flex; flex-direction: column; z-index: 100; flex-shrink: 0;
+            height: 100%; transition: transform 0.3s var(--ease-spring);
         }
         
         .sidebar-backdrop {
-            display: none; 
-            position: fixed; 
-            inset: 0; 
-            background: rgba(15, 23, 42, 0.6) !important; 
-            /* LOWERED to 10001 so it sits UNDER the sidebar tools */
-            z-index: 10001 !important; 
-            transition: opacity 0.3s;
-            backdrop-filter: none !important;
-            -webkit-backdrop-filter: none !important;
+            display: none; position: fixed; inset: 0; 
+            background: rgba(0,0,0,0.2); /* Reduced opacity for cleaner look */
+            backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px); 
+            z-index: 90; transition: opacity 0.3s;
         }
 
+        .nav-item { 
+            padding: 14px 18px; margin-bottom: 6px; border-radius: 16px; 
+            font-size: 13px; font-weight: 600; color: #64748B; cursor: pointer; 
+            transition: all 0.2s; display: flex; align-items: center; gap: 12px; border: 1px solid transparent; 
+        }
+        .nav-item:hover { background: rgba(255,255,255,0.6); color: #0F172A; }
+        .nav-item.active { background: #FFFFFF; color: #0F172A; box-shadow: 0 4px 12px rgba(0,0,0,0.03); border-left: 3px solid var(--accent); }
+
+        /* --- MAIN WORKSPACE --- */
+        .workspace-container { 
+            flex: 1; display: flex; flex-direction: column; gap: 24px; 
+            overflow: hidden; position: relative; min-width: 0; 
+        }
+        .content-scroll-area { flex: 1; overflow-y: auto; padding-right: 6px; padding-bottom: 100px; -webkit-overflow-scrolling: touch; }
+
+        /* --- MOBILE HEADER (Visible on Small Screens) --- */
+        .mobile-header { display: none; }
+        .desktop-header { display: flex; }
+
+        /* --- NEW: FLOATING ACTION BAR FOR DRAFT CHANGES --- */
+        #action-bar {
+            position: fixed; bottom: 30px; left: 50%; transform: translateX(-50%) translateY(150px);
+            background: rgba(15, 23, 42, 0.95); backdrop-filter: blur(12px);
+            padding: 8px 8px 8px 24px; border-radius: 99px; display: flex; gap: 20px; align-items: center;
+            box-shadow: 0 20px 50px rgba(0,0,0,0.4), 0 0 0 1px rgba(255,255,255,0.1); 
+            z-index: 99999; transition: transform 0.5s var(--ease-spring);
+            border: 1px solid rgba(255,255,255,0.15); width: 90%; max-width: 380px; justify-content: space-between;
+        }
+        #action-bar.visible { transform: translateX(-50%) translateY(0); }
+        .action-text { display: flex; flex-direction: column; }
+        .action-save { 
+            background: #84cc16; color: black; padding: 10px 24px; border-radius: 99px; 
+            font-weight: 800; font-size: 12px; cursor: pointer; transition: 0.2s;
+            box-shadow: 0 0 20px rgba(132, 204, 22, 0.4); white-space: nowrap;
+        }
+        .action-save:active { transform: scale(0.95); }
+        .action-discard { color: #94A3B8; font-weight: 700; font-size: 12px; cursor: pointer; transition: 0.2s; }
+        .action-discard:hover { color: white; }
+
+        /* --- RESPONSIVE MEDIA QUERIES --- */
         @media (max-width: 1024px) {
-            /* ... your existing layout-wrapper code ... */
+            body { height: 100vh; overflow: hidden; position: fixed; width: 100%; }
+            .layout-wrapper { padding: 0; gap: 0; }
             
+            /* Sidebar becomes Drawer - FIXED BLUR ISSUES */
             .sidebar-container { 
-                position: fixed; 
-                z-index: 10002 !important; /* Keep tools on top of backdrop */
-                pointer-events: auto !important;
-                /* ... rest of your code ... */
+                position: fixed; left: 0; top: 0; bottom: 0; 
+                transform: translateX(-110%); /* Hidden by default */
+                background: rgba(255,255,255,0.98); /* Less transp. on mobile for legibility */
+                border-radius: 0 24px 24px 0;
+                box-shadow: 20px 0 50px rgba(0,0,0,0.15);
+                border-right: 1px solid rgba(255,255,255,0.5);
+                width: 85%; max-width: 320px;
+                padding-top: 20px;
+                z-index: 9999; /* Ensure high z-index */
             }
+            .sidebar-container.open { transform: translateX(0); }
             
-            .sidebar-backdrop { 
-                z-index: 10001 !important; /* Keep backdrop under tools */
+            /* Improved Backdrop Z-Index */
+            .sidebar-backdrop { z-index: 9998; }
+            .sidebar-backdrop.open { display: block; animation: fadeIn 0.3s forwards; }
+            
+            /* Workspace takes full width - FIXED STACKING CONTEXT */
+            .workspace-container { width: 100%; height: 100%; border-radius: 0; gap: 0; z-index: auto; }
+            .layout-wrapper { z-index: auto; } 
+
+            /* Headers */
+            .desktop-header { display: none !important; }
+            .mobile-header { 
+                display: flex; height: 70px; align-items: center; justify-content: space-between; 
+                padding: 0 20px; background: rgba(255,255,255,0.85); backdrop-filter: blur(12px);
+                border-bottom: 1px solid rgba(0,0,0,0.05); z-index: 50; flex-shrink: 0;
+            }
+
+            /* Content Area Fixes */
+            .content-scroll-area { padding: 20px; padding-bottom: 120px; }
+            
+            /* Cards mobile layout */
+            .tilt-card { 
+                transform: none !important; 
+                box-shadow: 0 2px 5px rgba(0,0,0,0.02) !important; 
+                border-radius: 16px; padding: 20px; background: #FFF;
             }
         }
 
+        /* --- AUTH SCREEN --- */
         #auth-screen {
             position: fixed; inset: 0; z-index: 200;
             background: radial-gradient(at 0% 0%, #3b82f6 0px, transparent 50%), radial-gradient(at 100% 100%, #84cc16 0px, transparent 50%), #F8FAFC;
@@ -192,6 +231,7 @@
             width: 90%; max-width: 400px; text-align: center; box-shadow: 0 20px 40px rgba(0,0,0,0.1);
         }
 
+        /* --- QR MODAL --- */
         #qr-modal {
             position: fixed; inset: 0; background: rgba(0,0,0,0.5); backdrop-filter: blur(5px);
             z-index: 10000; display: none; align-items: center; justify-content: center;
@@ -200,6 +240,8 @@
         .qr-card { background: white; padding: 30px; border-radius: 24px; text-align: center; max-width: 320px; width: 90%; box-shadow: 0 20px 40px rgba(0,0,0,0.2); }
 
         @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+
+        /* Badges & Tags */
         .variant-tag { display: inline-flex; align-items: center; padding: 4px 10px; background: #ECFCCB; color: #365314; border-radius: 6px; font-size: 11px; font-weight: 600; margin-right: 6px; margin-bottom: 6px; }
         .store-link-box { background: rgba(255,255,255,0.5); border: 1px solid rgba(255,255,255,0.6); border-radius: 12px; padding: 12px; margin-top: auto; margin-bottom: 12px; display: none; animation: fadeIn 0.5s ease; }
         .store-link-box.visible { display: block; }
@@ -208,17 +250,18 @@
 </head>
 <body>
 
-    <input type="hidden" id="store-name-input">
-
     <div id="action-bar">
-        <div class="flex flex-col">
+        <div class="action-text">
             <span class="text-white text-xs font-bold tracking-wide">UNSAVED CHANGES</span>
-            <span class="text-gray-400 text-[10px]">Modifications in draft</span>
+            <span class="text-gray-400 text-[10px]">Changes stored on phone</span>
         </div>
-        <div class="h-6 w-px bg-white/20"></div>
-        <div class="action-discard" onclick="app.discardChanges()">Discard</div>
-        <div class="action-save" onclick="app.commitChanges()">Save Changes</div>
+        <div class="flex items-center gap-4">
+            <div class="action-discard" onclick="app.discardChanges()">Discard</div>
+            <div class="action-save" onclick="app.commitChanges()">Save Changes</div>
+        </div>
     </div>
+
+    <input type="hidden" id="store-name-input">
 
     <div id="qr-modal" onclick="if(event.target === this) this.classList.remove('active')">
         <div class="qr-card">
@@ -242,9 +285,11 @@
     </div>
 
     <div class="noise-overlay"></div>
+
     <div class="sidebar-backdrop" onclick="app.toggleSidebar()"></div>
 
     <div class="layout-wrapper" id="main-app">
+        
         <aside class="sidebar-container glass-panel" id="sidebar">
             <div class="px-6 py-6 mb-2 flex items-center justify-between">
                 <div class="flex items-center gap-4">
@@ -293,6 +338,7 @@
         </aside>
 
         <main class="workspace-container">
+            
             <div class="mobile-header">
                 <button onclick="app.toggleSidebar()" class="w-10 h-10 flex items-center justify-center bg-white rounded-xl shadow-sm border border-gray-100 text-gray-600 active:scale-95 transition">
                     <i class="fa-solid fa-bars-staggered"></i>
@@ -332,7 +378,11 @@
 
 <div class="publish-zone p-6 bg-gray-900 rounded-3xl border border-white/10 mt-6" style="max-width: 500px; margin: 20px auto; display: none;" id="bottom-publish-container">
     <h3 class="text-xl font-bold mb-4 text-white">Store Visibility</h3>
-    <button onclick="handlePublish()" id="publish-btn" class="w-full bg-[#DFFF00] text-black py-4 rounded-2xl font-black text-lg shadow-xl hover:scale-105 active:scale-95 transition">PUBLISH STORE</button>
+    
+    <button onclick="handlePublish()" id="publish-btn" class="w-full bg-[#DFFF00] text-black py-4 rounded-2xl font-black text-lg shadow-xl hover:scale-105 active:scale-95 transition">
+        PUBLISH STORE
+    </button>
+
     <div id="link-display" class="hidden mt-4 p-4 bg-white/5 border border-dashed border-white/20 rounded-xl">
         <p class="text-xs text-gray-400 uppercase font-black mb-2">Your Live Link:</p>
         <div class="flex items-center justify-between">
@@ -342,431 +392,641 @@
     </div>
 </div>
 
-<script>
-    const SUPABASE_URL = 'https://rujozgysdnaxlpqadqff.supabase.co';
-    const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InJ1am96Z3lzZG5heGxwcWFkcWZmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Njk0OTY1MTUsImV4cCI6MjA4NTA3MjUxNX0.zi4FwC0xfq0brTrYs3i18rwO3hbFeVhDBq6TpLQCyVs';
-    const _supabase = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+    <script>
+        // --- 1. CONFIGURATION ---
+        const SUPABASE_URL = 'https://rujozgysdnaxlpqadqff.supabase.co';
+        const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InJ1am96Z3lzZG5heGxwcWFkcWZmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Njk0OTY1MTUsImV4cCI6MjA4NTA3MjUxNX0.zi4FwC0xfq0brTrYs3i18rwO3hbFeVhDBq6TpLQCyVs';
+        const _supabase = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
-    const store = {
-        view: 'dashboard',
-        user: null,
-        liveState: false,
-        isPublished: false,
-        publishedSlug: null,
-        branding: { name: 'My Store', tagline: 'Welcome', color: '#2563EB', logo_url: '', font: 'Inter', btnTextCart: 'Add to Cart', btnTextBuy: 'Buy Now' },
-        payment: { method: 'manual', whatsappNumber: '', paymentLink: '' },
-        collections: [],
-        products: [],
-        orders: [],
-        customers: [],
-        draftProduct: { id: null, name: '', price: '', category: '', stock: 10, images: [], variants: [] },
-        draftCollection: { id: null, name: '', img: null },
-        tempVariant: { name: '', valueStr: '' },
-        storeUrl: '',
-        hasUnsavedChanges: false,
-        pendingActions: {
-            products: [],
+        // --- 2. CORE STATE ---
+        const store = {
+            view: 'dashboard',
+            user: null,
+            liveState: false,
+            isPublished: false,
+            publishedSlug: null, // NEW: Store the actual DB slug
+            branding: { name: 'My Store', tagline: 'Welcome', color: '#2563EB', logo_url: '', font: 'Inter', btnTextCart: 'Add to Cart', btnTextBuy: 'Buy Now' },
+            payment: { method: 'manual', whatsappNumber: '', paymentLink: '' },
             collections: [],
-            branding: null,
-            uploads: []
-        }
-    };
-
-    const app = {
-        init: async () => {
-            const { data: { session } } = await _supabase.auth.getSession();
-            if (!session) {
-                document.getElementById('auth-screen').style.display = 'flex';
-                document.getElementById('main-app').style.filter = 'blur(10px)';
-                return;
+            products: [],
+            orders: [],
+            customers: [],
+            draftProduct: { id: null, name: '', price: '', category: '', stock: 10, images: [], variants: [] },
+            draftCollection: { id: null, name: '', img: null },
+            tempVariant: { name: '', valueStr: '' },
+            storeUrl: '',
+            
+            // NEW: LOCAL DRAFT ENGINE STATE
+            hasUnsavedChanges: false,
+            pendingActions: {
+                products: [], // { type: 'upsert' | 'delete', data: object, id: string }
+                collections: [],
+                branding: null,
+                uploads: [] // { file: Blob, path: string, tempUrl: string }
             }
-            document.getElementById('auth-screen').style.display = 'none';
-            document.getElementById('main-app').style.filter = 'none';
-            store.user = session.user;
-            await app.loadUserData();
-            app.setTab('dashboard');
-        },
+        };
 
-        loadUserData: async () => {
-            const { data: profile } = await _supabase.from('profiles').select('*').eq('id', store.user.id).single();
-            if (profile) {
-                store.branding = { name: profile.store_name, tagline: profile.tagline, color: profile.color, logo_url: profile.logo_url, font: profile.font_family, btnTextCart: profile.btn_cart_text, btnTextBuy: profile.btn_buy_text };
-                store.isPublished = profile.is_published;
-                store.publishedSlug = profile.store_slug;
-                document.getElementById('store-name-input').value = profile.store_name || '';
-            } else { await _supabase.from('profiles').insert([{ id: store.user.id }]); }
+        const app = {
+            init: async () => {
+                const { data: { session } } = await _supabase.auth.getSession();
+                if (!session) {
+                    document.getElementById('auth-screen').style.display = 'flex';
+                    document.getElementById('main-app').style.filter = 'blur(10px)';
+                    return;
+                }
+                document.getElementById('auth-screen').style.display = 'none';
+                document.getElementById('main-app').style.filter = 'none';
+                store.user = session.user;
+                await app.loadUserData();
+                app.setTab('dashboard');
+            },
 
-            const { data: cols } = await _supabase.from('collections').select('*').eq('user_id', store.user.id).order('created_at', { ascending: true });
-            store.collections = cols || [];
-
-            const { data: prods } = await _supabase.from('products').select('*').eq('user_id', store.user.id).order('created_at', { ascending: false });
-            store.products = (prods || []).map(p => ({
-                id: p.id, name: p.name, price: p.price, stock: p.stock,
-                category: store.collections.find(c => c.id === p.collection_id)?.name || 'Uncategorized',
-                category_id: p.collection_id, images: p.images || [], img: (p.images && p.images[0]) || '', variants: p.variants || []
-            }));
-
-            app.updateStoreUrl();
-            app.updatePendingBadge();
-            app.setLiveStatus(store.isPublished);
-        },
-
-        toggleSidebar: () => {
-            document.getElementById('sidebar').classList.toggle('open');
-            document.querySelector('.sidebar-backdrop').classList.toggle('open');
-        },
-
-        handleAuth: async (type) => {
-            const email = document.getElementById('login-email').value;
-            const password = document.getElementById('login-password').value;
-            if(!email || !password) return alert("Please enter email and password");
-            let error;
-            if (type === 'signup') {
-                const { error: err } = await _supabase.auth.signUp({ email, password });
-                error = err; if(!error) alert("Account created! You are logged in.");
-            } else {
-                const { error: err } = await _supabase.auth.signInWithPassword({ email, password });
-                error = err;
-            }
-            if (error) alert(error.message); else app.init();
-        },
-        signOut: async () => { await _supabase.auth.signOut(); window.location.reload(); },
-
-        compressImage: (file) => {
-            return new Promise((resolve) => {
-                const reader = new FileReader();
-                reader.readAsDataURL(file);
-                reader.onload = (event) => {
-                    const img = new Image();
-                    img.src = event.target.result;
-                    img.onload = () => {
-                        const canvas = document.createElement('canvas');
-                        const ctx = canvas.getContext('2d');
-                        const maxWidth = 800;
-                        const scale = maxWidth / img.width;
-                        const newWidth = scale < 1 ? maxWidth : img.width;
-                        const newHeight = scale < 1 ? img.height * scale : img.height;
-                        canvas.width = newWidth;
-                        canvas.height = newHeight;
-                        ctx.drawImage(img, 0, 0, newWidth, newHeight);
-                        canvas.toBlob((blob) => {
-                            resolve(new File([blob], file.name, { type: 'image/jpeg' }));
-                        }, 'image/jpeg', 0.7); 
+            loadUserData: async () => {
+                const { data: profile } = await _supabase.from('profiles').select('*').eq('id', store.user.id).single();
+                if (profile) {
+                    store.branding = {
+                        name: profile.store_name,
+                        tagline: profile.tagline,
+                        color: profile.color,
+                        logo_url: profile.logo_url,
+                        font: profile.font_family,
+                        btnTextCart: profile.btn_cart_text,
+                        btnTextBuy: profile.btn_buy_text
                     };
-                };
-            });
-        },
-
-        triggerUnsaved: () => {
-            store.hasUnsavedChanges = true;
-            document.getElementById('action-bar').classList.add('visible');
-        },
-
-        discardChanges: () => {
-            if(!confirm("Discard all unsaved changes?")) return;
-            store.hasUnsavedChanges = false;
-            store.pendingActions = { products: [], collections: [], branding: null, uploads: [] };
-            document.getElementById('action-bar').classList.remove('visible');
-            app.loadUserData(); 
-        },
-
-        commitChanges: async () => {
-            const btn = document.querySelector('.action-save');
-            const originalText = btn.innerText;
-            btn.innerText = "Saving...";
-
-            const uploadMap = {}; 
-            for (const item of store.pendingActions.uploads) {
-                const { error } = await _supabase.storage.from('store-assets').upload(item.path, item.file, { upsert: true });
-                if(!error) {
-                    const { data } = _supabase.storage.from('store-assets').getPublicUrl(item.path);
-                    uploadMap[item.tempUrl] = data.publicUrl;
+                    store.isPublished = profile.is_published;
+                    store.publishedSlug = profile.store_slug; // Capture the real slug
+                    
+                    // SYNC HIDDEN INPUT FOR PUBLISH LOGIC
+                    document.getElementById('store-name-input').value = profile.store_name || '';
+                } else {
+                    await _supabase.from('profiles').insert([{ id: store.user.id }]);
                 }
-            }
 
-            for (const action of store.pendingActions.collections) {
-                if(action.type === 'upsert') {
-                    if(action.data.img_url && uploadMap[action.data.img_url]) action.data.img_url = uploadMap[action.data.img_url];
-                    await _supabase.from('collections').upsert(action.data);
-                } else if(action.type === 'delete') {
-                    await _supabase.from('collections').delete().eq('id', action.id);
-                }
-            }
+                const { data: cols } = await _supabase.from('collections').select('*').eq('user_id', store.user.id).order('created_at', { ascending: true });
+                store.collections = cols || [];
 
-            for (const action of store.pendingActions.products) {
-                if(action.type === 'upsert') {
-                    if(action.data.images) {
-                        action.data.images = action.data.images.map(img => uploadMap[img] || img);
-                    }
-                    await _supabase.from('products').upsert(action.data);
-                } else if(action.type === 'delete') {
-                    await _supabase.from('products').delete().eq('id', action.id);
-                }
-            }
+                const { data: prods } = await _supabase.from('products').select('*').eq('user_id', store.user.id).order('created_at', { ascending: false });
+                store.products = (prods || []).map(p => ({
+                    id: p.id,
+                    name: p.name,
+                    price: p.price,
+                    stock: p.stock,
+                    category: store.collections.find(c => c.id === p.collection_id)?.name || 'Uncategorized',
+                    category_id: p.collection_id,
+                    images: p.images || [],
+                    img: (p.images && p.images[0]) || '',
+                    variants: p.variants || []
+                }));
 
-            if(store.pendingActions.branding) {
-                let d = store.pendingActions.branding;
-                if(d.logo_url && uploadMap[d.logo_url]) d.logo_url = uploadMap[d.logo_url];
-                await _supabase.from('profiles').update(d).eq('id', store.user.id);
-            }
-
-            store.hasUnsavedChanges = false;
-            store.pendingActions = { products: [], collections: [], branding: null, uploads: [] };
-            document.getElementById('action-bar').classList.remove('visible');
-            btn.innerText = originalText;
-            alert("All changes saved to cloud!");
-            await app.loadUserData();
-        },
-
-        handleUpload: async (files, type) => {
-            if (!files.length) return;
-            const originalFile = files[0];
-            const compressedFile = await app.compressImage(originalFile);
-            
-            const tempUrl = URL.createObjectURL(compressedFile);
-            const fileName = `${Date.now()}.jpg`;
-            const filePath = `${store.user.id}/${fileName}`;
-
-            store.pendingActions.uploads.push({ file: compressedFile, path: filePath, tempUrl: tempUrl });
-            app.triggerUnsaved();
-
-            if (type === 'product') {
-                store.draftProduct.images.push(tempUrl);
-                app.renderWorkspace();
-            } else if (type === 'collection') {
-                store.draftCollection.img = tempUrl;
-                app.renderWorkspace();
-            } else if (type === 'logo') {
-                store.branding.logo_url = tempUrl;
-                if(!store.pendingActions.branding) store.pendingActions.branding = {};
-                store.pendingActions.branding.logo_url = tempUrl;
-                app.renderWorkspace();
-            }
-        },
-
-        saveProduct: async () => {
-            const p = store.draftProduct;
-            if(!p.name) return alert("Name required");
-            
-            let colId = p.category_id;
-            if(!colId && p.category) { const col = store.collections.find(c => c.name === p.category); if(col) colId = col.id; }
-            if(!colId && store.collections.length > 0) colId = store.collections[0].id;
-            if(!colId) return alert("Create a collection first!");
-
-            const payload = {
-                user_id: store.user.id,
-                name: p.name,
-                price: parseFloat(p.price) || 0,
-                stock: parseInt(p.stock) || 0,
-                collection_id: colId,
-                images: p.images,
-                variants: p.variants
-            };
-
-            const prodId = p.id || `temp_${Date.now()}`; 
-            
-            store.pendingActions.products.push({ type: 'upsert', data: { id: p.id || undefined, ...payload } }); 
-            
-            const newProd = { id: prodId, ...payload, category: store.collections.find(c=>c.id===colId)?.name, img: (p.images[0]||'') };
-            const existingIdx = store.products.findIndex(x => x.id === p.id);
-            if(existingIdx >= 0) store.products[existingIdx] = newProd; else store.products.unshift(newProd);
-            
-            store.draftProduct = { id: null, name: '', price: '', category: '', stock: 10, images: [], variants: [] };
-            app.triggerUnsaved();
-            app.setTab('inventory');
-        },
-
-        saveCollection: async () => {
-            const c = store.draftCollection;
-            if(!c.name) return alert("Name required");
-            const payload = { user_id: store.user.id, name: c.name, img_url: c.img };
-            
-            store.pendingActions.collections.push({ type: 'upsert', data: { id: c.id || undefined, ...payload } });
-            
-            const newCol = { id: c.id || `temp_${Date.now()}`, ...payload };
-            const idx = store.collections.findIndex(x => x.id === c.id);
-            if(idx >= 0) store.collections[idx] = newCol; else store.collections.push(newCol);
-
-            store.draftCollection = { id: null, name: '', img: null };
-            app.triggerUnsaved();
-            app.setTab('collections');
-        },
-
-        updateBranding: async (k, v) => {
-            if (k === 'name') { store.branding.name = v; document.getElementById('store-name-input').value = v; }
-            if (k === 'tagline') store.branding.tagline = v;
-            if (k === 'color') store.branding.color = v;
-            if (k === 'font') store.branding.font = v;
-            if (k === 'btnTextCart') store.branding.btnTextCart = v;
-            if (k === 'btnTextBuy') store.branding.btnTextBuy = v;
-            if(k === 'name') app.updateStoreUrl();
-            
-            const dbKeyMap = { name: 'store_name', tagline: 'tagline', color: 'color', font: 'font_family', btnTextCart: 'btn_cart_text', btnTextBuy: 'btn_buy_text' };
-            if(dbKeyMap[k]) {
-                if(!store.pendingActions.branding) store.pendingActions.branding = {};
-                store.pendingActions.branding[dbKeyMap[k]] = v;
-                app.triggerUnsaved();
-            }
-        },
-
-        deleteProduct: async (id) => {
-            if(!confirm("Delete product locally?")) return;
-            store.pendingActions.products.push({ type: 'delete', id: id });
-            store.products = store.products.filter(p => p.id !== id);
-            app.triggerUnsaved();
-            app.renderWorkspace();
-        },
-        deleteCollection: async (id) => {
-            if(!confirm("Delete collection locally?")) return;
-            store.pendingActions.collections.push({ type: 'delete', id: id });
-            store.collections = store.collections.filter(c => c.id !== id);
-            app.triggerUnsaved();
-            app.renderWorkspace();
-        },
-        deleteLogo: async () => {
-            store.branding.logo_url = '';
-            if(!store.pendingActions.branding) store.pendingActions.branding = {};
-            store.pendingActions.branding.logo_url = '';
-            app.triggerUnsaved();
-            app.renderWorkspace();
-        },
-
-        setTab: (tab) => {
-            store.view = tab;
-            document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active'));
-            const nav = document.querySelector(`.nav-item[onclick*="'${tab}'"]`);
-            if(nav) nav.classList.add('active');
-            const sb = document.getElementById('sidebar');
-            if(sb.classList.contains('open')) app.toggleSidebar();
-            const titleMap = { 'dashboard': 'Overview', 'orders': 'Orders Command', 'customers': 'Customer Database', 'payments': 'Payment Gateway', 'add_product': 'Create Product', 'collections': 'Collections', 'inventory': 'Inventory', 'branding': 'Store Appearance' };
-            const t = titleMap[tab] || 'Dashboard';
-            if(document.getElementById('page-title')) document.getElementById('page-title').innerText = t;
-            if(document.getElementById('mob-page-title')) document.getElementById('mob-page-title').innerText = t;
-            app.renderWorkspace();
-        },
-        updatePendingBadge: () => {
-            const count = store.orders.filter(o => o.status === 'pending').length;
-            const badge = document.getElementById('pending-badge');
-            if(count > 0) { badge.innerText = count; badge.classList.remove('hidden'); } else { badge.classList.add('hidden'); }
-        },
-        updateStoreUrl: () => {
-            if (store.isPublished && store.publishedSlug) { store.storeUrl = `${window.location.host}/${store.publishedSlug}`; } 
-            else { const slug = store.branding.name.toLowerCase().replace(/ /g, '-').replace(/[^\w-]+/g, ''); store.storeUrl = `${window.location.host}/${slug}`; }
-            if(document.getElementById('sidebar-url')) { document.getElementById('sidebar-url').innerText = store.storeUrl; document.getElementById('sidebar-url').href = `//${store.storeUrl}`; }
-        },
-        publishStore: async () => {
-            const rawName = document.getElementById('store-name-input').value; 
-            if (!rawName) return alert("Please set a Store Name first in Appearance tab!");
-            if (store.hasUnsavedChanges) return alert("Please 'Save Changes' before publishing live.");
-
-            const slug = rawName.toLowerCase().trim().replace(/[^\w\s-]/g, '').replace(/[\s_-]+/g, '-').replace(/^-+|-+$/g, ''); 
-            const btn = document.querySelector('.publish-btn');
-            const bottomBtn = document.getElementById('publish-btn');
-            if(btn) btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin mr-2"></i>Publishing...';
-            if(bottomBtn) { bottomBtn.innerText = "PUBLISHING..."; bottomBtn.disabled = true; }
-
-            const { data: { user } } = await _supabase.auth.getUser();
-            const { error } = await _supabase.from('profiles').update({ store_slug: slug, is_published: true, store_name: rawName }).eq('id', user.id);
-            if (error) {
-                alert("Error: " + error.message);
-                if(btn) btn.innerHTML = '<i class="fa-solid fa-rocket mr-2"></i>Publish Live';
-                if(bottomBtn) { bottomBtn.innerText = "PUBLISH STORE"; bottomBtn.disabled = false; }
-            } else {
-                const finalUrl = `${window.location.origin}/${slug}`;
-                store.isPublished = true;
-                store.publishedSlug = slug;
-                if(btn) btn.innerHTML = '<i class="fa-solid fa-check mr-2"></i>Live!';
-                if(bottomBtn) { bottomBtn.innerText = "STORE LIVE!"; bottomBtn.classList.replace('bg-[#DFFF00]', 'bg-green-500'); }
-                const linkDisplay = document.getElementById('link-display');
-                if(linkDisplay) { linkDisplay.classList.remove('hidden'); document.getElementById('live-url').innerText = finalUrl; }
-                app.setLiveStatus(true);
                 app.updateStoreUrl();
-                alert(`Success! Store live at: ${finalUrl}`);
-            }
-        },
-        copyLink: () => { const url = document.getElementById('live-url')?.innerText || `https://${store.storeUrl}`; navigator.clipboard.writeText(url); alert("Link copied!"); },
-        showQR: () => {
-            if(!store.isPublished) return alert("Publish your store first to generate a QR Code.");
-            const url = `https://${store.storeUrl}`;
-            const container = document.getElementById('qr-container');
-            container.innerHTML = "";
-            new QRCode(container, { text: url, width: 180, height: 180, colorDark : "#000000", colorLight : "#ffffff", correctLevel : QRCode.CorrectLevel.H });
-            document.getElementById('qr-modal').classList.add('active');
-        },
-        toggleLive: () => { if(!store.isPublished) return alert("Publish your store first!"); app.setLiveStatus(!store.liveState); },
-        setLiveStatus: (status) => {
-            store.liveState = status;
-            const btn = document.getElementById('live-toggle');
-            const txt = document.getElementById('live-text');
-            const box = document.getElementById('sidebar-link-box');
-            if(status) { btn.classList.add('live'); txt.innerText = "STORE LIVE"; box.classList.add('visible'); } 
-            else { btn.classList.remove('live'); txt.innerText = "OFFLINE"; box.classList.remove('visible'); }
-        },
-        viewStore: () => { if(!store.isPublished) { if(confirm("Store not published. Publish?")) app.publishStore(); return; } const slug = store.publishedSlug || store.branding.name.toLowerCase().replace(/ /g, '-').replace(/[^\w-]+/g, ''); window.open(`/${slug}`, '_blank'); },
-        
-        dragStart: (e, i) => { e.dataTransfer.setData('text/plain', i); e.currentTarget.classList.add('dragging'); },
-        dragOver: (e) => { e.preventDefault(); },
-        dragDrop: (e, targetI) => { e.preventDefault(); const sourceI = parseInt(e.dataTransfer.getData('text/plain')); if (sourceI !== targetI) { const moved = store.collections.splice(sourceI, 1)[0]; store.collections.splice(targetI, 0, moved); app.renderWorkspace(); } document.querySelectorAll('.draggable-item').forEach(el => el.classList.remove('dragging')); },
-        editCollection: (id) => { const c = store.collections.find(x => x.id === id); if(c) { store.draftCollection = { ...c, img: c.img_url || c.img }; document.getElementById('workspace').scrollTo({top:0}); app.renderWorkspace(); } },
-        addVariantToDraft: () => { if(!store.tempVariant.name || !store.tempVariant.valueStr) return; const values = store.tempVariant.valueStr.split(',').map(s => s.trim()).filter(s => s); store.draftProduct.variants.push({ name: store.tempVariant.name, values: values }); store.tempVariant = { name: '', valueStr: '' }; app.renderWorkspace(); },
-        removeVariantFromDraft: (i) => { store.draftProduct.variants.splice(i, 1); app.renderWorkspace(); },
-        editProduct: (id) => { const p = store.products.find(x => x.id === id); if(p) { store.draftProduct = { ...p, images: p.images || [], category_id: p.category_id }; app.setTab('add_product'); } },
-        savePaymentSettings: () => { alert("Payment Settings Saved!"); },
+                app.updatePendingBadge();
+                app.setLiveStatus(store.isPublished);
+            },
 
-        renderWorkspace: () => {
-            const ws = document.getElementById('workspace'); ws.innerHTML = ''; ws.className = "content-scroll-area";
-            if (store.view === 'dashboard') {
-                const rev = store.orders.reduce((acc, o) => acc + (o.total || 0), 0);
-                ws.innerHTML = `<div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8 fade-in-up stagger-1"><div class="tilt-card border-l-4 border-lime-500"><span class="label-3d">Revenue</span><div class="text-3xl font-black mt-2">₹${rev.toLocaleString()}</div></div><div class="tilt-card border-l-4 border-blue-500"><span class="label-3d">Orders</span><div class="text-3xl font-black mt-2">${store.orders.length}</div></div><div class="tilt-card border-l-4 border-indigo-500"><span class="label-3d">Products</span><div class="text-3xl font-black mt-2">${store.products.length}</div></div></div>`;
-                if(document.getElementById('bottom-publish-container')) { document.getElementById('bottom-publish-container').style.display = 'block'; ws.appendChild(document.getElementById('bottom-publish-container')); }
-            }
-            else if (store.view === 'orders') {
-                if(store.orders.length === 0) { ws.innerHTML = `<div class="flex flex-col items-center justify-center pt-10 text-center fade-in-up stagger-1"><div class="w-24 h-24 bg-gray-100 rounded-full flex items-center justify-center mb-4"><i class="fa-solid fa-receipt text-3xl text-gray-300"></i></div><h3 class="font-bold text-gray-900 text-lg">No orders yet</h3><p class="text-gray-400 text-sm max-w-xs mt-2">Share your store link on social media to get your first sale.</p><button onclick="app.showQR()" class="mt-6 px-6 py-2 bg-blue-600 text-white font-bold rounded-lg shadow-lg hover:scale-105 transition"><i class="fa-solid fa-qrcode mr-2"></i>Get Store QR</button></div>`; } 
-                else { ws.innerHTML = `<div class="fade-in-up">Order List (Coming Soon)</div>`; }
-            }
-            else if (store.view === 'customers') {
-                if (store.customers.length === 0) { ws.innerHTML = `<div class="text-center text-gray-400 mt-20 fade-in-up stagger-1"><i class="fa-solid fa-users-slash text-4xl mb-3 opacity-30"></i><p>No customers found.</p></div>`; }
-            }
-            else if (store.view === 'payments') {
-                ws.innerHTML = `<div class="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-4xl mx-auto fade-in-up stagger-1"><div class="tilt-card border-2 ${store.payment.method === 'manual' ? 'border-blue-500 ring-4 ring-blue-500/10' : 'border-transparent'}" onclick="store.payment.method='manual'; app.renderWorkspace()"><div class="flex justify-between items-start mb-4"><div class="w-12 h-12 bg-green-100 rounded-xl flex items-center justify-center text-green-600 text-2xl"><i class="fa-brands fa-whatsapp"></i></div>${store.payment.method === 'manual' ? '<i class="fa-solid fa-circle-check text-blue-500 text-xl"></i>' : '<i class="fa-regular fa-circle text-gray-300 text-xl"></i>'}</div><h3 class="font-bold text-lg mb-1">Manual (WhatsApp)</h3><p class="text-xs text-gray-500 mb-6">Redirect customers to your WhatsApp. You handle payment collection manually (UPI, Cash, etc) in chat.</p><label class="label-3d">Your WhatsApp Number</label><input type="text" class="input-3d" placeholder="e.g. 919876543210" value="${store.payment.whatsappNumber}" oninput="store.payment.whatsappNumber = this.value"></div><div class="tilt-card border-2 ${store.payment.method === 'auto' ? 'border-blue-500 ring-4 ring-blue-500/10' : 'border-transparent'}" onclick="store.payment.method='auto'; app.renderWorkspace()"><div class="flex justify-between items-start mb-4"><div class="w-12 h-12 bg-indigo-100 rounded-xl flex items-center justify-center text-indigo-600 text-2xl"><i class="fa-solid fa-link"></i></div>${store.payment.method === 'auto' ? '<i class="fa-solid fa-circle-check text-blue-500 text-xl"></i>' : '<i class="fa-regular fa-circle text-gray-300 text-xl"></i>'}</div><h3 class="font-bold text-lg mb-1">Automatic (Payment Link)</h3><p class="text-xs text-gray-500 mb-6">Automatically redirect customers to a specific payment page (Razorpay, Stripe, PayPal, etc) upon checkout.</p><label class="label-3d">Your Payment Link URL</label><input type="text" class="input-3d" placeholder="https://razorpay.me/@yourname" value="${store.payment.paymentLink}" oninput="store.payment.paymentLink = this.value"></div><button onclick="app.savePaymentSettings()" class="col-span-1 md:col-span-2 py-4 bg-black text-white font-bold rounded-xl shadow-lg hover:scale-[1.01] transition">Save Payment Settings</button></div>`;
-            }
-            else if (store.view === 'add_product') {
-                const noCol = store.collections.length === 0;
-                const isEdit = store.draftProduct.id !== null;
-                ws.innerHTML = `<div class="flex gap-8 flex-col lg:flex-row fade-in-up stagger-1"><div class="flex-1 space-y-6">${noCol ? `<div class="p-4 bg-yellow-100 text-yellow-800 rounded-xl text-xs font-bold border border-yellow-200"><i class="fa-solid fa-triangle-exclamation mr-2"></i> You need to create a Collection before adding a product.</div>` : ''}<div class="tilt-card"><h3 class="font-bold text-lg mb-6">${isEdit ? 'Edit Product' : 'Create Product'}</h3><div class="space-y-4"><div><label class="label-3d">Name</label><input class="input-3d" value="${store.draftProduct.name}" oninput="store.draftProduct.name=this.value"></div><div class="grid grid-cols-2 gap-4"><div><label class="label-3d">Price</label><input type="number" class="input-3d" value="${store.draftProduct.price}" oninput="store.draftProduct.price=this.value"></div><div><label class="label-3d">Stock</label><input type="number" class="input-3d" value="${store.draftProduct.stock}" oninput="store.draftProduct.stock=this.value"></div></div><div><label class="label-3d">Category</label><select class="input-3d" ${noCol?'disabled':''} onchange="store.draftProduct.category_id=this.value; store.draftProduct.category=this.options[this.selectedIndex].text">${store.collections.length ? store.collections.map(c => `<option value="${c.id}" ${store.draftProduct.category_id===c.id?'selected':''}>${c.name}</option>`).join('') : '<option>Create a Collection First</option>'}</select></div></div></div><div class="tilt-card"><h3 class="font-bold text-lg mb-4">Variants</h3><div class="flex gap-2 mb-4"><input class="input-3d" placeholder="Name (e.g. Size)" value="${store.tempVariant.name}" oninput="store.tempVariant.name=this.value"><input class="input-3d" placeholder="Values (S, M)" value="${store.tempVariant.valueStr}" oninput="store.tempVariant.valueStr=this.value"><button class="bg-black text-white px-4 rounded-xl text-xs font-bold" onclick="app.addVariantToDraft()">Add</button></div><div class="space-y-2">${store.draftProduct.variants.map((v,i)=>`<div class="p-3 bg-gray-50 rounded-lg flex justify-between items-center"><div><span class="font-bold text-xs uppercase mr-2">${v.name}:</span>${v.values.map(val=>`<span class="variant-tag">${val}</span>`).join('')}</div><i class="fa-solid fa-trash text-red-500 cursor-pointer" onclick="app.removeVariantFromDraft(${i})"></i></div>`).join('')}</div></div><button onclick="${noCol ? "app.setTab('collections')" : "app.saveProduct()"}" class="w-full py-4 bg-blue-600 text-white font-bold rounded-xl shadow-lg hover:scale-[1.01] transition">${noCol ? "Go to Collections" : (isEdit ? "Update Product" : "Publish Product")}</button></div><div class="w-full lg:w-1/3"><div class="tilt-card"><h3 class="font-bold text-lg mb-4">Gallery</h3><div class="grid grid-cols-2 gap-3 mb-3">${store.draftProduct.images.map(img => `<div class="img-upload-box border-none shadow-sm relative group"><img src="${img}"><div class="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition flex items-center justify-center rounded-xl"><i class="fa-solid fa-trash text-white"></i></div></div>`).join('')}<div class="img-upload-box" onclick="document.getElementById('p-up').click()"><div class="text-center"><i class="fa-solid fa-camera-retro text-blue-500 text-2xl mb-1"></i><p class="text-[9px] font-black text-gray-400 uppercase tracking-tighter">Choose Media</p></div></div></div><input type="file" id="p-up" hidden accept="image/*" onchange="app.handleUpload(this.files, 'product')"></div></div></div>`;
-            }
-            else if (store.view === 'inventory') {
-                ws.innerHTML = `<div class="glass-panel overflow-hidden border border-white/40 shadow-2xl fade-in-up stagger-1">
-                    <div class="max-h-[650px] overflow-y-auto no-scroll p-2 md:p-0">
-                        ${store.products.length === 0 ? `<div class="text-center py-20"><i class="fa-solid fa-boxes-stacked text-gray-200 text-6xl mb-4"></i><p class="text-gray-400 font-bold">Your inventory is currently empty</p><button onclick="app.setTab('add_product')" class="mt-4 text-blue-500 text-xs font-black uppercase tracking-widest hover:underline">Add your first product</button></div>` : store.products.map(p => {
-                            const isLowStock = p.stock < 5;
-                            const stockColor = isLowStock ? 'bg-red-50 text-red-600 border-red-100' : 'bg-lime-50 text-lime-700 border-lime-100';
-                            return `<div class="flex flex-col md:flex-row gap-4 p-4 items-start md:items-center bg-white rounded-xl shadow-sm border border-gray-100 mb-2">
-                                <div class="flex items-center gap-4 w-full md:w-auto"><div class="relative"><img src="${p.img || 'https://via.placeholder.com/50'}" class="w-14 h-14 rounded-xl bg-gray-200 object-cover shadow-sm"></div><div class="flex-1"><div class="font-extrabold text-sm text-gray-800">${p.name}</div><div class="text-[10px] text-gray-400 font-mono">ID: #${p.id.toString().slice(-6)}</div></div></div>
-                                <div class="flex justify-between items-center w-full md:w-auto gap-4 mt-2 md:mt-0">
-                                    <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full border ${stockColor}"><span class="w-1.5 h-1.5 rounded-full ${isLowStock ? 'bg-red-500' : 'bg-lime-500'}"></span><span class="text-[11px] font-bold">${p.stock} Units</span></div>
-                                    <span class="font-mono text-sm font-black text-gray-800">₹${p.price.toLocaleString()}</span>
-                                </div>
-                                <div class="flex gap-2 w-full md:w-auto justify-end mt-2 md:mt-0">
-                                    <button onclick="app.editProduct('${p.id}')" class="p-2 text-blue-500 bg-blue-50 rounded-lg"><i class="fa-solid fa-pen-to-square"></i></button>
-                                    <button onclick="app.deleteProduct('${p.id}')" class="p-2 text-red-500 bg-red-50 rounded-lg"><i class="fa-solid fa-trash-can"></i></button>
-                                </div>
-                            </div>`;
-                        }).join('')}
-                    </div></div>`;
-            }
-            else if (store.view === 'collections') {
-                ws.innerHTML = `<div class="grid grid-cols-1 lg:grid-cols-2 gap-8 fade-in-up stagger-1"><div class="tilt-card h-fit sticky top-0"><h3 class="font-bold mb-6 text-lg text-gray-900">${store.draftCollection.id ? 'Edit' : 'Create'} Collection</h3><div class="space-y-5"><div><label class="label-3d">Collection Name</label><input class="input-3d" placeholder="e.g. Summer Wear" value="${store.draftCollection.name || ''}" oninput="store.draftCollection.name=this.value"></div><div><label class="label-3d">Cover Image</label><div class="img-upload-box h-48 w-full relative" onclick="document.getElementById('c-up').click()">${store.draftCollection.img ? `<img src="${store.draftCollection.img}" class="w-full h-full object-cover rounded-xl shadow-inner">` : `<div class="text-center p-4"><i class="fa-solid fa-cloud-arrow-up text-lime-500 text-3xl mb-3"></i><p class="text-xs text-gray-400 font-bold uppercase tracking-widest">Select Cover Photo</p></div>`}</div><input type="file" id="c-up" hidden accept="image/*" onchange="app.handleUpload(this.files, 'collection')"></div><button onclick="app.saveCollection()" class="btn-primary w-full py-4" style="background: linear-gradient(135deg, #84cc16, #65a30d); border: none; color: white; border-radius: 14px; font-weight: 700;">${store.draftCollection.id ? 'Update Collection' : 'Create Collection'}</button></div></div><div class="space-y-4">${store.collections.length === 0 ? `<div class="glass-panel p-12 text-center border-dashed border-2 border-gray-200"><p class="text-gray-400 font-medium">No collections created yet.</p></div>` : store.collections.map((c, i) => { const productsInCol = store.products.filter(p => p.category_id === c.id); return `<div class="glass-panel p-4"><div class="flex items-center gap-4 mb-4 border-b border-gray-100/50 pb-4"><img src="${c.img_url || 'https://via.placeholder.com/150'}" class="w-14 h-14 rounded-xl object-cover bg-gray-100 shadow-sm border border-white"><div class="flex-1"><div class="font-bold text-gray-800 leading-tight">${c.name}</div><div class="text-[10px] text-lime-600 font-bold uppercase mt-1 tracking-tighter">${productsInCol.length} Products Linked</div></div><div class="flex gap-1"><button onclick="app.editCollection('${c.id}')" class="w-8 h-8 rounded-lg flex items-center justify-center text-blue-500 hover:bg-blue-50 transition"><i class="fa-solid fa-pen-to-square"></i></button><button onclick="app.deleteCollection('${c.id}')" class="w-8 h-8 rounded-lg flex items-center justify-center text-red-400 hover:bg-red-50 transition"><i class="fa-solid fa-trash-can"></i></button></div></div></div>`; }).join('')}</div></div>`;
-            }
-            else if (store.view === 'branding') {
-                ws.innerHTML = `<div class="max-w-md mx-auto space-y-6 fade-in-up stagger-1"><div class="tilt-card"><h3 class="font-bold text-lg mb-6">Core Identity</h3><div class="space-y-5"><div><label class="label-3d">Name</label><input class="input-3d" value="${store.branding.name}" oninput="app.updateBranding('name', this.value)"></div><div><label class="label-3d">Tagline</label><input class="input-3d" value="${store.branding.tagline}" oninput="app.updateBranding('tagline', this.value)"></div><div><label class="label-3d">Color</label><input type="color" class="w-full h-10 rounded-xl" value="${store.branding.color}" oninput="app.updateBranding('color', this.value)"></div><div><label class="label-3d">Logo</label><div class="img-upload-box h-32 w-full" onclick="document.getElementById('l-up').click()">${store.branding.logo_url ? `<img src="${store.branding.logo_url}" class="object-contain p-4"><div class="absolute top-2 right-2 w-6 h-6 bg-red-500 text-white rounded-full flex items-center justify-center shadow hover:bg-red-600 transition" onclick="event.stopPropagation(); app.deleteLogo()"><i class="fa-solid fa-trash text-xs"></i></div>` : `Upload / Take Photo`}</div><input type="file" id="l-up" hidden accept="image/*" onchange="app.handleUpload(this.files, 'logo')"></div></div></div></div>`;
-            }
-        }
-    };
+            // --- MOBILE SIDEBAR TOGGLE ---
+            toggleSidebar: () => {
+                const sb = document.getElementById('sidebar');
+                const bd = document.querySelector('.sidebar-backdrop');
+                sb.classList.toggle('open');
+                bd.classList.toggle('open');
+            },
 
-    window.handlePublish = app.publishStore;
-    window.copyLink = app.copyLink;
-    window.onload = app.init;
-</script>
+            // --- NEW: COMPRESSOR & DRAFT ENGINE ---
+            compressImage: (file) => {
+                return new Promise((resolve) => {
+                    const reader = new FileReader();
+                    reader.readAsDataURL(file);
+                    reader.onload = (event) => {
+                        const img = new Image();
+                        img.src = event.target.result;
+                        img.onload = () => {
+                            const canvas = document.createElement('canvas');
+                            const ctx = canvas.getContext('2d');
+                            // Web-optimized dimensions
+                            const maxWidth = 800; 
+                            const scale = maxWidth / img.width;
+                            const newWidth = scale < 1 ? maxWidth : img.width;
+                            const newHeight = scale < 1 ? img.height * scale : img.height;
+                            
+                            canvas.width = newWidth;
+                            canvas.height = newHeight;
+                            ctx.drawImage(img, 0, 0, newWidth, newHeight);
+                            
+                            // Compress to JPEG at 70% quality
+                            canvas.toBlob((blob) => {
+                                resolve(new File([blob], file.name, { type: 'image/jpeg' }));
+                            }, 'image/jpeg', 0.7); 
+                        };
+                    };
+                });
+            },
+
+            triggerUnsaved: () => {
+                store.hasUnsavedChanges = true;
+                document.getElementById('action-bar').classList.add('visible');
+            },
+
+            discardChanges: () => {
+                if(!confirm("Discard all changes and revert to cloud version?")) return;
+                store.hasUnsavedChanges = false;
+                store.pendingActions = { products: [], collections: [], branding: null, uploads: [] };
+                document.getElementById('action-bar').classList.remove('visible');
+                app.loadUserData(); // Re-fetch true state from Supabase
+            },
+
+            commitChanges: async () => {
+                const btn = document.querySelector('.action-save');
+                const originalText = btn.innerText;
+                btn.innerText = "Saving...";
+
+                try {
+                    // 1. Process Image Uploads First (Batch)
+                    const uploadMap = {}; 
+                    for (const item of store.pendingActions.uploads) {
+                        const { error } = await _supabase.storage.from('store-assets').upload(item.path, item.file, { upsert: true });
+                        if(!error) {
+                            const { data } = _supabase.storage.from('store-assets').getPublicUrl(item.path);
+                            uploadMap[item.tempUrl] = data.publicUrl;
+                        }
+                    }
+
+                    // 2. Sync Collections
+                    for (const action of store.pendingActions.collections) {
+                        if(action.type === 'upsert') {
+                            // Swap blob URL for real URL if it exists
+                            if(action.data.img_url && uploadMap[action.data.img_url]) {
+                                action.data.img_url = uploadMap[action.data.img_url];
+                            }
+                            // Clean data
+                            const { id, ...cleanData } = action.data;
+                            if(typeof id === 'string' && id.startsWith('temp_')) {
+                                // New item: Let DB generate ID (don't send ID)
+                                await _supabase.from('collections').insert(cleanData);
+                            } else {
+                                // Existing item: Send ID
+                                await _supabase.from('collections').upsert(action.data);
+                            }
+                        } else if(action.type === 'delete') {
+                            await _supabase.from('collections').delete().eq('id', action.id);
+                        }
+                    }
+
+                    // 3. Sync Products
+                    for (const action of store.pendingActions.products) {
+                        if(action.type === 'upsert') {
+                            // Swap blob URLs
+                            if(action.data.images) {
+                                action.data.images = action.data.images.map(img => uploadMap[img] || img);
+                            }
+                            // Clean data logic
+                            const { id, ...cleanData } = action.data;
+                            if(typeof id === 'string' && id.startsWith('temp_')) {
+                                await _supabase.from('products').insert(cleanData);
+                            } else {
+                                await _supabase.from('products').upsert(action.data);
+                            }
+                        } else if(action.type === 'delete') {
+                            await _supabase.from('products').delete().eq('id', action.id);
+                        }
+                    }
+
+                    // 4. Sync Branding
+                    if(store.pendingActions.branding) {
+                        let d = store.pendingActions.branding;
+                        if(d.logo_url && uploadMap[d.logo_url]) d.logo_url = uploadMap[d.logo_url];
+                        await _supabase.from('profiles').update(d).eq('id', store.user.id);
+                    }
+
+                    // Success Clean Up
+                    store.hasUnsavedChanges = false;
+                    store.pendingActions = { products: [], collections: [], branding: null, uploads: [] };
+                    document.getElementById('action-bar').classList.remove('visible');
+                    alert("Changes saved to cloud!");
+                    await app.loadUserData(); // Refresh to get real IDs
+
+                } catch (e) {
+                    alert("Sync Error: " + e.message);
+                } finally {
+                    btn.innerText = originalText;
+                }
+            },
+
+            // --- LOCAL ACTION HANDLERS ---
+
+            handleUpload: async (files, type) => {
+                if (!files.length) return;
+                const originalFile = files[0];
+                
+                // Compress local
+                const compressedFile = await app.compressImage(originalFile);
+                
+                // Create Blob for instant UI
+                const tempUrl = URL.createObjectURL(compressedFile);
+                const fileName = `${Date.now()}.jpg`;
+                const filePath = `${store.user.id}/${fileName}`;
+
+                // Queue for upload on Save
+                store.pendingActions.uploads.push({
+                    file: compressedFile,
+                    path: filePath,
+                    tempUrl: tempUrl
+                });
+
+                app.triggerUnsaved();
+
+                // Update UI State instantly
+                if (type === 'product') {
+                    store.draftProduct.images.push(tempUrl);
+                    app.renderWorkspace();
+                } else if (type === 'collection') {
+                    store.draftCollection.img = tempUrl;
+                    app.renderWorkspace();
+                } else if (type === 'logo') {
+                    store.branding.logo_url = tempUrl;
+                    if(!store.pendingActions.branding) store.pendingActions.branding = {};
+                    store.pendingActions.branding.logo_url = tempUrl;
+                    app.renderWorkspace();
+                }
+            },
+
+            handleAuth: async (type) => {
+                const email = document.getElementById('login-email').value;
+                const password = document.getElementById('login-password').value;
+                if(!email || !password) return alert("Please enter email and password");
+
+                let error;
+                if (type === 'signup') {
+                    const { error: err } = await _supabase.auth.signUp({ email, password });
+                    error = err;
+                    if(!error) alert("Account created! You are logged in.");
+                } else {
+                    const { error: err } = await _supabase.auth.signInWithPassword({ email, password });
+                    error = err;
+                }
+                if (error) alert(error.message);
+                else app.init();
+            },
+
+            signOut: async () => {
+                await _supabase.auth.signOut();
+                window.location.reload();
+            },
+
+            saveProduct: async () => {
+                const p = store.draftProduct;
+                if(!p.name) return alert("Name required");
+                
+                let colId = p.category_id;
+                if(!colId && p.category) {
+                      const col = store.collections.find(c => c.name === p.category);
+                      if(col) colId = col.id;
+                }
+                if(!colId && store.collections.length > 0) colId = store.collections[0].id;
+                if(!colId) return alert("Create a collection first!");
+
+                const payload = {
+                    user_id: store.user.id,
+                    name: p.name,
+                    price: parseFloat(p.price) || 0,
+                    stock: parseInt(p.stock) || 0,
+                    collection_id: colId,
+                    images: p.images,
+                    variants: p.variants
+                };
+
+                // Determine ID (Real or Temp)
+                const isNew = !p.id;
+                const finalId = p.id || `temp_${Date.now()}`;
+                
+                // Update Local UI State
+                const newProdUI = { 
+                    id: finalId, 
+                    ...payload, 
+                    category: store.collections.find(c => c.id === colId)?.name || 'Uncategorized',
+                    img: (p.images && p.images[0]) || '' 
+                };
+
+                const existingIndex = store.products.findIndex(x => x.id === finalId);
+                if(existingIndex > -1) {
+                    store.products[existingIndex] = newProdUI;
+                } else {
+                    store.products.unshift(newProdUI);
+                }
+
+                // Add to Pending Queue
+                store.pendingActions.products.push({ 
+                    type: 'upsert', 
+                    data: { id: finalId, ...payload } 
+                });
+
+                store.draftProduct = { id: null, name: '', price: '', category: '', stock: 10, images: [], variants: [] };
+                app.triggerUnsaved();
+                app.setTab('inventory');
+            },
+
+            saveCollection: async () => {
+                const c = store.draftCollection;
+                if(!c.name) return alert("Name required");
+                
+                const finalId = c.id || `temp_${Date.now()}`;
+                const payload = { user_id: store.user.id, name: c.name, img_url: c.img };
+
+                // Update Local UI
+                const newColUI = { id: finalId, ...payload };
+                const existingIndex = store.collections.findIndex(x => x.id === finalId);
+                if(existingIndex > -1) {
+                    store.collections[existingIndex] = newColUI;
+                } else {
+                    store.collections.push(newColUI);
+                }
+
+                // Add to Pending Queue
+                store.pendingActions.collections.push({
+                    type: 'upsert',
+                    data: { id: finalId, ...payload }
+                });
+
+                store.draftCollection = { id: null, name: '', img: null };
+                app.triggerUnsaved();
+                app.setTab('collections');
+            },
+
+            updateBranding: async (k, v) => {
+                if (k === 'name') {
+                    store.branding.name = v;
+                    document.getElementById('store-name-input').value = v; 
+                    app.updateStoreUrl();
+                }
+                if (k === 'tagline') store.branding.tagline = v;
+                if (k === 'color') store.branding.color = v;
+                if (k === 'font') store.branding.font = v;
+                if (k === 'btnTextCart') store.branding.btnTextCart = v;
+                if (k === 'btnTextBuy') store.branding.btnTextBuy = v;
+                
+                const dbKeyMap = { name: 'store_name', tagline: 'tagline', color: 'color', font: 'font_family', btnTextCart: 'btn_cart_text', btnTextBuy: 'btn_buy_text' };
+                
+                if(dbKeyMap[k]) {
+                    if(!store.pendingActions.branding) store.pendingActions.branding = {};
+                    store.pendingActions.branding[dbKeyMap[k]] = v;
+                    app.triggerUnsaved();
+                }
+            },
+
+            deleteProduct: async (id) => {
+                if(!confirm("Delete product from draft?")) return;
+                
+                // Update Local UI
+                store.products = store.products.filter(p => p.id !== id);
+                
+                // Add to Queue
+                // If it was a temp item, just remove it from pending upserts
+                if(id.toString().startsWith('temp_')) {
+                    store.pendingActions.products = store.pendingActions.products.filter(a => a.data.id !== id);
+                } else {
+                    store.pendingActions.products.push({ type: 'delete', id: id });
+                }
+                
+                app.triggerUnsaved();
+                app.renderWorkspace();
+            },
+
+            deleteCollection: async (id) => {
+                if(!confirm("Delete collection from draft?")) return;
+                
+                store.collections = store.collections.filter(c => c.id !== id);
+                
+                if(id.toString().startsWith('temp_')) {
+                    store.pendingActions.collections = store.pendingActions.collections.filter(a => a.data.id !== id);
+                } else {
+                    store.pendingActions.collections.push({ type: 'delete', id: id });
+                }
+                
+                app.triggerUnsaved();
+                app.renderWorkspace();
+            },
+
+            deleteLogo: async () => {
+                store.branding.logo_url = '';
+                
+                if(!store.pendingActions.branding) store.pendingActions.branding = {};
+                store.pendingActions.branding.logo_url = '';
+                
+                app.triggerUnsaved();
+                app.renderWorkspace();
+            },
+
+            setTab: (tab) => {
+                store.view = tab;
+                document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active'));
+                const nav = document.querySelector(`.nav-item[onclick*="'${tab}'"]`);
+                if(nav) nav.classList.add('active');
+                
+                // Close sidebar on mobile after selection
+                const sb = document.getElementById('sidebar');
+                if(sb.classList.contains('open')) app.toggleSidebar();
+
+                const titleMap = { 'dashboard': 'Overview', 'orders': 'Orders Command', 'customers': 'Customer Database', 'payments': 'Payment Gateway', 'add_product': 'Create Product', 'collections': 'Collections', 'inventory': 'Inventory', 'branding': 'Store Appearance' };
+                const t = titleMap[tab] || 'Dashboard';
+                if(document.getElementById('page-title')) document.getElementById('page-title').innerText = t;
+                if(document.getElementById('mob-page-title')) document.getElementById('mob-page-title').innerText = t;
+                app.renderWorkspace();
+            },
+            
+            updatePendingBadge: () => {
+                const count = store.orders.filter(o => o.status === 'pending').length;
+                const badge = document.getElementById('pending-badge');
+                if(count > 0) { badge.innerText = count; badge.classList.remove('hidden'); } else { badge.classList.add('hidden'); }
+            },
+
+            // --- FIXED URL LOGIC ---
+            updateStoreUrl: () => {
+                if (store.isPublished && store.publishedSlug) {
+                    store.storeUrl = `${window.location.host}/${store.publishedSlug}`;
+                } else {
+                    const slug = store.branding.name.toLowerCase().replace(/ /g, '-').replace(/[^\w-]+/g, '');
+                    store.storeUrl = `${window.location.host}/${slug}`;
+                }
+
+                if(document.getElementById('sidebar-url')) {
+                    document.getElementById('sidebar-url').innerText = store.storeUrl;
+                    document.getElementById('sidebar-url').href = `//${store.storeUrl}`;
+                }
+            },
+
+            publishStore: async () => {
+                const rawName = document.getElementById('store-name-input').value; 
+                if (!rawName) return alert("Please set a Store Name first in Appearance tab!");
+
+                const slug = rawName.toLowerCase()
+                    .trim()
+                    .replace(/[^\w\s-]/g, '') // Remove symbols
+                    .replace(/[\s_-]+/g, '-') // Spaces to dashes
+                    .replace(/^-+|-+$/g, ''); // Trim dashes
+
+                const btn = document.querySelector('.publish-btn'); // Target header btn
+                const bottomBtn = document.getElementById('publish-btn'); // Target bottom btn
+                
+                if(btn) btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin mr-2"></i>Publishing...';
+                if(bottomBtn) { bottomBtn.innerText = "PUBLISHING..."; bottomBtn.disabled = true; }
+
+                const { data: { user } } = await _supabase.auth.getUser();
+                const { error } = await _supabase
+                    .from('profiles')
+                    .update({ 
+                        store_slug: slug, 
+                        is_published: true,
+                        store_name: rawName 
+                    })
+                    .eq('id', user.id);
+
+                if (error) {
+                    alert("Error: " + error.message);
+                    if(btn) btn.innerHTML = '<i class="fa-solid fa-rocket mr-2"></i>Publish Live';
+                    if(bottomBtn) { bottomBtn.innerText = "PUBLISH STORE"; bottomBtn.disabled = false; }
+                } else {
+                    const finalUrl = `${window.location.origin}/${slug}`;
+                    store.isPublished = true;
+                    store.publishedSlug = slug; // Update local state
+                    
+                    if(btn) btn.innerHTML = '<i class="fa-solid fa-check mr-2"></i>Live!';
+                    if(bottomBtn) { 
+                        bottomBtn.innerText = "STORE LIVE!";
+                        bottomBtn.classList.replace('bg-[#DFFF00]', 'bg-green-500');
+                    }
+
+                    const linkDisplay = document.getElementById('link-display');
+                    if(linkDisplay) {
+                        linkDisplay.classList.remove('hidden');
+                        document.getElementById('live-url').innerText = finalUrl;
+                    }
+                    
+                    app.setLiveStatus(true);
+                    app.updateStoreUrl(); // Sync sidebar link
+                    alert(`Success! Store live at: ${finalUrl}`);
+                }
+            },
+
+            copyLink: () => { 
+                const url = document.getElementById('live-url')?.innerText || `https://${store.storeUrl}`;
+                navigator.clipboard.writeText(url);
+                alert("Link copied!"); 
+            },
+
+            // --- QR CODE FEATURE ---
+            showQR: () => {
+                if(!store.isPublished) return alert("Publish your store first to generate a QR Code.");
+                
+                const url = `https://${store.storeUrl}`;
+                const container = document.getElementById('qr-container');
+                container.innerHTML = ""; // Clear old
+                
+                new QRCode(container, {
+                    text: url,
+                    width: 180,
+                    height: 180,
+                    colorDark : "#000000",
+                    colorLight : "#ffffff",
+                    correctLevel : QRCode.CorrectLevel.H
+                });
+                
+                document.getElementById('qr-modal').classList.add('active');
+            },
+
+            toggleLive: () => {
+                if(!store.isPublished) return alert("Publish your store first!");
+                app.setLiveStatus(!store.liveState);
+            },
+            setLiveStatus: (status) => {
+                store.liveState = status;
+                const btn = document.getElementById('live-toggle');
+                const txt = document.getElementById('live-text');
+                const box = document.getElementById('sidebar-link-box');
+                if(status) { btn.classList.add('live'); txt.innerText = "STORE LIVE"; box.classList.add('visible'); } 
+                else { btn.classList.remove('live'); txt.innerText = "OFFLINE"; box.classList.remove('visible'); }
+            },
+            
+            viewStore: () => { 
+                if(!store.isPublished) { if(confirm("Store not published. Publish?")) app.publishStore(); return; } 
+                // Open dynamic slug from state or branding
+                const slug = store.publishedSlug || store.branding.name.toLowerCase().replace(/ /g, '-').replace(/[^\w-]+/g, '');
+                window.open(`/${slug}`, '_blank'); 
+            },
+            
+            dragStart: (e, i) => { e.dataTransfer.setData('text/plain', i); e.currentTarget.classList.add('dragging'); },
+            dragOver: (e) => { e.preventDefault(); },
+            dragDrop: (e, targetI) => { e.preventDefault(); const sourceI = parseInt(e.dataTransfer.getData('text/plain')); if (sourceI !== targetI) { const moved = store.collections.splice(sourceI, 1)[0]; store.collections.splice(targetI, 0, moved); app.renderWorkspace(); } document.querySelectorAll('.draggable-item').forEach(el => el.classList.remove('dragging')); },
+            editCollection: (id) => { const c = store.collections.find(x => x.id === id); if(c) { store.draftCollection = { ...c, img: c.img_url || c.img }; document.getElementById('workspace').scrollTo({top:0}); app.renderWorkspace(); } },
+            addVariantToDraft: () => { if(!store.tempVariant.name || !store.tempVariant.valueStr) return; const values = store.tempVariant.valueStr.split(',').map(s => s.trim()).filter(s => s); store.draftProduct.variants.push({ name: store.tempVariant.name, values: values }); store.tempVariant = { name: '', valueStr: '' }; app.renderWorkspace(); },
+            removeVariantFromDraft: (i) => { store.draftProduct.variants.splice(i, 1); app.renderWorkspace(); },
+            editProduct: (id) => { const p = store.products.find(x => x.id === id); if(p) { store.draftProduct = { ...p, images: p.images || [], category_id: p.category_id }; app.setTab('add_product'); } },
+            savePaymentSettings: () => { alert("Payment Settings Saved!"); },
+
+            renderWorkspace: () => {
+                const ws = document.getElementById('workspace'); ws.innerHTML = ''; ws.className = "content-scroll-area fade-in-up";
+                if (store.view === 'dashboard') {
+                    const rev = store.orders.reduce((acc, o) => acc + (o.total || 0), 0);
+                    ws.innerHTML = `<div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8"><div class="tilt-card border-l-4 border-lime-500"><span class="label-3d">Revenue</span><div class="text-3xl font-black mt-2">₹${rev.toLocaleString()}</div></div><div class="tilt-card border-l-4 border-blue-500"><span class="label-3d">Orders</span><div class="text-3xl font-black mt-2">${store.orders.length}</div></div><div class="tilt-card border-l-4 border-indigo-500"><span class="label-3d">Products</span><div class="text-3xl font-black mt-2">${store.products.length}</div></div></div>`;
+                    
+                    // Show publishing widget in dashboard view if not published
+                    if(document.getElementById('bottom-publish-container')) {
+                         document.getElementById('bottom-publish-container').style.display = 'block';
+                         ws.appendChild(document.getElementById('bottom-publish-container'));
+                    }
+                }
+                else if (store.view === 'orders') {
+                    // UPGRADED ORDER VIEW
+                    if(store.orders.length === 0) { 
+                        ws.innerHTML = `<div class="flex flex-col items-center justify-center pt-10 text-center"><div class="w-24 h-24 bg-gray-100 rounded-full flex items-center justify-center mb-4"><i class="fa-solid fa-receipt text-3xl text-gray-300"></i></div><h3 class="font-bold text-gray-900 text-lg">No orders yet</h3><p class="text-gray-400 text-sm max-w-xs mt-2">Share your store link on social media to get your first sale.</p><button onclick="app.showQR()" class="mt-6 px-6 py-2 bg-blue-600 text-white font-bold rounded-lg shadow-lg hover:scale-105 transition"><i class="fa-solid fa-qrcode mr-2"></i>Get Store QR</button></div>`; 
+                    } else {
+                        // Place for order list logic
+                        ws.innerHTML = `<div>Order List (Coming Soon)</div>`;
+                    }
+                }
+                else if (store.view === 'customers') {
+                    if (store.customers.length === 0) { ws.innerHTML = `<div class="text-center text-gray-400 mt-20"><i class="fa-solid fa-users-slash text-4xl mb-3 opacity-30"></i><p>No customers found.</p></div>`; }
+                }
+                else if (store.view === 'payments') {
+                    ws.innerHTML = `<div class="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-4xl mx-auto"><div class="tilt-card border-2 ${store.payment.method === 'manual' ? 'border-blue-500 ring-4 ring-blue-500/10' : 'border-transparent'}" onclick="store.payment.method='manual'; app.renderWorkspace()"><div class="flex justify-between items-start mb-4"><div class="w-12 h-12 bg-green-100 rounded-xl flex items-center justify-center text-green-600 text-2xl"><i class="fa-brands fa-whatsapp"></i></div>${store.payment.method === 'manual' ? '<i class="fa-solid fa-circle-check text-blue-500 text-xl"></i>' : '<i class="fa-regular fa-circle text-gray-300 text-xl"></i>'}</div><h3 class="font-bold text-lg mb-1">Manual (WhatsApp)</h3><p class="text-xs text-gray-500 mb-6">Redirect customers to your WhatsApp. You handle payment collection manually (UPI, Cash, etc) in chat.</p><label class="label-3d">Your WhatsApp Number</label><input type="text" class="input-3d" placeholder="e.g. 919876543210" value="${store.payment.whatsappNumber}" oninput="store.payment.whatsappNumber = this.value"></div><div class="tilt-card border-2 ${store.payment.method === 'auto' ? 'border-blue-500 ring-4 ring-blue-500/10' : 'border-transparent'}" onclick="store.payment.method='auto'; app.renderWorkspace()"><div class="flex justify-between items-start mb-4"><div class="w-12 h-12 bg-indigo-100 rounded-xl flex items-center justify-center text-indigo-600 text-2xl"><i class="fa-solid fa-link"></i></div>${store.payment.method === 'auto' ? '<i class="fa-solid fa-circle-check text-blue-500 text-xl"></i>' : '<i class="fa-regular fa-circle text-gray-300 text-xl"></i>'}</div><h3 class="font-bold text-lg mb-1">Automatic (Payment Link)</h3><p class="text-xs text-gray-500 mb-6">Automatically redirect customers to a specific payment page (Razorpay, Stripe, PayPal, etc) upon checkout.</p><label class="label-3d">Your Payment Link URL</label><input type="text" class="input-3d" placeholder="https://razorpay.me/@yourname" value="${store.payment.paymentLink}" oninput="store.payment.paymentLink = this.value"></div><button onclick="app.savePaymentSettings()" class="col-span-1 md:col-span-2 py-4 bg-black text-white font-bold rounded-xl shadow-lg hover:scale-[1.01] transition">Save Payment Settings</button></div>`;
+                }
+                else if (store.view === 'add_product') {
+                    const noCol = store.collections.length === 0;
+                    const isEdit = store.draftProduct.id !== null;
+                    ws.innerHTML = `<div class="flex gap-8 flex-col lg:flex-row"><div class="flex-1 space-y-6">${noCol ? `<div class="p-4 bg-yellow-100 text-yellow-800 rounded-xl text-xs font-bold border border-yellow-200"><i class="fa-solid fa-triangle-exclamation mr-2"></i> You need to create a Collection before adding a product.</div>` : ''}<div class="tilt-card"><h3 class="font-bold text-lg mb-6">${isEdit ? 'Edit Product' : 'Create Product'}</h3><div class="space-y-4"><div><label class="label-3d">Name</label><input class="input-3d" value="${store.draftProduct.name}" oninput="store.draftProduct.name=this.value"></div><div class="grid grid-cols-2 gap-4"><div><label class="label-3d">Price</label><input type="number" class="input-3d" value="${store.draftProduct.price}" oninput="store.draftProduct.price=this.value"></div><div><label class="label-3d">Stock</label><input type="number" class="input-3d" value="${store.draftProduct.stock}" oninput="store.draftProduct.stock=this.value"></div></div><div><label class="label-3d">Category</label><select class="input-3d" ${noCol?'disabled':''} onchange="store.draftProduct.category_id=this.value; store.draftProduct.category=this.options[this.selectedIndex].text">${store.collections.length ? store.collections.map(c => `<option value="${c.id}" ${store.draftProduct.category_id===c.id?'selected':''}>${c.name}</option>`).join('') : '<option>Create a Collection First</option>'}</select></div></div></div><div class="tilt-card"><h3 class="font-bold text-lg mb-4">Variants</h3><div class="flex gap-2 mb-4"><input class="input-3d" placeholder="Name (e.g. Size)" value="${store.tempVariant.name}" oninput="store.tempVariant.name=this.value"><input class="input-3d" placeholder="Values (S, M)" value="${store.tempVariant.valueStr}" oninput="store.tempVariant.valueStr=this.value"><button class="bg-black text-white px-4 rounded-xl text-xs font-bold" onclick="app.addVariantToDraft()">Add</button></div><div class="space-y-2">${store.draftProduct.variants.map((v,i)=>`<div class="p-3 bg-gray-50 rounded-lg flex justify-between items-center"><div><span class="font-bold text-xs uppercase mr-2">${v.name}:</span>${v.values.map(val=>`<span class="variant-tag">${val}</span>`).join('')}</div><i class="fa-solid fa-trash text-red-500 cursor-pointer" onclick="app.removeVariantFromDraft(${i})"></i></div>`).join('')}</div></div><button onclick="${noCol ? "app.setTab('collections')" : "app.saveProduct()"}" class="w-full py-4 bg-blue-600 text-white font-bold rounded-xl shadow-lg hover:scale-[1.01] transition">${noCol ? "Go to Collections" : (isEdit ? "Update Product" : "Publish Product")}</button></div><div class="w-full lg:w-1/3"><div class="tilt-card"><h3 class="font-bold text-lg mb-4">Gallery</h3><div class="grid grid-cols-2 gap-3 mb-3">${store.draftProduct.images.map(img => `<div class="img-upload-box border-none shadow-sm relative group"><img src="${img}"><div class="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition flex items-center justify-center rounded-xl"><i class="fa-solid fa-trash text-white"></i></div></div>`).join('')}<div class="img-upload-box" onclick="document.getElementById('p-up').click()"><div class="text-center"><i class="fa-solid fa-camera-retro text-blue-500 text-2xl mb-1"></i><p class="text-[9px] font-black text-gray-400 uppercase tracking-tighter">Choose Media</p></div></div></div><input type="file" id="p-up" hidden accept="image/*" onchange="app.handleUpload(this.files, 'product')"></div></div></div>`;
+                }
+                else if (store.view === 'inventory') {
+                    ws.innerHTML = `<div class="glass-panel overflow-hidden border border-white/40 shadow-2xl fade-in-up">
+                        <div class="max-h-[650px] overflow-y-auto no-scroll p-2 md:p-0">
+                            ${store.products.length === 0 ? `<div class="text-center py-20"><i class="fa-solid fa-boxes-stacked text-gray-200 text-6xl mb-4"></i><p class="text-gray-400 font-bold">Your inventory is currently empty</p><button onclick="app.setTab('add_product')" class="mt-4 text-blue-500 text-xs font-black uppercase tracking-widest hover:underline">Add your first product</button></div>` : store.products.map(p => {
+                                const isLowStock = p.stock < 5;
+                                const stockColor = isLowStock ? 'bg-red-50 text-red-600 border-red-100' : 'bg-lime-50 text-lime-700 border-lime-100';
+                                return `<div class="flex flex-col md:flex-row gap-4 p-4 items-start md:items-center bg-white rounded-xl shadow-sm border border-gray-100 mb-2">
+                                    <div class="flex items-center gap-4 w-full md:w-auto"><div class="relative"><img src="${p.img || 'https://via.placeholder.com/50'}" class="w-14 h-14 rounded-xl bg-gray-200 object-cover shadow-sm"></div><div class="flex-1"><div class="font-extrabold text-sm text-gray-800">${p.name}</div><div class="text-[10px] text-gray-400 font-mono">ID: #${p.id.toString().slice(-6)}</div></div></div>
+                                    <div class="flex justify-between items-center w-full md:w-auto gap-4 mt-2 md:mt-0">
+                                        <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full border ${stockColor}"><span class="w-1.5 h-1.5 rounded-full ${isLowStock ? 'bg-red-500' : 'bg-lime-500'}"></span><span class="text-[11px] font-bold">${p.stock} Units</span></div>
+                                        <span class="font-mono text-sm font-black text-gray-800">₹${p.price.toLocaleString()}</span>
+                                    </div>
+                                    <div class="flex gap-2 w-full md:w-auto justify-end mt-2 md:mt-0">
+                                        <button onclick="app.editProduct('${p.id}')" class="p-2 text-blue-500 bg-blue-50 rounded-lg"><i class="fa-solid fa-pen-to-square"></i></button>
+                                        <button onclick="app.deleteProduct('${p.id}')" class="p-2 text-red-500 bg-red-50 rounded-lg"><i class="fa-solid fa-trash-can"></i></button>
+                                    </div>
+                                </div>`;
+                            }).join('')}
+                        </div></div>`;
+                }
+                else if (store.view === 'collections') {
+                    ws.innerHTML = `<div class="grid grid-cols-1 lg:grid-cols-2 gap-8"><div class="tilt-card h-fit sticky top-0"><h3 class="font-bold mb-6 text-lg text-gray-900">${store.draftCollection.id ? 'Edit' : 'Create'} Collection</h3><div class="space-y-5"><div><label class="label-3d">Collection Name</label><input class="input-3d" placeholder="e.g. Summer Wear" value="${store.draftCollection.name || ''}" oninput="store.draftCollection.name=this.value"></div><div><label class="label-3d">Cover Image</label><div class="img-upload-box h-48 w-full relative" onclick="document.getElementById('c-up').click()">${store.draftCollection.img ? `<img src="${store.draftCollection.img}" class="w-full h-full object-cover rounded-xl shadow-inner">` : `<div class="text-center p-4"><i class="fa-solid fa-cloud-arrow-up text-lime-500 text-3xl mb-3"></i><p class="text-xs text-gray-400 font-bold uppercase tracking-widest">Select Cover Photo</p></div>`}</div><input type="file" id="c-up" hidden accept="image/*" onchange="app.handleUpload(this.files, 'collection')"></div><button onclick="app.saveCollection()" class="btn-primary w-full py-4" style="background: linear-gradient(135deg, #84cc16, #65a30d); border: none; color: white; border-radius: 14px; font-weight: 700;">${store.draftCollection.id ? 'Update Collection' : 'Create Collection'}</button></div></div><div class="space-y-4">${store.collections.length === 0 ? `<div class="glass-panel p-12 text-center border-dashed border-2 border-gray-200"><p class="text-gray-400 font-medium">No collections created yet.</p></div>` : store.collections.map((c, i) => { const productsInCol = store.products.filter(p => p.category_id === c.id); return `<div class="glass-panel p-4"><div class="flex items-center gap-4 mb-4 border-b border-gray-100/50 pb-4"><img src="${c.img_url || 'https://via.placeholder.com/150'}" class="w-14 h-14 rounded-xl object-cover bg-gray-100 shadow-sm border border-white"><div class="flex-1"><div class="font-bold text-gray-800 leading-tight">${c.name}</div><div class="text-[10px] text-lime-600 font-bold uppercase mt-1 tracking-tighter">${productsInCol.length} Products Linked</div></div><div class="flex gap-1"><button onclick="app.editCollection('${c.id}')" class="w-8 h-8 rounded-lg flex items-center justify-center text-blue-500 hover:bg-blue-50 transition"><i class="fa-solid fa-pen-to-square"></i></button><button onclick="app.deleteCollection('${c.id}')" class="w-8 h-8 rounded-lg flex items-center justify-center text-red-400 hover:bg-red-50 transition"><i class="fa-solid fa-trash-can"></i></button></div></div></div>`; }).join('')}</div></div>`;
+                }
+                else if (store.view === 'branding') {
+                    ws.innerHTML = `<div class="max-w-md mx-auto space-y-6"><div class="tilt-card"><h3 class="font-bold text-lg mb-6">Core Identity</h3><div class="space-y-5"><div><label class="label-3d">Name</label><input class="input-3d" value="${store.branding.name}" oninput="app.updateBranding('name', this.value)"></div><div><label class="label-3d">Tagline</label><input class="input-3d" value="${store.branding.tagline}" oninput="app.updateBranding('tagline', this.value)"></div><div><label class="label-3d">Color</label><input type="color" class="w-full h-10 rounded-xl" value="${store.branding.color}" oninput="app.updateBranding('color', this.value)"></div><div><label class="label-3d">Logo</label><div class="img-upload-box h-32 w-full" onclick="document.getElementById('l-up').click()">${store.branding.logo_url ? `<img src="${store.branding.logo_url}" class="object-contain p-4"><div class="absolute top-2 right-2 w-6 h-6 bg-red-500 text-white rounded-full flex items-center justify-center shadow hover:bg-red-600 transition" onclick="event.stopPropagation(); app.deleteLogo()"><i class="fa-solid fa-trash text-xs"></i></div>` : `Upload / Take Photo`}</div><input type="file" id="l-up" hidden accept="image/*" onchange="app.handleUpload(this.files, 'logo')"></div></div></div></div>`;
+                }
+            }
+        };
+
+        // Bridge to support the bottom button click handler
+        window.handlePublish = app.publishStore;
+        window.copyLink = app.copyLink;
+
+        window.onload = app.init;
+    </script>
 </body>
 </html>
