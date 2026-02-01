@@ -3,12 +3,13 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>BiosOS | Dashboard v20 Pro</title>
+    <title>BiosOS | Dashboard v21 Pro</title>
     
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
 
     <style>
         :root {
@@ -28,7 +29,6 @@
             color: #0F172A;
             margin: 0; padding: 0;
             height: 100vh; overflow: hidden;
-            /* Mesh Gradient Background */
             background-image: 
                 radial-gradient(at 0% 0%, rgba(59, 130, 246, 0.15) 0px, transparent 50%),
                 radial-gradient(at 100% 0%, rgba(132, 204, 22, 0.15) 0px, transparent 50%),
@@ -128,7 +128,10 @@
         }
         
         .sidebar-backdrop {
-            display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.3); backdrop-filter: blur(4px); z-index: 90;
+            display: none; position: fixed; inset: 0; 
+            background: rgba(0,0,0,0.2); /* Reduced opacity for cleaner look */
+            backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px); 
+            z-index: 90; transition: opacity 0.3s;
         }
 
         .nav-item { 
@@ -152,26 +155,29 @@
 
         /* --- RESPONSIVE MEDIA QUERIES --- */
         @media (max-width: 1024px) {
-            body { height: 100vh; overflow: hidden; }
+            body { height: 100vh; overflow: hidden; position: fixed; width: 100%; }
             .layout-wrapper { padding: 0; gap: 0; }
             
-            /* Sidebar becomes Drawer */
+            /* Sidebar becomes Drawer - FIXED BLUR ISSUES */
             .sidebar-container { 
                 position: fixed; left: 0; top: 0; bottom: 0; 
                 transform: translateX(-110%); /* Hidden by default */
-                background: rgba(255,255,255,0.95);
-                backdrop-filter: blur(20px);
+                background: rgba(255,255,255,0.98); /* Less transp. on mobile for legibility */
                 border-radius: 0 24px 24px 0;
-                box-shadow: 20px 0 50px rgba(0,0,0,0.1);
+                box-shadow: 20px 0 50px rgba(0,0,0,0.15);
                 border-right: 1px solid rgba(255,255,255,0.5);
-                width: 80%; max-width: 300px;
+                width: 85%; max-width: 320px;
                 padding-top: 20px;
+                z-index: 9999; /* Ensure high z-index */
             }
             .sidebar-container.open { transform: translateX(0); }
-            .sidebar-backdrop.open { display: block; }
+            
+            /* Improved Backdrop Z-Index */
+            .sidebar-backdrop { z-index: 9998; }
+            .sidebar-backdrop.open { display: block; animation: fadeIn 0.3s forwards; }
             
             /* Workspace takes full width */
-            .workspace-container { width: 100%; height: 100%; border-radius: 0; gap: 0; }
+            .workspace-container { width: 100%; height: 100%; border-radius: 0; gap: 0; z-index: 1; }
             
             /* Headers */
             .desktop-header { display: none !important; }
@@ -204,14 +210,13 @@
             width: 90%; max-width: 400px; text-align: center; box-shadow: 0 20px 40px rgba(0,0,0,0.1);
         }
 
-        /* --- MODAL --- */
-        #publish-modal {
-            position: fixed; inset: 0; background: rgba(0,0,0,0.4); backdrop-filter: blur(10px);
-            z-index: 300; display: none; align-items: center; justify-content: center;
+        /* --- QR MODAL --- */
+        #qr-modal {
+            position: fixed; inset: 0; background: rgba(0,0,0,0.5); backdrop-filter: blur(5px);
+            z-index: 10000; display: none; align-items: center; justify-content: center;
         }
-        #publish-modal.active { display: flex; animation: fadeIn 0.3s forwards; }
-        .success-card { background: white; padding: 30px; border-radius: 24px; width: 90%; max-width: 400px; text-align: center; box-shadow: 0 25px 50px -12px rgba(0,0,0,0.25); transform: scale(0.9); opacity: 0; transition: 0.3s; }
-        #publish-modal.active .success-card { transform: scale(1); opacity: 1; }
+        #qr-modal.active { display: flex; animation: fadeIn 0.2s; }
+        .qr-card { background: white; padding: 30px; border-radius: 24px; text-align: center; max-width: 320px; width: 90%; box-shadow: 0 20px 40px rgba(0,0,0,0.2); }
 
         @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
 
@@ -225,6 +230,15 @@
 <body>
 
     <input type="hidden" id="store-name-input">
+
+    <div id="qr-modal" onclick="if(event.target === this) this.classList.remove('active')">
+        <div class="qr-card">
+            <h3 class="font-bold text-xl mb-4 text-gray-800">Your Store QR</h3>
+            <div id="qr-container" class="bg-white p-2 rounded-xl flex justify-center mb-4"></div>
+            <p class="text-xs text-gray-400 mb-4">Scan to visit your store instantly.</p>
+            <button onclick="document.getElementById('qr-modal').classList.remove('active')" class="w-full py-3 bg-gray-100 rounded-xl font-bold text-gray-600">Close</button>
+        </div>
+    </div>
 
     <div id="auth-screen" style="display: none;">
         <div class="auth-box">
@@ -250,7 +264,7 @@
                     <div class="w-10 h-10 bg-gradient-to-br from-lime-500 to-green-500 rounded-xl flex items-center justify-center text-white font-bold text-xl shadow-lg shadow-lime-500/30">B</div>
                     <div>
                         <h1 class="font-bold text-sm tracking-wide text-gray-900">BiosOS</h1>
-                        <p class="text-[10px] text-gray-400 font-mono tracking-wider">v20 PRO</p>
+                        <p class="text-[10px] text-gray-400 font-mono tracking-wider">v21 PRO</p>
                     </div>
                 </div>
                 <button class="lg:hidden text-gray-400 p-2" onclick="app.toggleSidebar()"><i class="fa-solid fa-xmark text-xl"></i></button>
@@ -275,7 +289,10 @@
             <div id="sidebar-link-box" class="store-link-box mx-4">
                 <div class="flex justify-between items-center mb-1">
                     <span class="text-[10px] font-bold uppercase text-gray-400">Your Store Link</span>
-                    <i class="fa-regular fa-copy text-xs text-gray-400 cursor-pointer hover:text-black" onclick="app.copyLink()"></i>
+                    <div class="flex gap-2">
+                        <i class="fa-solid fa-qrcode text-xs text-gray-400 cursor-pointer hover:text-black" title="Get QR" onclick="app.showQR()"></i>
+                        <i class="fa-regular fa-copy text-xs text-gray-400 cursor-pointer hover:text-black" onclick="app.copyLink()"></i>
+                    </div>
                 </div>
                 <a id="sidebar-url" href="#" target="_blank" class="link-text hover:underline">bios.store/...</a>
             </div>
@@ -291,7 +308,7 @@
         <main class="workspace-container">
             
             <div class="mobile-header">
-                <button onclick="app.toggleSidebar()" class="w-10 h-10 flex items-center justify-center bg-white rounded-xl shadow-sm border border-gray-100 text-gray-600">
+                <button onclick="app.toggleSidebar()" class="w-10 h-10 flex items-center justify-center bg-white rounded-xl shadow-sm border border-gray-100 text-gray-600 active:scale-95 transition">
                     <i class="fa-solid fa-bars-staggered"></i>
                 </button>
                 <h1 class="font-bold text-lg text-gray-900" id="mob-page-title">BiosOS</h1>
@@ -311,6 +328,10 @@
 
                     <button onclick="app.publishStore()" class="publish-btn">
                         <i class="fa-solid fa-rocket mr-2"></i>Publish Live
+                    </button>
+
+                    <button onclick="app.showQR()" class="w-10 h-10 rounded-full bg-white border border-gray-200 flex items-center justify-center text-gray-600 hover:text-black transition shadow-sm" title="Show QR Code">
+                        <i class="fa-solid fa-qrcode"></i>
                     </button>
 
                     <button onclick="app.viewStore()" class="w-10 h-10 rounded-full bg-white border border-gray-200 flex items-center justify-center text-gray-600 hover:text-blue-600 hover:border-blue-600 transition shadow-sm" title="View Live Store">
@@ -334,7 +355,7 @@
         <p class="text-xs text-gray-400 uppercase font-black mb-2">Your Live Link:</p>
         <div class="flex items-center justify-between">
             <span id="live-url" class="text-[#DFFF00] font-bold truncate mr-2"></span>
-            <button onclick="copyLink()" class="text-white hover:text-[#DFFF00]"><i class="ph ph-copy"></i></button>
+            <button onclick="copyLink()" class="text-white hover:text-[#DFFF00]"><i class="fa-solid fa-copy"></i></button>
         </div>
     </div>
 </div>
@@ -351,6 +372,7 @@
             user: null,
             liveState: false,
             isPublished: false,
+            publishedSlug: null, // NEW: Store the actual DB slug
             branding: { name: 'My Store', tagline: 'Welcome', color: '#2563EB', logo_url: '', font: 'Inter', btnTextCart: 'Add to Cart', btnTextBuy: 'Buy Now' },
             payment: { method: 'manual', whatsappNumber: '', paymentLink: '' },
             collections: [],
@@ -391,6 +413,8 @@
                         btnTextBuy: profile.btn_buy_text
                     };
                     store.isPublished = profile.is_published;
+                    store.publishedSlug = profile.store_slug; // Capture the real slug
+                    
                     // SYNC HIDDEN INPUT FOR PUBLISH LOGIC
                     document.getElementById('store-name-input').value = profile.store_name || '';
                 } else {
@@ -455,8 +479,8 @@
                 
                 let colId = p.category_id;
                 if(!colId && p.category) {
-                     const col = store.collections.find(c => c.name === p.category);
-                     if(col) colId = col.id;
+                      const col = store.collections.find(c => c.name === p.category);
+                      if(col) colId = col.id;
                 }
                 if(!colId && store.collections.length > 0) colId = store.collections[0].id;
                 if(!colId) return alert("Create a collection first!");
@@ -571,23 +595,27 @@
                 if(count > 0) { badge.innerText = count; badge.classList.remove('hidden'); } else { badge.classList.add('hidden'); }
             },
 
+            // --- FIXED URL LOGIC ---
             updateStoreUrl: () => {
-                const slug = store.branding.name.toLowerCase().replace(/ /g, '-').replace(/[^\w-]+/g, '');
-                store.storeUrl = `bios.store/${slug}`;
+                if (store.isPublished && store.publishedSlug) {
+                    // Use actual DB slug if available
+                    store.storeUrl = `${window.location.host}/${store.publishedSlug}`;
+                } else {
+                    // Fallback to name-based prediction
+                    const slug = store.branding.name.toLowerCase().replace(/ /g, '-').replace(/[^\w-]+/g, '');
+                    store.storeUrl = `${window.location.host}/${slug}`;
+                }
+
                 if(document.getElementById('sidebar-url')) {
                     document.getElementById('sidebar-url').innerText = store.storeUrl;
-                    document.getElementById('sidebar-url').href = `https://${store.storeUrl}`;
+                    document.getElementById('sidebar-url').href = `//${store.storeUrl}`;
                 }
             },
 
-            // --- FIXED: Function now properly inside app object ---
             publishStore: async () => {
-                // 1. Get the store name from hidden input or state
                 const rawName = document.getElementById('store-name-input').value; 
-
                 if (!rawName) return alert("Please set a Store Name first in Appearance tab!");
 
-                // 2. Create the URL-friendly slug
                 const slug = rawName.toLowerCase()
                     .trim()
                     .replace(/[^\w\s-]/g, '') // Remove symbols
@@ -600,7 +628,6 @@
                 if(btn) btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin mr-2"></i>Publishing...';
                 if(bottomBtn) { bottomBtn.innerText = "PUBLISHING..."; bottomBtn.disabled = true; }
 
-                // 3. Update Supabase
                 const { data: { user } } = await _supabase.auth.getUser();
                 const { error } = await _supabase
                     .from('profiles')
@@ -616,9 +643,9 @@
                     if(btn) btn.innerHTML = '<i class="fa-solid fa-rocket mr-2"></i>Publish Live';
                     if(bottomBtn) { bottomBtn.innerText = "PUBLISH STORE"; bottomBtn.disabled = false; }
                 } else {
-                    // 4. Success! Show the link
                     const finalUrl = `${window.location.origin}/${slug}`;
                     store.isPublished = true;
+                    store.publishedSlug = slug; // Update local state
                     
                     if(btn) btn.innerHTML = '<i class="fa-solid fa-check mr-2"></i>Live!';
                     if(bottomBtn) { 
@@ -633,15 +660,35 @@
                     }
                     
                     app.setLiveStatus(true);
+                    app.updateStoreUrl(); // Sync sidebar link
                     alert(`Success! Store live at: ${finalUrl}`);
                 }
             },
 
-            // --- FIXED: Helper now inside app object ---
             copyLink: () => { 
                 const url = document.getElementById('live-url')?.innerText || `https://${store.storeUrl}`;
                 navigator.clipboard.writeText(url);
                 alert("Link copied!"); 
+            },
+
+            // --- NEW: QR CODE FEATURE ---
+            showQR: () => {
+                if(!store.isPublished) return alert("Publish your store first to generate a QR Code.");
+                
+                const url = `https://${store.storeUrl}`;
+                const container = document.getElementById('qr-container');
+                container.innerHTML = ""; // Clear old
+                
+                new QRCode(container, {
+                    text: url,
+                    width: 180,
+                    height: 180,
+                    colorDark : "#000000",
+                    colorLight : "#ffffff",
+                    correctLevel : QRCode.CorrectLevel.H
+                });
+                
+                document.getElementById('qr-modal').classList.add('active');
             },
 
             toggleLive: () => {
@@ -656,12 +703,11 @@
                 if(status) { btn.classList.add('live'); txt.innerText = "STORE LIVE"; box.classList.add('visible'); } 
                 else { btn.classList.remove('live'); txt.innerText = "OFFLINE"; box.classList.remove('visible'); }
             },
-            closePublishModal: () => document.getElementById('publish-modal').classList.remove('active'),
             
             viewStore: () => { 
                 if(!store.isPublished) { if(confirm("Store not published. Publish?")) app.publishStore(); return; } 
-                // Open dynamic slug
-                const slug = store.branding.name.toLowerCase().replace(/ /g, '-').replace(/[^\w-]+/g, '');
+                // Open dynamic slug from state or branding
+                const slug = store.publishedSlug || store.branding.name.toLowerCase().replace(/ /g, '-').replace(/[^\w-]+/g, '');
                 window.open(`/${slug}`, '_blank'); 
             },
             
@@ -687,10 +733,16 @@
                     }
                 }
                 else if (store.view === 'orders') {
-                    if(store.orders.length === 0) { ws.innerHTML = `<div class="text-center text-gray-400 mt-20">No orders yet. Share your store link!</div>`; return; }
+                    // UPGRADED ORDER VIEW
+                    if(store.orders.length === 0) { 
+                        ws.innerHTML = `<div class="flex flex-col items-center justify-center pt-10 text-center"><div class="w-24 h-24 bg-gray-100 rounded-full flex items-center justify-center mb-4"><i class="fa-solid fa-receipt text-3xl text-gray-300"></i></div><h3 class="font-bold text-gray-900 text-lg">No orders yet</h3><p class="text-gray-400 text-sm max-w-xs mt-2">Share your store link on social media to get your first sale.</p><button onclick="app.showQR()" class="mt-6 px-6 py-2 bg-blue-600 text-white font-bold rounded-lg shadow-lg hover:scale-105 transition"><i class="fa-solid fa-qrcode mr-2"></i>Get Store QR</button></div>`; 
+                    } else {
+                        // Place for order list logic
+                        ws.innerHTML = `<div>Order List (Coming Soon)</div>`;
+                    }
                 }
                 else if (store.view === 'customers') {
-                    if (store.customers.length === 0) { ws.innerHTML = `<div class="text-center text-gray-400 mt-20">No customers yet.</div>`; }
+                    if (store.customers.length === 0) { ws.innerHTML = `<div class="text-center text-gray-400 mt-20"><i class="fa-solid fa-users-slash text-4xl mb-3 opacity-30"></i><p>No customers found.</p></div>`; }
                 }
                 else if (store.view === 'payments') {
                     ws.innerHTML = `<div class="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-4xl mx-auto"><div class="tilt-card border-2 ${store.payment.method === 'manual' ? 'border-blue-500 ring-4 ring-blue-500/10' : 'border-transparent'}" onclick="store.payment.method='manual'; app.renderWorkspace()"><div class="flex justify-between items-start mb-4"><div class="w-12 h-12 bg-green-100 rounded-xl flex items-center justify-center text-green-600 text-2xl"><i class="fa-brands fa-whatsapp"></i></div>${store.payment.method === 'manual' ? '<i class="fa-solid fa-circle-check text-blue-500 text-xl"></i>' : '<i class="fa-regular fa-circle text-gray-300 text-xl"></i>'}</div><h3 class="font-bold text-lg mb-1">Manual (WhatsApp)</h3><p class="text-xs text-gray-500 mb-6">Redirect customers to your WhatsApp. You handle payment collection manually (UPI, Cash, etc) in chat.</p><label class="label-3d">Your WhatsApp Number</label><input type="text" class="input-3d" placeholder="e.g. 919876543210" value="${store.payment.whatsappNumber}" oninput="store.payment.whatsappNumber = this.value"></div><div class="tilt-card border-2 ${store.payment.method === 'auto' ? 'border-blue-500 ring-4 ring-blue-500/10' : 'border-transparent'}" onclick="store.payment.method='auto'; app.renderWorkspace()"><div class="flex justify-between items-start mb-4"><div class="w-12 h-12 bg-indigo-100 rounded-xl flex items-center justify-center text-indigo-600 text-2xl"><i class="fa-solid fa-link"></i></div>${store.payment.method === 'auto' ? '<i class="fa-solid fa-circle-check text-blue-500 text-xl"></i>' : '<i class="fa-regular fa-circle text-gray-300 text-xl"></i>'}</div><h3 class="font-bold text-lg mb-1">Automatic (Payment Link)</h3><p class="text-xs text-gray-500 mb-6">Automatically redirect customers to a specific payment page (Razorpay, Stripe, PayPal, etc) upon checkout.</p><label class="label-3d">Your Payment Link URL</label><input type="text" class="input-3d" placeholder="https://razorpay.me/@yourname" value="${store.payment.paymentLink}" oninput="store.payment.paymentLink = this.value"></div><button onclick="app.savePaymentSettings()" class="col-span-1 md:col-span-2 py-4 bg-black text-white font-bold rounded-xl shadow-lg hover:scale-[1.01] transition">Save Payment Settings</button></div>`;
