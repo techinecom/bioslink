@@ -16,11 +16,11 @@
             /* --- PREMIUM THEME VARIABLES --- */
             --primary: #2563EB;
             --accent: #84cc16;
-            --surface: rgba(255, 255, 255, 0.65);
-            --glass-border: 1px solid rgba(255, 255, 255, 0.5);
-            --inner-glow: inset 0 1px 0 0 rgba(255, 255, 255, 0.8);
-            --shadow-lg: 0 20px 40px -10px rgba(0,0,0,0.08), 0 0 0 1px rgba(255,255,255,0.3) inset;
-            --ease-spring: cubic-bezier(0.34, 1.56, 0.64, 1); /* Bouncy Physics */
+            --surface: rgba(255, 255, 255, 0.75);
+            --glass-border: 1px solid rgba(255, 255, 255, 0.6);
+            --inner-glow: inset 0 1px 0 0 rgba(255, 255, 255, 0.9);
+            --shadow-lg: 0 20px 40px -10px rgba(0,0,0,0.1), 0 0 0 1px rgba(255,255,255,0.4) inset;
+            --ease-spring: cubic-bezier(0.34, 1.56, 0.64, 1);
         }
 
         body {
@@ -28,7 +28,8 @@
             font-family: 'Plus Jakarta Sans', sans-serif;
             color: #0F172A;
             margin: 0; padding: 0;
-            height: 100vh; overflow: hidden;
+            height: 100dvh; /* FIXED: Dynamic viewport height for mobile */
+            overflow: hidden;
             background-image: 
                 radial-gradient(at 0% 0%, rgba(59, 130, 246, 0.15) 0px, transparent 50%),
                 radial-gradient(at 100% 0%, rgba(132, 204, 22, 0.15) 0px, transparent 50%),
@@ -37,7 +38,6 @@
             -webkit-tap-highlight-color: transparent;
         }
 
-        /* --- TEXTURE OVERLAY (REALISM) --- */
         .noise-overlay {
             position: fixed; inset: 0; pointer-events: none; z-index: 0; opacity: 0.03;
             background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E");
@@ -46,14 +46,19 @@
         /* --- UTILS --- */
         .no-scroll::-webkit-scrollbar { display: none; }
         .no-scroll { -ms-overflow-style: none; scrollbar-width: none; }
-        .fade-in-up { animation: fadeInUp 0.6s var(--ease-spring) forwards; opacity: 0; transform: translateY(20px); }
+        
+        /* COMPLEX ANIMATION: Staggered Fade In */
+        .fade-in-up { animation: fadeInUp 0.5s var(--ease-spring) forwards; opacity: 0; transform: translateY(15px); }
+        .stagger-1 { animation-delay: 0.05s; }
+        .stagger-2 { animation-delay: 0.1s; }
+        .stagger-3 { animation-delay: 0.15s; }
         @keyframes fadeInUp { to { opacity: 1; transform: translateY(0); } }
 
-        /* --- 3D GLASS COMPONENTS --- */
+        /* --- GLASS COMPONENTS --- */
         .glass-panel {
             background: var(--surface);
-            backdrop-filter: blur(20px) saturate(180%);
-            -webkit-backdrop-filter: blur(20px) saturate(180%);
+            backdrop-filter: blur(25px) saturate(180%);
+            -webkit-backdrop-filter: blur(25px) saturate(180%);
             border: var(--glass-border);
             box-shadow: var(--shadow-lg);
             border-radius: 24px;
@@ -61,18 +66,14 @@
         }
 
         .tilt-card {
-            background: rgba(255, 255, 255, 0.8);
-            border: 1px solid rgba(255,255,255,0.6);
+            background: rgba(255, 255, 255, 0.85);
+            border: 1px solid rgba(255,255,255,0.7);
             border-radius: 20px; padding: 24px;
             box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.02), var(--inner-glow);
-            transition: transform 0.4s var(--ease-spring), box-shadow 0.4s;
+            transition: transform 0.3s var(--ease-spring), box-shadow 0.3s;
             transform-style: preserve-3d; position: relative;
         }
-        .tilt-card:hover { 
-            transform: translateY(-5px) scale(1.01); 
-            box-shadow: 0 20px 30px -10px rgba(0,0,0,0.1), var(--inner-glow); 
-            background: #FFF; z-index: 20; 
-        }
+        .tilt-card:active { transform: scale(0.98); } /* Tactile feedback */
 
         /* --- INPUTS --- */
         .input-3d {
@@ -80,7 +81,7 @@
             border-radius: 14px; outline: none; font-size: 14px; font-weight: 600; transition: all 0.3s;
             box-shadow: inset 0 2px 4px rgba(0,0,0,0.02);
         }
-        .input-3d:focus { background: #FFF; border-color: var(--primary); box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.1); transform: translateY(-1px); }
+        .input-3d:focus { background: #FFF; border-color: var(--primary); box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.15); transform: translateY(-1px); }
         .label-3d { font-size: 11px; font-weight: 800; text-transform: uppercase; letter-spacing: 0.05em; color: #64748B; margin-bottom: 8px; display: block; }
 
         /* --- IMAGE UPLOAD --- */
@@ -94,14 +95,14 @@
         /* --- ENGINE BUTTON --- */
         .engine-btn {
             padding: 8px 20px; border-radius: 99px; font-weight: 800; font-size: 11px; text-transform: uppercase; letter-spacing: 0.05em;
-            cursor: pointer; transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            cursor: pointer; transition: all 0.4s;
             border: 2px solid #E2E8F0; background: #F1F5F9; color: #94A3B8;
             display: flex; align-items: center; gap: 8px; box-shadow: inset 0 2px 4px rgba(0,0,0,0.05);
         }
         .engine-btn.live {
             background: var(--accent); color: white; border-color: #65a30d;
-            box-shadow: 0 0 20px rgba(132, 204, 22, 0.6), inset 0 -2px 5px rgba(0,0,0,0.2);
-            text-shadow: 0 1px 2px rgba(0,0,0,0.2); animation: engine-pulse 2s infinite;
+            box-shadow: 0 0 20px rgba(132, 204, 22, 0.6);
+            animation: engine-pulse 2s infinite;
         }
         .engine-indicator { width: 8px; height: 8px; border-radius: 50%; background: #CBD5E1; transition: 0.3s; }
         .engine-btn.live .engine-indicator { background: #FFF; box-shadow: 0 0 10px #FFF; }
@@ -112,35 +113,43 @@
             background: var(--primary); color: white; padding: 10px 24px; border-radius: 14px; font-weight: 700; font-size: 12px;
             box-shadow: 0 10px 20px -5px rgba(59, 130, 246, 0.3), inset 0 1px 0 rgba(255,255,255,0.2); transition: transform 0.2s;
         }
-        .publish-btn:hover { transform: translateY(-2px); background: #2563EB; }
-        .publish-btn:active { transform: translateY(0); }
+        .publish-btn:active { transform: scale(0.95); }
 
-        /* --- ACTION BAR (NEW) --- */
+        /* --- COMPLEX ACTION BAR --- */
         #action-bar {
-            position: fixed; bottom: 30px; left: 50%; transform: translateX(-50%) translateY(100px);
-            background: #0F172A; padding: 12px 20px; border-radius: 99px; display: flex; gap: 12px; align-items: center;
-            box-shadow: 0 20px 40px rgba(0,0,0,0.3); z-index: 99999; transition: transform 0.4s var(--ease-spring);
+            position: fixed; bottom: 40px; left: 50%; transform: translateX(-50%) translateY(150px);
+            background: rgba(15, 23, 42, 0.95); backdrop-filter: blur(12px);
+            padding: 8px 10px 8px 20px; border-radius: 99px; display: flex; gap: 16px; align-items: center;
+            box-shadow: 0 20px 50px rgba(0,0,0,0.4), 0 0 0 1px rgba(255,255,255,0.1); 
+            z-index: 99999; transition: transform 0.5s var(--ease-spring);
+            border: 1px solid rgba(255,255,255,0.15);
         }
         #action-bar.visible { transform: translateX(-50%) translateY(0); }
-        .action-save { background: #84cc16; color: black; padding: 10px 24px; border-radius: 99px; font-weight: 800; font-size: 12px; cursor: pointer; }
-        .action-discard { color: white; padding: 10px 20px; font-weight: 700; font-size: 12px; cursor: pointer; }
+        .action-save { 
+            background: #84cc16; color: black; padding: 12px 28px; border-radius: 99px; 
+            font-weight: 800; font-size: 12px; cursor: pointer; transition: 0.2s;
+            box-shadow: 0 0 20px rgba(132, 204, 22, 0.4);
+        }
+        .action-save:active { transform: scale(0.95); }
+        .action-discard { color: #94A3B8; padding: 10px 5px; font-weight: 700; font-size: 12px; cursor: pointer; transition: 0.2s; }
+        .action-discard:hover { color: white; }
 
         /* --- LAYOUT WRAPPER --- */
         .layout-wrapper { 
-            display: flex; width: 100%; height: 100vh; padding: 24px; gap: 24px; 
+            display: flex; width: 100%; height: 100%; padding: 24px; gap: 24px; 
             position: relative; z-index: 1; box-sizing: border-box; 
         }
         
-        /* --- SIDEBAR DRAWER (MOBILE READY) --- */
+        /* --- SIDEBAR DRAWER (FIXED BLUR ISSUE) --- */
         .sidebar-container { 
             width: 270px; display: flex; flex-direction: column; z-index: 100; flex-shrink: 0;
-            height: 100%; transition: transform 0.3s var(--ease-spring);
+            height: 100%; transition: transform 0.4s var(--ease-spring);
         }
         
         .sidebar-backdrop {
             display: none; position: fixed; inset: 0; 
-            background: rgba(0,0,0,0.2);
-            backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px); 
+            background: rgba(0,0,0,0.3);
+            backdrop-filter: blur(6px); -webkit-backdrop-filter: blur(6px); 
             z-index: 90; transition: opacity 0.3s;
         }
 
@@ -149,30 +158,36 @@
             font-size: 13px; font-weight: 600; color: #64748B; cursor: pointer; 
             transition: all 0.2s; display: flex; align-items: center; gap: 12px; border: 1px solid transparent; 
         }
-        .nav-item:hover { background: rgba(255,255,255,0.6); color: #0F172A; }
+        .nav-item:active { transform: scale(0.98); }
         .nav-item.active { background: #FFFFFF; color: #0F172A; box-shadow: 0 4px 12px rgba(0,0,0,0.03); border-left: 3px solid var(--accent); }
 
-        /* --- MAIN WORKSPACE --- */
+        /* --- MAIN WORKSPACE (FIXED SCROLLING) --- */
         .workspace-container { 
             flex: 1; display: flex; flex-direction: column; gap: 24px; 
-            overflow: hidden; position: relative; min-width: 0; 
+            overflow: hidden; position: relative; min-width: 0; height: 100%;
         }
-        .content-scroll-area { flex: 1; overflow-y: auto; padding-right: 6px; padding-bottom: 100px; -webkit-overflow-scrolling: touch; }
+        .content-scroll-area { 
+            flex: 1; overflow-y: auto; 
+            padding-right: 6px; padding-bottom: 120px; /* Space for action bar */
+            -webkit-overflow-scrolling: touch; 
+            overscroll-behavior: contain;
+        }
 
         .mobile-header { display: none; }
         .desktop-header { display: flex; }
 
         @media (max-width: 1024px) {
-            body { height: 100vh; overflow: hidden; position: fixed; width: 100%; }
             .layout-wrapper { padding: 0; gap: 0; }
             
+            /* FIXED MOBILE SIDEBAR */
             .sidebar-container { 
                 position: fixed; left: 0; top: 0; bottom: 0; 
                 transform: translateX(-110%);
-                background: rgba(255,255,255,0.98);
+                background: #FFFFFF !important; /* Solid white to fix blur bleed */
+                backdrop-filter: none; /* Remove filter on mobile */
                 border-radius: 0 24px 24px 0;
-                box-shadow: 20px 0 50px rgba(0,0,0,0.15);
-                border-right: 1px solid rgba(255,255,255,0.5);
+                box-shadow: 20px 0 60px rgba(0,0,0,0.2);
+                border-right: 1px solid #E2E8F0;
                 width: 85%; max-width: 320px;
                 padding-top: 20px;
                 z-index: 9999;
@@ -182,22 +197,16 @@
             .sidebar-backdrop { z-index: 9998; }
             .sidebar-backdrop.open { display: block; animation: fadeIn 0.3s forwards; }
             
-            .workspace-container { width: 100%; height: 100%; border-radius: 0; gap: 0; z-index: auto; }
+            .workspace-container { width: 100%; height: 100%; border-radius: 0; gap: 0; z-index: 1; }
             
             .desktop-header { display: none !important; }
             .mobile-header { 
                 display: flex; height: 70px; align-items: center; justify-content: space-between; 
-                padding: 0 20px; background: rgba(255,255,255,0.85); backdrop-filter: blur(12px);
+                padding: 0 20px; background: rgba(255,255,255,0.9); backdrop-filter: blur(12px);
                 border-bottom: 1px solid rgba(0,0,0,0.05); z-index: 50; flex-shrink: 0;
             }
 
-            .content-scroll-area { padding: 20px; padding-bottom: 120px; }
-            
-            .tilt-card { 
-                transform: none !important; 
-                box-shadow: 0 2px 5px rgba(0,0,0,0.02) !important; 
-                border-radius: 16px; padding: 20px; background: #FFF;
-            }
+            .content-scroll-area { padding: 20px; padding-bottom: 150px; }
         }
 
         #auth-screen {
@@ -230,7 +239,11 @@
     <input type="hidden" id="store-name-input">
 
     <div id="action-bar">
-        <span class="text-gray-400 text-xs font-bold mr-2"><i class="fa-solid fa-pen-nib mr-2"></i>Unsaved Changes</span>
+        <div class="flex flex-col">
+            <span class="text-white text-xs font-bold tracking-wide">UNSAVED CHANGES</span>
+            <span class="text-gray-400 text-[10px]">Modifications in draft</span>
+        </div>
+        <div class="h-6 w-px bg-white/20"></div>
         <div class="action-discard" onclick="app.discardChanges()">Discard</div>
         <div class="action-save" onclick="app.commitChanges()">Save Changes</div>
     </div>
@@ -378,13 +391,12 @@
         draftCollection: { id: null, name: '', img: null },
         tempVariant: { name: '', valueStr: '' },
         storeUrl: '',
-        // --- NEW: STAGING STATE (Phone Storage) ---
         hasUnsavedChanges: false,
         pendingActions: {
-            products: [], // { type: 'upsert'|'delete', data: {} }
+            products: [],
             collections: [],
-            branding: null, // object if changed
-            uploads: [] // { file: File, path: string, tempUrl: string }
+            branding: null,
+            uploads: []
         }
     };
 
@@ -448,7 +460,6 @@
         },
         signOut: async () => { await _supabase.auth.signOut(); window.location.reload(); },
 
-        // --- NEW: COMPRESSION ENGINE ---
         compressImage: (file) => {
             return new Promise((resolve) => {
                 const reader = new FileReader();
@@ -474,7 +485,6 @@
             });
         },
 
-        // --- NEW: STAGING LOGIC (Phone Storage) ---
         triggerUnsaved: () => {
             store.hasUnsavedChanges = true;
             document.getElementById('action-bar').classList.add('visible');
@@ -485,7 +495,7 @@
             store.hasUnsavedChanges = false;
             store.pendingActions = { products: [], collections: [], branding: null, uploads: [] };
             document.getElementById('action-bar').classList.remove('visible');
-            app.loadUserData(); // Reload from DB
+            app.loadUserData(); 
         },
 
         commitChanges: async () => {
@@ -493,8 +503,7 @@
             const originalText = btn.innerText;
             btn.innerText = "Saving...";
 
-            // 1. Process Uploads
-            const uploadMap = {}; // tempUrl -> realUrl
+            const uploadMap = {}; 
             for (const item of store.pendingActions.uploads) {
                 const { error } = await _supabase.storage.from('store-assets').upload(item.path, item.file, { upsert: true });
                 if(!error) {
@@ -503,7 +512,6 @@
                 }
             }
 
-            // 2. Process Collections
             for (const action of store.pendingActions.collections) {
                 if(action.type === 'upsert') {
                     if(action.data.img_url && uploadMap[action.data.img_url]) action.data.img_url = uploadMap[action.data.img_url];
@@ -513,10 +521,8 @@
                 }
             }
 
-            // 3. Process Products
             for (const action of store.pendingActions.products) {
                 if(action.type === 'upsert') {
-                    // Replace temp image URLs with real ones
                     if(action.data.images) {
                         action.data.images = action.data.images.map(img => uploadMap[img] || img);
                     }
@@ -526,14 +532,12 @@
                 }
             }
 
-            // 4. Process Branding
             if(store.pendingActions.branding) {
                 let d = store.pendingActions.branding;
                 if(d.logo_url && uploadMap[d.logo_url]) d.logo_url = uploadMap[d.logo_url];
                 await _supabase.from('profiles').update(d).eq('id', store.user.id);
             }
 
-            // Reset
             store.hasUnsavedChanges = false;
             store.pendingActions = { products: [], collections: [], branding: null, uploads: [] };
             document.getElementById('action-bar').classList.remove('visible');
@@ -542,18 +546,15 @@
             await app.loadUserData();
         },
 
-        // --- MODIFIED ACTIONS (Update Local + Queue) ---
         handleUpload: async (files, type) => {
             if (!files.length) return;
             const originalFile = files[0];
             const compressedFile = await app.compressImage(originalFile);
             
-            // Create Local Preview URL (Phone RAM)
             const tempUrl = URL.createObjectURL(compressedFile);
             const fileName = `${Date.now()}.jpg`;
             const filePath = `${store.user.id}/${fileName}`;
 
-            // Queue for Upload later
             store.pendingActions.uploads.push({ file: compressedFile, path: filePath, tempUrl: tempUrl });
             app.triggerUnsaved();
 
@@ -565,7 +566,6 @@
                 app.renderWorkspace();
             } else if (type === 'logo') {
                 store.branding.logo_url = tempUrl;
-                // We queue branding update in updateBranding
                 if(!store.pendingActions.branding) store.pendingActions.branding = {};
                 store.pendingActions.branding.logo_url = tempUrl;
                 app.renderWorkspace();
@@ -591,12 +591,10 @@
                 variants: p.variants
             };
 
-            const prodId = p.id || `temp_${Date.now()}`; // Temp ID if new
+            const prodId = p.id || `temp_${Date.now()}`; 
             
-            // Queue Action
-            store.pendingActions.products.push({ type: 'upsert', data: { id: p.id || undefined, ...payload } }); // undefined ID means let DB create it
+            store.pendingActions.products.push({ type: 'upsert', data: { id: p.id || undefined, ...payload } }); 
             
-            // Update UI Locally
             const newProd = { id: prodId, ...payload, category: store.collections.find(c=>c.id===colId)?.name, img: (p.images[0]||'') };
             const existingIdx = store.products.findIndex(x => x.id === p.id);
             if(existingIdx >= 0) store.products[existingIdx] = newProd; else store.products.unshift(newProd);
@@ -613,7 +611,6 @@
             
             store.pendingActions.collections.push({ type: 'upsert', data: { id: c.id || undefined, ...payload } });
             
-            // Update UI Locally
             const newCol = { id: c.id || `temp_${Date.now()}`, ...payload };
             const idx = store.collections.findIndex(x => x.id === c.id);
             if(idx >= 0) store.collections[idx] = newCol; else store.collections.push(newCol);
@@ -745,29 +742,29 @@
         savePaymentSettings: () => { alert("Payment Settings Saved!"); },
 
         renderWorkspace: () => {
-            const ws = document.getElementById('workspace'); ws.innerHTML = ''; ws.className = "content-scroll-area fade-in-up";
+            const ws = document.getElementById('workspace'); ws.innerHTML = ''; ws.className = "content-scroll-area";
             if (store.view === 'dashboard') {
                 const rev = store.orders.reduce((acc, o) => acc + (o.total || 0), 0);
-                ws.innerHTML = `<div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8"><div class="tilt-card border-l-4 border-lime-500"><span class="label-3d">Revenue</span><div class="text-3xl font-black mt-2">₹${rev.toLocaleString()}</div></div><div class="tilt-card border-l-4 border-blue-500"><span class="label-3d">Orders</span><div class="text-3xl font-black mt-2">${store.orders.length}</div></div><div class="tilt-card border-l-4 border-indigo-500"><span class="label-3d">Products</span><div class="text-3xl font-black mt-2">${store.products.length}</div></div></div>`;
+                ws.innerHTML = `<div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8 fade-in-up stagger-1"><div class="tilt-card border-l-4 border-lime-500"><span class="label-3d">Revenue</span><div class="text-3xl font-black mt-2">₹${rev.toLocaleString()}</div></div><div class="tilt-card border-l-4 border-blue-500"><span class="label-3d">Orders</span><div class="text-3xl font-black mt-2">${store.orders.length}</div></div><div class="tilt-card border-l-4 border-indigo-500"><span class="label-3d">Products</span><div class="text-3xl font-black mt-2">${store.products.length}</div></div></div>`;
                 if(document.getElementById('bottom-publish-container')) { document.getElementById('bottom-publish-container').style.display = 'block'; ws.appendChild(document.getElementById('bottom-publish-container')); }
             }
             else if (store.view === 'orders') {
-                if(store.orders.length === 0) { ws.innerHTML = `<div class="flex flex-col items-center justify-center pt-10 text-center"><div class="w-24 h-24 bg-gray-100 rounded-full flex items-center justify-center mb-4"><i class="fa-solid fa-receipt text-3xl text-gray-300"></i></div><h3 class="font-bold text-gray-900 text-lg">No orders yet</h3><p class="text-gray-400 text-sm max-w-xs mt-2">Share your store link on social media to get your first sale.</p><button onclick="app.showQR()" class="mt-6 px-6 py-2 bg-blue-600 text-white font-bold rounded-lg shadow-lg hover:scale-105 transition"><i class="fa-solid fa-qrcode mr-2"></i>Get Store QR</button></div>`; } 
-                else { ws.innerHTML = `<div>Order List (Coming Soon)</div>`; }
+                if(store.orders.length === 0) { ws.innerHTML = `<div class="flex flex-col items-center justify-center pt-10 text-center fade-in-up stagger-1"><div class="w-24 h-24 bg-gray-100 rounded-full flex items-center justify-center mb-4"><i class="fa-solid fa-receipt text-3xl text-gray-300"></i></div><h3 class="font-bold text-gray-900 text-lg">No orders yet</h3><p class="text-gray-400 text-sm max-w-xs mt-2">Share your store link on social media to get your first sale.</p><button onclick="app.showQR()" class="mt-6 px-6 py-2 bg-blue-600 text-white font-bold rounded-lg shadow-lg hover:scale-105 transition"><i class="fa-solid fa-qrcode mr-2"></i>Get Store QR</button></div>`; } 
+                else { ws.innerHTML = `<div class="fade-in-up">Order List (Coming Soon)</div>`; }
             }
             else if (store.view === 'customers') {
-                if (store.customers.length === 0) { ws.innerHTML = `<div class="text-center text-gray-400 mt-20"><i class="fa-solid fa-users-slash text-4xl mb-3 opacity-30"></i><p>No customers found.</p></div>`; }
+                if (store.customers.length === 0) { ws.innerHTML = `<div class="text-center text-gray-400 mt-20 fade-in-up stagger-1"><i class="fa-solid fa-users-slash text-4xl mb-3 opacity-30"></i><p>No customers found.</p></div>`; }
             }
             else if (store.view === 'payments') {
-                ws.innerHTML = `<div class="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-4xl mx-auto"><div class="tilt-card border-2 ${store.payment.method === 'manual' ? 'border-blue-500 ring-4 ring-blue-500/10' : 'border-transparent'}" onclick="store.payment.method='manual'; app.renderWorkspace()"><div class="flex justify-between items-start mb-4"><div class="w-12 h-12 bg-green-100 rounded-xl flex items-center justify-center text-green-600 text-2xl"><i class="fa-brands fa-whatsapp"></i></div>${store.payment.method === 'manual' ? '<i class="fa-solid fa-circle-check text-blue-500 text-xl"></i>' : '<i class="fa-regular fa-circle text-gray-300 text-xl"></i>'}</div><h3 class="font-bold text-lg mb-1">Manual (WhatsApp)</h3><p class="text-xs text-gray-500 mb-6">Redirect customers to your WhatsApp. You handle payment collection manually (UPI, Cash, etc) in chat.</p><label class="label-3d">Your WhatsApp Number</label><input type="text" class="input-3d" placeholder="e.g. 919876543210" value="${store.payment.whatsappNumber}" oninput="store.payment.whatsappNumber = this.value"></div><div class="tilt-card border-2 ${store.payment.method === 'auto' ? 'border-blue-500 ring-4 ring-blue-500/10' : 'border-transparent'}" onclick="store.payment.method='auto'; app.renderWorkspace()"><div class="flex justify-between items-start mb-4"><div class="w-12 h-12 bg-indigo-100 rounded-xl flex items-center justify-center text-indigo-600 text-2xl"><i class="fa-solid fa-link"></i></div>${store.payment.method === 'auto' ? '<i class="fa-solid fa-circle-check text-blue-500 text-xl"></i>' : '<i class="fa-regular fa-circle text-gray-300 text-xl"></i>'}</div><h3 class="font-bold text-lg mb-1">Automatic (Payment Link)</h3><p class="text-xs text-gray-500 mb-6">Automatically redirect customers to a specific payment page (Razorpay, Stripe, PayPal, etc) upon checkout.</p><label class="label-3d">Your Payment Link URL</label><input type="text" class="input-3d" placeholder="https://razorpay.me/@yourname" value="${store.payment.paymentLink}" oninput="store.payment.paymentLink = this.value"></div><button onclick="app.savePaymentSettings()" class="col-span-1 md:col-span-2 py-4 bg-black text-white font-bold rounded-xl shadow-lg hover:scale-[1.01] transition">Save Payment Settings</button></div>`;
+                ws.innerHTML = `<div class="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-4xl mx-auto fade-in-up stagger-1"><div class="tilt-card border-2 ${store.payment.method === 'manual' ? 'border-blue-500 ring-4 ring-blue-500/10' : 'border-transparent'}" onclick="store.payment.method='manual'; app.renderWorkspace()"><div class="flex justify-between items-start mb-4"><div class="w-12 h-12 bg-green-100 rounded-xl flex items-center justify-center text-green-600 text-2xl"><i class="fa-brands fa-whatsapp"></i></div>${store.payment.method === 'manual' ? '<i class="fa-solid fa-circle-check text-blue-500 text-xl"></i>' : '<i class="fa-regular fa-circle text-gray-300 text-xl"></i>'}</div><h3 class="font-bold text-lg mb-1">Manual (WhatsApp)</h3><p class="text-xs text-gray-500 mb-6">Redirect customers to your WhatsApp. You handle payment collection manually (UPI, Cash, etc) in chat.</p><label class="label-3d">Your WhatsApp Number</label><input type="text" class="input-3d" placeholder="e.g. 919876543210" value="${store.payment.whatsappNumber}" oninput="store.payment.whatsappNumber = this.value"></div><div class="tilt-card border-2 ${store.payment.method === 'auto' ? 'border-blue-500 ring-4 ring-blue-500/10' : 'border-transparent'}" onclick="store.payment.method='auto'; app.renderWorkspace()"><div class="flex justify-between items-start mb-4"><div class="w-12 h-12 bg-indigo-100 rounded-xl flex items-center justify-center text-indigo-600 text-2xl"><i class="fa-solid fa-link"></i></div>${store.payment.method === 'auto' ? '<i class="fa-solid fa-circle-check text-blue-500 text-xl"></i>' : '<i class="fa-regular fa-circle text-gray-300 text-xl"></i>'}</div><h3 class="font-bold text-lg mb-1">Automatic (Payment Link)</h3><p class="text-xs text-gray-500 mb-6">Automatically redirect customers to a specific payment page (Razorpay, Stripe, PayPal, etc) upon checkout.</p><label class="label-3d">Your Payment Link URL</label><input type="text" class="input-3d" placeholder="https://razorpay.me/@yourname" value="${store.payment.paymentLink}" oninput="store.payment.paymentLink = this.value"></div><button onclick="app.savePaymentSettings()" class="col-span-1 md:col-span-2 py-4 bg-black text-white font-bold rounded-xl shadow-lg hover:scale-[1.01] transition">Save Payment Settings</button></div>`;
             }
             else if (store.view === 'add_product') {
                 const noCol = store.collections.length === 0;
                 const isEdit = store.draftProduct.id !== null;
-                ws.innerHTML = `<div class="flex gap-8 flex-col lg:flex-row"><div class="flex-1 space-y-6">${noCol ? `<div class="p-4 bg-yellow-100 text-yellow-800 rounded-xl text-xs font-bold border border-yellow-200"><i class="fa-solid fa-triangle-exclamation mr-2"></i> You need to create a Collection before adding a product.</div>` : ''}<div class="tilt-card"><h3 class="font-bold text-lg mb-6">${isEdit ? 'Edit Product' : 'Create Product'}</h3><div class="space-y-4"><div><label class="label-3d">Name</label><input class="input-3d" value="${store.draftProduct.name}" oninput="store.draftProduct.name=this.value"></div><div class="grid grid-cols-2 gap-4"><div><label class="label-3d">Price</label><input type="number" class="input-3d" value="${store.draftProduct.price}" oninput="store.draftProduct.price=this.value"></div><div><label class="label-3d">Stock</label><input type="number" class="input-3d" value="${store.draftProduct.stock}" oninput="store.draftProduct.stock=this.value"></div></div><div><label class="label-3d">Category</label><select class="input-3d" ${noCol?'disabled':''} onchange="store.draftProduct.category_id=this.value; store.draftProduct.category=this.options[this.selectedIndex].text">${store.collections.length ? store.collections.map(c => `<option value="${c.id}" ${store.draftProduct.category_id===c.id?'selected':''}>${c.name}</option>`).join('') : '<option>Create a Collection First</option>'}</select></div></div></div><div class="tilt-card"><h3 class="font-bold text-lg mb-4">Variants</h3><div class="flex gap-2 mb-4"><input class="input-3d" placeholder="Name (e.g. Size)" value="${store.tempVariant.name}" oninput="store.tempVariant.name=this.value"><input class="input-3d" placeholder="Values (S, M)" value="${store.tempVariant.valueStr}" oninput="store.tempVariant.valueStr=this.value"><button class="bg-black text-white px-4 rounded-xl text-xs font-bold" onclick="app.addVariantToDraft()">Add</button></div><div class="space-y-2">${store.draftProduct.variants.map((v,i)=>`<div class="p-3 bg-gray-50 rounded-lg flex justify-between items-center"><div><span class="font-bold text-xs uppercase mr-2">${v.name}:</span>${v.values.map(val=>`<span class="variant-tag">${val}</span>`).join('')}</div><i class="fa-solid fa-trash text-red-500 cursor-pointer" onclick="app.removeVariantFromDraft(${i})"></i></div>`).join('')}</div></div><button onclick="${noCol ? "app.setTab('collections')" : "app.saveProduct()"}" class="w-full py-4 bg-blue-600 text-white font-bold rounded-xl shadow-lg hover:scale-[1.01] transition">${noCol ? "Go to Collections" : (isEdit ? "Update Product" : "Publish Product")}</button></div><div class="w-full lg:w-1/3"><div class="tilt-card"><h3 class="font-bold text-lg mb-4">Gallery</h3><div class="grid grid-cols-2 gap-3 mb-3">${store.draftProduct.images.map(img => `<div class="img-upload-box border-none shadow-sm relative group"><img src="${img}"><div class="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition flex items-center justify-center rounded-xl"><i class="fa-solid fa-trash text-white"></i></div></div>`).join('')}<div class="img-upload-box" onclick="document.getElementById('p-up').click()"><div class="text-center"><i class="fa-solid fa-camera-retro text-blue-500 text-2xl mb-1"></i><p class="text-[9px] font-black text-gray-400 uppercase tracking-tighter">Choose Media</p></div></div></div><input type="file" id="p-up" hidden accept="image/*" onchange="app.handleUpload(this.files, 'product')"></div></div></div>`;
+                ws.innerHTML = `<div class="flex gap-8 flex-col lg:flex-row fade-in-up stagger-1"><div class="flex-1 space-y-6">${noCol ? `<div class="p-4 bg-yellow-100 text-yellow-800 rounded-xl text-xs font-bold border border-yellow-200"><i class="fa-solid fa-triangle-exclamation mr-2"></i> You need to create a Collection before adding a product.</div>` : ''}<div class="tilt-card"><h3 class="font-bold text-lg mb-6">${isEdit ? 'Edit Product' : 'Create Product'}</h3><div class="space-y-4"><div><label class="label-3d">Name</label><input class="input-3d" value="${store.draftProduct.name}" oninput="store.draftProduct.name=this.value"></div><div class="grid grid-cols-2 gap-4"><div><label class="label-3d">Price</label><input type="number" class="input-3d" value="${store.draftProduct.price}" oninput="store.draftProduct.price=this.value"></div><div><label class="label-3d">Stock</label><input type="number" class="input-3d" value="${store.draftProduct.stock}" oninput="store.draftProduct.stock=this.value"></div></div><div><label class="label-3d">Category</label><select class="input-3d" ${noCol?'disabled':''} onchange="store.draftProduct.category_id=this.value; store.draftProduct.category=this.options[this.selectedIndex].text">${store.collections.length ? store.collections.map(c => `<option value="${c.id}" ${store.draftProduct.category_id===c.id?'selected':''}>${c.name}</option>`).join('') : '<option>Create a Collection First</option>'}</select></div></div></div><div class="tilt-card"><h3 class="font-bold text-lg mb-4">Variants</h3><div class="flex gap-2 mb-4"><input class="input-3d" placeholder="Name (e.g. Size)" value="${store.tempVariant.name}" oninput="store.tempVariant.name=this.value"><input class="input-3d" placeholder="Values (S, M)" value="${store.tempVariant.valueStr}" oninput="store.tempVariant.valueStr=this.value"><button class="bg-black text-white px-4 rounded-xl text-xs font-bold" onclick="app.addVariantToDraft()">Add</button></div><div class="space-y-2">${store.draftProduct.variants.map((v,i)=>`<div class="p-3 bg-gray-50 rounded-lg flex justify-between items-center"><div><span class="font-bold text-xs uppercase mr-2">${v.name}:</span>${v.values.map(val=>`<span class="variant-tag">${val}</span>`).join('')}</div><i class="fa-solid fa-trash text-red-500 cursor-pointer" onclick="app.removeVariantFromDraft(${i})"></i></div>`).join('')}</div></div><button onclick="${noCol ? "app.setTab('collections')" : "app.saveProduct()"}" class="w-full py-4 bg-blue-600 text-white font-bold rounded-xl shadow-lg hover:scale-[1.01] transition">${noCol ? "Go to Collections" : (isEdit ? "Update Product" : "Publish Product")}</button></div><div class="w-full lg:w-1/3"><div class="tilt-card"><h3 class="font-bold text-lg mb-4">Gallery</h3><div class="grid grid-cols-2 gap-3 mb-3">${store.draftProduct.images.map(img => `<div class="img-upload-box border-none shadow-sm relative group"><img src="${img}"><div class="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition flex items-center justify-center rounded-xl"><i class="fa-solid fa-trash text-white"></i></div></div>`).join('')}<div class="img-upload-box" onclick="document.getElementById('p-up').click()"><div class="text-center"><i class="fa-solid fa-camera-retro text-blue-500 text-2xl mb-1"></i><p class="text-[9px] font-black text-gray-400 uppercase tracking-tighter">Choose Media</p></div></div></div><input type="file" id="p-up" hidden accept="image/*" onchange="app.handleUpload(this.files, 'product')"></div></div></div>`;
             }
             else if (store.view === 'inventory') {
-                ws.innerHTML = `<div class="glass-panel overflow-hidden border border-white/40 shadow-2xl fade-in-up">
+                ws.innerHTML = `<div class="glass-panel overflow-hidden border border-white/40 shadow-2xl fade-in-up stagger-1">
                     <div class="max-h-[650px] overflow-y-auto no-scroll p-2 md:p-0">
                         ${store.products.length === 0 ? `<div class="text-center py-20"><i class="fa-solid fa-boxes-stacked text-gray-200 text-6xl mb-4"></i><p class="text-gray-400 font-bold">Your inventory is currently empty</p><button onclick="app.setTab('add_product')" class="mt-4 text-blue-500 text-xs font-black uppercase tracking-widest hover:underline">Add your first product</button></div>` : store.products.map(p => {
                             const isLowStock = p.stock < 5;
@@ -787,10 +784,10 @@
                     </div></div>`;
             }
             else if (store.view === 'collections') {
-                ws.innerHTML = `<div class="grid grid-cols-1 lg:grid-cols-2 gap-8"><div class="tilt-card h-fit sticky top-0"><h3 class="font-bold mb-6 text-lg text-gray-900">${store.draftCollection.id ? 'Edit' : 'Create'} Collection</h3><div class="space-y-5"><div><label class="label-3d">Collection Name</label><input class="input-3d" placeholder="e.g. Summer Wear" value="${store.draftCollection.name || ''}" oninput="store.draftCollection.name=this.value"></div><div><label class="label-3d">Cover Image</label><div class="img-upload-box h-48 w-full relative" onclick="document.getElementById('c-up').click()">${store.draftCollection.img ? `<img src="${store.draftCollection.img}" class="w-full h-full object-cover rounded-xl shadow-inner">` : `<div class="text-center p-4"><i class="fa-solid fa-cloud-arrow-up text-lime-500 text-3xl mb-3"></i><p class="text-xs text-gray-400 font-bold uppercase tracking-widest">Select Cover Photo</p></div>`}</div><input type="file" id="c-up" hidden accept="image/*" onchange="app.handleUpload(this.files, 'collection')"></div><button onclick="app.saveCollection()" class="btn-primary w-full py-4" style="background: linear-gradient(135deg, #84cc16, #65a30d); border: none; color: white; border-radius: 14px; font-weight: 700;">${store.draftCollection.id ? 'Update Collection' : 'Create Collection'}</button></div></div><div class="space-y-4">${store.collections.length === 0 ? `<div class="glass-panel p-12 text-center border-dashed border-2 border-gray-200"><p class="text-gray-400 font-medium">No collections created yet.</p></div>` : store.collections.map((c, i) => { const productsInCol = store.products.filter(p => p.category_id === c.id); return `<div class="glass-panel p-4"><div class="flex items-center gap-4 mb-4 border-b border-gray-100/50 pb-4"><img src="${c.img_url || 'https://via.placeholder.com/150'}" class="w-14 h-14 rounded-xl object-cover bg-gray-100 shadow-sm border border-white"><div class="flex-1"><div class="font-bold text-gray-800 leading-tight">${c.name}</div><div class="text-[10px] text-lime-600 font-bold uppercase mt-1 tracking-tighter">${productsInCol.length} Products Linked</div></div><div class="flex gap-1"><button onclick="app.editCollection('${c.id}')" class="w-8 h-8 rounded-lg flex items-center justify-center text-blue-500 hover:bg-blue-50 transition"><i class="fa-solid fa-pen-to-square"></i></button><button onclick="app.deleteCollection('${c.id}')" class="w-8 h-8 rounded-lg flex items-center justify-center text-red-400 hover:bg-red-50 transition"><i class="fa-solid fa-trash-can"></i></button></div></div></div>`; }).join('')}</div></div>`;
+                ws.innerHTML = `<div class="grid grid-cols-1 lg:grid-cols-2 gap-8 fade-in-up stagger-1"><div class="tilt-card h-fit sticky top-0"><h3 class="font-bold mb-6 text-lg text-gray-900">${store.draftCollection.id ? 'Edit' : 'Create'} Collection</h3><div class="space-y-5"><div><label class="label-3d">Collection Name</label><input class="input-3d" placeholder="e.g. Summer Wear" value="${store.draftCollection.name || ''}" oninput="store.draftCollection.name=this.value"></div><div><label class="label-3d">Cover Image</label><div class="img-upload-box h-48 w-full relative" onclick="document.getElementById('c-up').click()">${store.draftCollection.img ? `<img src="${store.draftCollection.img}" class="w-full h-full object-cover rounded-xl shadow-inner">` : `<div class="text-center p-4"><i class="fa-solid fa-cloud-arrow-up text-lime-500 text-3xl mb-3"></i><p class="text-xs text-gray-400 font-bold uppercase tracking-widest">Select Cover Photo</p></div>`}</div><input type="file" id="c-up" hidden accept="image/*" onchange="app.handleUpload(this.files, 'collection')"></div><button onclick="app.saveCollection()" class="btn-primary w-full py-4" style="background: linear-gradient(135deg, #84cc16, #65a30d); border: none; color: white; border-radius: 14px; font-weight: 700;">${store.draftCollection.id ? 'Update Collection' : 'Create Collection'}</button></div></div><div class="space-y-4">${store.collections.length === 0 ? `<div class="glass-panel p-12 text-center border-dashed border-2 border-gray-200"><p class="text-gray-400 font-medium">No collections created yet.</p></div>` : store.collections.map((c, i) => { const productsInCol = store.products.filter(p => p.category_id === c.id); return `<div class="glass-panel p-4"><div class="flex items-center gap-4 mb-4 border-b border-gray-100/50 pb-4"><img src="${c.img_url || 'https://via.placeholder.com/150'}" class="w-14 h-14 rounded-xl object-cover bg-gray-100 shadow-sm border border-white"><div class="flex-1"><div class="font-bold text-gray-800 leading-tight">${c.name}</div><div class="text-[10px] text-lime-600 font-bold uppercase mt-1 tracking-tighter">${productsInCol.length} Products Linked</div></div><div class="flex gap-1"><button onclick="app.editCollection('${c.id}')" class="w-8 h-8 rounded-lg flex items-center justify-center text-blue-500 hover:bg-blue-50 transition"><i class="fa-solid fa-pen-to-square"></i></button><button onclick="app.deleteCollection('${c.id}')" class="w-8 h-8 rounded-lg flex items-center justify-center text-red-400 hover:bg-red-50 transition"><i class="fa-solid fa-trash-can"></i></button></div></div></div>`; }).join('')}</div></div>`;
             }
             else if (store.view === 'branding') {
-                ws.innerHTML = `<div class="max-w-md mx-auto space-y-6"><div class="tilt-card"><h3 class="font-bold text-lg mb-6">Core Identity</h3><div class="space-y-5"><div><label class="label-3d">Name</label><input class="input-3d" value="${store.branding.name}" oninput="app.updateBranding('name', this.value)"></div><div><label class="label-3d">Tagline</label><input class="input-3d" value="${store.branding.tagline}" oninput="app.updateBranding('tagline', this.value)"></div><div><label class="label-3d">Color</label><input type="color" class="w-full h-10 rounded-xl" value="${store.branding.color}" oninput="app.updateBranding('color', this.value)"></div><div><label class="label-3d">Logo</label><div class="img-upload-box h-32 w-full" onclick="document.getElementById('l-up').click()">${store.branding.logo_url ? `<img src="${store.branding.logo_url}" class="object-contain p-4"><div class="absolute top-2 right-2 w-6 h-6 bg-red-500 text-white rounded-full flex items-center justify-center shadow hover:bg-red-600 transition" onclick="event.stopPropagation(); app.deleteLogo()"><i class="fa-solid fa-trash text-xs"></i></div>` : `Upload / Take Photo`}</div><input type="file" id="l-up" hidden accept="image/*" onchange="app.handleUpload(this.files, 'logo')"></div></div></div></div>`;
+                ws.innerHTML = `<div class="max-w-md mx-auto space-y-6 fade-in-up stagger-1"><div class="tilt-card"><h3 class="font-bold text-lg mb-6">Core Identity</h3><div class="space-y-5"><div><label class="label-3d">Name</label><input class="input-3d" value="${store.branding.name}" oninput="app.updateBranding('name', this.value)"></div><div><label class="label-3d">Tagline</label><input class="input-3d" value="${store.branding.tagline}" oninput="app.updateBranding('tagline', this.value)"></div><div><label class="label-3d">Color</label><input type="color" class="w-full h-10 rounded-xl" value="${store.branding.color}" oninput="app.updateBranding('color', this.value)"></div><div><label class="label-3d">Logo</label><div class="img-upload-box h-32 w-full" onclick="document.getElementById('l-up').click()">${store.branding.logo_url ? `<img src="${store.branding.logo_url}" class="object-contain p-4"><div class="absolute top-2 right-2 w-6 h-6 bg-red-500 text-white rounded-full flex items-center justify-center shadow hover:bg-red-600 transition" onclick="event.stopPropagation(); app.deleteLogo()"><i class="fa-solid fa-trash text-xs"></i></div>` : `Upload / Take Photo`}</div><input type="file" id="l-up" hidden accept="image/*" onchange="app.handleUpload(this.files, 'logo')"></div></div></div></div>`;
             }
         }
     };
