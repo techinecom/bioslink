@@ -179,43 +179,67 @@
         .mobile-header { display: none; }
         .desktop-header { display: flex; }
 
-     @media (max-width: 1024px) {
+    @media (max-width: 1024px) {
     .layout-wrapper { padding: 0; gap: 0; }
     
-    /* FIXED MOBILE SIDEBAR */
+    /* SIDEBAR: Forced solid and highest priority */
     .sidebar-container { 
-        position: fixed; left: 0; top: 0; bottom: 0; 
+        position: fixed; 
+        left: 0; 
+        top: 0; 
+        bottom: 0; 
         transform: translateX(-110%);
-        background: #FFFFFF !important; /* Force solid white */
-        backdrop-filter: none !important; /* Kill the blur effect */
+        background: #FFFFFF !important; /* Solid white background */
+        backdrop-filter: none !important; /* Disables problematic blur */
         -webkit-backdrop-filter: none !important;
         border-radius: 0 24px 24px 0;
-        box-shadow: 20px 0 60px rgba(0,0,0,0.25);
+        box-shadow: 20px 0 60px rgba(0,0,0,0.3);
         border-right: 1px solid #E2E8F0;
-        width: 85%; max-width: 320px;
+        width: 85%; 
+        max-width: 320px;
         padding-top: 20px;
-        z-index: 10000; /* Ensure this is the highest */
+        z-index: 10000 !important; /* Sits above EVERYTHING */
     }
     .sidebar-container.open { transform: translateX(0); }
     
-    /* FIXED BACKDROP - Removing blur filter */
+    /* BACKDROP: Dark tint only, no blur to avoid "milky" screen */
     .sidebar-backdrop { 
-        z-index: 9999; 
-        background: rgba(15, 23, 42, 0.5) !important; /* Use a darker tint instead of blur */
+        z-index: 9999 !important; 
+        background: rgba(15, 23, 42, 0.6) !important; /* Darker tint for focus */
         backdrop-filter: none !important; 
         -webkit-backdrop-filter: none !important;
     }
     .sidebar-backdrop.open { display: block; animation: fadeIn 0.3s forwards; }
     
-    .workspace-container { width: 100%; height: 100%; border-radius: 0; gap: 0; z-index: 1; }
+    .workspace-container { 
+        width: 100%; 
+        height: 100%; 
+        border-radius: 0; 
+        gap: 0; 
+        z-index: 1; 
+    }
     
     .desktop-header { display: none !important; }
     .mobile-header { 
-        display: flex; height: 70px; align-items: center; justify-content: space-between; 
-        padding: 0 20px; background: rgba(255,255,255,0.9); backdrop-filter: blur(12px);
-        border-bottom: 1px solid rgba(0,0,0,0.05); z-index: 50; flex-shrink: 0;
+        display: flex; 
+        height: 70px; 
+        align-items: center; 
+        justify-content: space-between; 
+        padding: 0 20px; 
+        background: rgba(255,255,255,0.95); 
+        border-bottom: 1px solid rgba(0,0,0,0.05); 
+        z-index: 50; 
+        flex-shrink: 0;
     }
 
+    /* Fixed Scrolling on Mobile Content */
+    .content-scroll-area { 
+        padding: 20px; 
+        padding-bottom: 160px; 
+        overflow-y: auto !important; 
+        -webkit-overflow-scrolling: touch;
+    }
+}
     .content-scroll-area { padding: 20px; padding-bottom: 150px; }
 }
 
