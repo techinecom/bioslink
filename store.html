@@ -6,12 +6,144 @@
     <title>JINIHOME | Storefront</title>
     
     <script src="https://cdn.tailwindcss.com"></script>
-    
-    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;600;800&family=Outfit:wght@300;400;700&display=swap" rel="stylesheet">
-    
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;600;800&family=Outfit:wght@300;400;700&display=swap" rel="stylesheet">
 
-    <link rel="stylesheet" href="style.css">
+    <style>
+        /* --- CUSTOM CSS STYLES --- */
+        :root {
+            --accent: #DFFF00; /* Acid Lime */
+            --bg-dark: #050505;
+            --text-secondary: #9ca3af;
+        }
+
+        body {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            background-color: var(--bg-dark);
+            color: white;
+        }
+
+        /* --- Intro Screen & Matrix --- */
+        #intro-screen {
+            position: fixed;
+            inset: 0;
+            z-index: 9999;
+            background-color: var(--bg-dark);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: transform 0.8s cubic-bezier(0.77, 0, 0.175, 1);
+        }
+
+        #intro-screen.intro-hidden {
+            transform: translateY(-100%);
+        }
+
+        #matrix-canvas {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            opacity: 0.15;
+            z-index: 0;
+        }
+
+        /* --- 3D Card Animation --- */
+        .intro-3d-card {
+            perspective: 1000px;
+        }
+
+        .card-inner {
+            transform-style: preserve-3d;
+            animation: floatCard 6s ease-in-out infinite;
+            background: linear-gradient(145deg, rgba(255,255,255,0.1), rgba(255,255,255,0.05));
+            border: 1px solid rgba(255,255,255,0.1);
+        }
+
+        @keyframes floatCard {
+            0%, 100% { transform: translateY(0) rotateY(0deg); }
+            50% { transform: translateY(-20px) rotateY(5deg); }
+        }
+
+        /* --- Utilities --- */
+        .accent-text { color: var(--accent); }
+        .accent-bg { background-color: var(--accent); }
+        .accent-border { border-color: var(--accent); }
+        
+        .shadow-glow {
+            box-shadow: 0 0 40px rgba(223, 255, 0, 0.15);
+        }
+
+        .hover-accent:hover {
+            background-color: var(--accent);
+            color: black;
+            box-shadow: 0 0 25px rgba(223, 255, 0, 0.4);
+        }
+
+        .hover-border-accent:hover {
+            border-color: var(--accent);
+        }
+
+        /* --- Header & Hero --- */
+        .header-bg {
+            background: radial-gradient(circle at top center, #1a1a1a 0%, #050505 70%);
+        }
+
+        .border-b-radius-lg {
+            border-bottom-left-radius: 60px;
+            border-bottom-right-radius: 60px;
+        }
+
+        @media (min-width: 768px) {
+            .border-b-radius-lg {
+                border-bottom-left-radius: 100px;
+                border-bottom-right-radius: 100px;
+            }
+        }
+
+        /* --- Orbit Ring Animation --- */
+        .orbit-ring {
+            position: absolute;
+            inset: -10px;
+            border-radius: 50%;
+            border: 1px dashed rgba(255,255,255,0.2);
+            animation: spin 10s linear infinite;
+        }
+        
+        .category-card.active .orbit-ring {
+            border-color: var(--accent);
+            border-style: solid;
+            border-width: 2px;
+        }
+
+        @keyframes spin { 100% { transform: rotate(360deg); } }
+
+        /* --- Product Card --- */
+        .product-card {
+            animation: fadeUp 0.6s ease-out forwards;
+            opacity: 0;
+            transform: translateY(20px);
+        }
+
+        /* Staggered animation delays handled in JS or basic CSS nth-child */
+        .product-card:nth-child(1) { animation-delay: 0.1s; }
+        .product-card:nth-child(2) { animation-delay: 0.2s; }
+        .product-card:nth-child(3) { animation-delay: 0.3s; }
+
+        @keyframes fadeUp {
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* --- Scrollbar --- */
+        .scrollbar-hide::-webkit-scrollbar {
+            display: none;
+        }
+        .scrollbar-hide {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+    </style>
 </head>
 <body class="antialiased">
 
@@ -19,9 +151,9 @@
         <canvas id="matrix-canvas"></canvas>
         <div class="relative z-10 flex flex-col lg:flex-row items-center gap-16 max-w-6xl px-8">
             <div class="intro-3d-card w-72 h-[420px] hidden lg:block">
-                <div class="card-inner w-full h-full gradient-bg rounded-[3rem] p-1 shadow-glow">
-                    <div class="w-full h-full bg-black rounded-[2.8rem] flex flex-col items-center justify-center p-8 text-center border border-white/10">
-                        <div class="w-20 h-20 accent-bg rounded-full mb-6 flex items-center justify-center font-black text-4xl italic text-white">J</div>
+                <div class="card-inner w-full h-full rounded-[3rem] p-1 shadow-glow backdrop-blur-sm">
+                    <div class="w-full h-full bg-black/80 rounded-[2.8rem] flex flex-col items-center justify-center p-8 text-center border border-white/10">
+                        <div class="w-20 h-20 accent-bg rounded-full mb-6 flex items-center justify-center font-black text-4xl italic text-black">J</div>
                         <h2 class="text-white text-3xl font-black italic tracking-tighter" id="intro-store-name">JINIHOME</h2>
                         <p class="text-gray-500 text-[10px] uppercase tracking-[0.4em] mt-2">Bengaluru Series '26</p>
                     </div>
@@ -30,7 +162,7 @@
 
             <div class="text-center lg:text-left text-white space-y-8">
                 <h1 class="text-5xl md:text-8xl font-black tracking-tighter leading-[0.9] mb-4" id="intro-hero-title">Architecture<br>Of <span class="accent-text">Style.</span></h1>
-                <p class="text-gray-400 text-sm md:text-lg max-w-lg leading-relaxed" id="intro-subtitle">
+                <p class="text-gray-400 text-sm md:text-lg max-w-lg leading-relaxed mx-auto lg:mx-0" id="intro-subtitle">
                     Premium footwear and precision horology. Connecting local excellence with modern design.
                 </p>
                 <div class="pt-4">
@@ -45,27 +177,28 @@
 
     <div id="main-wrapper">
         
-        <header class="header-bg text-white pt-48 pb-32 border-b-radius-lg overflow-hidden rounded-b-[100px]">
-            <nav class="fixed top-0 w-full z-50 py-6 px-8 md:px-12 bg-black/50 backdrop-blur-2xl border-b border-white/5">
+        <header class="header-bg text-white pt-48 pb-32 border-b-radius-lg overflow-hidden relative">
+            <nav class="fixed top-0 w-full z-50 py-6 px-8 md:px-12 bg-black/80 backdrop-blur-md border-b border-white/5 transition-all duration-300">
                 <div class="max-w-[1600px] mx-auto flex justify-between items-center">
-                    <div class="text-3xl font-black tracking-tighter italic cursor-pointer" onclick="window.scrollTo({top:0, behavior:'smooth'})">
+                    <div class="text-2xl md:text-3xl font-black tracking-tighter italic cursor-pointer" onclick="window.scrollTo({top:0, behavior:'smooth'})">
                         <span class="accent-text">.</span><span id="nav-store-name">JINIHOME</span>
                     </div>
-                    <button class="flex items-center gap-4 bg-white/5 border border-white/10 px-8 py-3 rounded-full hover:bg-white/10 transition-all" onclick="openCartModal()">
-                        <span class="text-[10px] font-bold uppercase tracking-widest text-gray-400">Cart</span>
-                        <div id="cart-count" class="w-6 h-6 accent-bg text-[10px] flex items-center justify-center rounded-full text-white font-black">0</div>
+                    <button class="flex items-center gap-4 bg-white/5 border border-white/10 px-6 py-2 md:px-8 md:py-3 rounded-full hover:bg-white/10 transition-all" onclick="openCartModal()">
+                        <span class="text-[10px] font-bold uppercase tracking-widest text-gray-400 hidden md:inline">Cart</span>
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="md:hidden text-white" viewBox="0 0 16 16"><path d="M0 1.5A.5.5 0 0 1 .5 1H2a.5.5 0 0 1 .485.379L2.89 3H14.5a.5.5 0 0 1 .491.592l-1.5 8A.5.5 0 0 1 13 12H4a.5.5 0 0 1-.491-.408L2.01 3.607 1.61 2H.5a.5.5 0 0 1-.5-.5zM3.102 4l1.313 7h8.17l1.313-7H3.102zM5 12a2 2 0 1 0 0 4 2 2 0 0 0 0-4zm7 0a2 2 0 1 0 0 4 2 2 0 0 0 0-4z"/></svg>
+                        <div id="cart-count" class="w-6 h-6 accent-bg text-[10px] flex items-center justify-center rounded-full text-black font-black">0</div>
                     </button>
                 </div>
             </nav>
 
-            <div class="max-w-[1500px] mx-auto px-8 grid md:grid-cols-2 gap-20 items-center">
-                <div class="space-y-10">
+            <div class="max-w-[1500px] mx-auto px-8 grid md:grid-cols-2 gap-20 items-center relative z-10">
+                <div class="space-y-10 text-center md:text-left">
                     <h1 class="hero-title text-6xl md:text-9xl font-black leading-[0.85] tracking-tighter" id="main-hero-text">Style in<br><span class="accent-text">Motion.</span></h1>
-                    <p class="text-gray-400 text-xl font-light max-w-md" id="main-sub-text">The pinnacle of digital shopping. Curated fashion drops from Bengaluru's elite boutiques.</p>
+                    <p class="text-gray-400 text-xl font-light max-w-md mx-auto md:mx-0" id="main-sub-text">The pinnacle of digital shopping. Curated fashion drops from Bengaluru's elite boutiques.</p>
                 </div>
-                <div class="relative group">
-                    <div class="absolute -inset-4 accent-blur opacity-50"></div>
-                    <img id="hero-image" src="https://images.unsplash.com/photo-1542291026-7eec264c27ff?auto=format&fit=crop&q=80&w=1200" class="relative rounded-[4rem] shadow-2xl rotate-2 group-hover:rotate-0 transition-all duration-1000">
+                <div class="relative group hidden md:block">
+                    <div class="absolute -inset-4 bg-[var(--accent)] blur-[100px] opacity-20 group-hover:opacity-40 transition-opacity duration-700"></div>
+                    <img id="hero-image" src="https://images.unsplash.com/photo-1549298916-b41d501d3772?q=80&w=1200&auto=format&fit=crop" class="relative rounded-[4rem] shadow-2xl rotate-2 group-hover:rotate-0 transition-all duration-1000 w-full object-cover h-[500px]">
                 </div>
             </div>
         </header>
@@ -73,11 +206,25 @@
         <section class="py-24 px-8">
             <div class="flex justify-center gap-8 md:gap-16 flex-wrap" id="categoryBox">
                 <div class="category-card active group cursor-pointer text-center" onclick="advancedFilter('all', this)">
-                    <div class="relative w-40 h-40 md:w-48 md:h-48 mx-auto mb-4">
+                    <div class="relative w-32 h-32 md:w-40 md:h-40 mx-auto mb-4">
                         <div class="orbit-ring"></div>
-                        <div class="w-full h-full rounded-full bg-black flex items-center justify-center border-4 border-white text-white font-bold text-xs shadow-2xl">ALL</div>
+                        <div class="w-full h-full rounded-full bg-black flex items-center justify-center border-4 border-white text-white font-bold text-xs shadow-2xl overflow-hidden">
+                            <img src="https://images.unsplash.com/photo-1515955656352-a1fa3ffcd111?w=400&auto=format&fit=crop&q=60" class="w-full h-full object-cover opacity-60 group-hover:opacity-100 transition-opacity">
+                            <span class="absolute z-10">ALL</span>
+                        </div>
                     </div>
                     <h4 class="text-[10px] font-black tracking-widest accent-text uppercase">Showroom</h4>
+                </div>
+                
+                 <div class="category-card group cursor-pointer text-center" onclick="advancedFilter('shoes', this)">
+                    <div class="relative w-32 h-32 md:w-40 md:h-40 mx-auto mb-4">
+                        <div class="orbit-ring"></div>
+                        <div class="w-full h-full rounded-full bg-black flex items-center justify-center border-4 border-white/20 text-white font-bold text-xs shadow-2xl overflow-hidden">
+                             <img src="https://images.unsplash.com/photo-1560769629-975ec94e6a86?w=400&auto=format&fit=crop&q=60" class="w-full h-full object-cover opacity-60 group-hover:opacity-100 transition-opacity">
+                            <span class="absolute z-10">KICKS</span>
+                        </div>
+                    </div>
+                    <h4 class="text-[10px] font-black tracking-widest text-gray-500 uppercase">Footwear</h4>
                 </div>
             </div>
         </section>
@@ -85,18 +232,18 @@
         <section class="pb-40 px-8">
             <div id="productGrid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-12 md:gap-16 max-w-[1500px] mx-auto min-h-[500px]">
                 <div class="col-span-full text-center text-gray-400 py-20 flex flex-col items-center">
-                    <div class="w-8 h-8 border-4 border-accent border-t-transparent rounded-full animate-spin mb-4"></div>
+                    <div class="w-8 h-8 border-4 border-[var(--accent)] border-t-transparent rounded-full animate-spin mb-4"></div>
                     Loading Collection...
                 </div>
             </div>
         </section>
     </div>
 
-    <footer class="px-8 md:px-20">
-        <div class="max-w-[1500px] mx-auto w-full grid md:grid-cols-3 gap-20">
+    <footer class="px-8 md:px-20 pb-10">
+        <div class="max-w-[1500px] mx-auto w-full grid md:grid-cols-3 gap-20 border-t border-white/10 pt-20">
             <div class="space-y-8">
                 <h2 class="text-5xl font-black italic accent-text" id="footer-store-name">JINIHOME.</h2>
-                <p class="text-gray-500 text-sm leading-relaxed">Elevating lifestyle through curated excellence.</p>
+                <p class="text-gray-500 text-sm leading-relaxed">Elevating lifestyle through curated excellence.<br>Based in Bengaluru.</p>
             </div>
             <div class="grid grid-cols-2 gap-10">
                 <div class="space-y-6">
@@ -104,41 +251,43 @@
                     <ul class="space-y-4 text-gray-400 text-sm">
                         <li class="hover:text-white cursor-pointer transition-colors">New Arrivals</li>
                         <li class="hover:text-white cursor-pointer transition-colors">Best Sellers</li>
+                        <li class="hover:text-white cursor-pointer transition-colors">Exclusives</li>
                     </ul>
                 </div>
                 <div class="space-y-6">
                     <h5 class="accent-text font-bold uppercase text-xs tracking-widest">Support</h5>
                     <ul class="space-y-4 text-gray-400 text-sm">
                         <li class="hover:text-white cursor-pointer transition-colors">Shipping</li>
+                        <li class="hover:text-white cursor-pointer transition-colors">Returns</li>
+                        <li class="hover:text-white cursor-pointer transition-colors">Contact</li>
                     </ul>
                 </div>
             </div>
             <div class="space-y-8">
                 <h5 class="text-white font-bold uppercase text-xs tracking-widest">Newsletter</h5>
                 <div class="flex border-b border-gray-800 pb-3">
-                    <input type="text" placeholder="Your Email" class="bg-transparent text-sm w-full outline-none text-white">
-                    <button class="accent-text font-black text-xs uppercase">Join</button>
+                    <input type="text" placeholder="Your Email" class="bg-transparent text-sm w-full outline-none text-white placeholder-gray-600">
+                    <button class="accent-text font-black text-xs uppercase hover:text-white transition-colors">Join</button>
                 </div>
             </div>
         </div>
     </footer>
 
-    <div id="productModal" class="fixed inset-0 z-[100] hidden items-center justify-center p-6 bg-black/90 backdrop-blur-md">
-        <div class="bg-white rounded-[4rem] max-w-5xl w-full max-h-[90vh] overflow-hidden relative shadow-2xl flex flex-col lg:flex-row">
-            <button onclick="closeModal()" class="absolute top-8 right-8 z-10 bg-black/5 hover:bg-black/10 p-4 rounded-full transition-all">
+    <div id="productModal" class="fixed inset-0 z-[100] hidden items-center justify-center p-4 md:p-6 bg-black/90 backdrop-blur-md">
+        <div class="bg-white rounded-[3rem] max-w-5xl w-full max-h-[90vh] overflow-y-auto overflow-x-hidden relative shadow-2xl flex flex-col lg:flex-row">
+            <button onclick="closeModal()" class="absolute top-6 right-6 z-10 bg-black/5 hover:bg-black/10 p-3 rounded-full transition-all text-black">
                 <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
             </button>
             
             <div class="lg:w-1/2 p-8 bg-gray-50 flex flex-col justify-center items-center">
-                <img id="modalImgMain" class="w-full aspect-square object-cover rounded-[3rem] shadow-lg mb-8" src="">
-                <div class="flex gap-4 overflow-x-auto scrollbar-hide" id="modalThumbnails"></div>
+                <img id="modalImgMain" class="w-full aspect-square object-cover rounded-[2rem] shadow-xl mb-8" src="">
+                <div class="flex gap-4 overflow-x-auto w-full scrollbar-hide p-2" id="modalThumbnails"></div>
             </div>
 
-            <div class="lg:w-1/2 p-12 flex flex-col justify-center">
+            <div class="lg:w-1/2 p-8 lg:p-12 flex flex-col justify-center text-black">
                 <span class="accent-text font-bold uppercase text-[10px] tracking-[0.4em] mb-4">Official Release</span>
-                <h2 id="modalTitle" class="text-5xl font-black mb-2 tracking-tighter text-black">Product</h2>
-                <p id="modalPrice" class="text-3xl font-black accent-text mb-8">$00</p>
-                <p id="modalDesc" class="text-gray-500 leading-relaxed mb-10 text-sm">Desc</p>
+                <h2 id="modalTitle" class="text-4xl md:text-5xl font-black mb-2 tracking-tighter text-black leading-tight">Product Title</h2>
+                <p id="modalPrice" class="text-3xl font-black accent-text mb-8" style="color: #668000;">$00</p> <p id="modalDesc" class="text-gray-500 leading-relaxed mb-10 text-sm">Description goes here.</p>
                 
                 <div class="mb-12">
                     <h5 class="text-[10px] font-black uppercase tracking-widest mb-6 text-gray-400">Select Edition</h5>
@@ -147,23 +296,43 @@
 
                 <div class="grid grid-cols-2 gap-4">
                     <button onclick="addToCartCurrent()" class="py-5 bg-black text-white rounded-2xl font-black text-[10px] uppercase tracking-widest hover:bg-gray-800 transition-all">Add to Bag</button>
-                    <button onclick="buyNowCurrent()" class="py-5 accent-bg text-white rounded-2xl font-black text-[10px] uppercase tracking-widest shadow-xl shadow-glow">Buy Now</button>
+                    <button onclick="buyNowCurrent()" class="py-5 accent-bg text-black rounded-2xl font-black text-[10px] uppercase tracking-widest shadow-xl hover:opacity-90 transition-all">Buy Now</button>
                 </div>
             </div>
         </div>
     </div>
 
     <script>
-        // --- CONFIG ---
+        // --- CONFIG & STATE ---
         const SUPABASE_URL = 'https://rujozgysdnaxlpqadqff.supabase.co';
         const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InJ1am96Z3lzZG5heGxwcWFkcWZmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Njk0OTY1MTUsImV4cCI6MjA4NTA3MjUxNX0.zi4FwC0xfq0brTrYs3i18rwO3hbFeVhDBq6TpLQCyVs';
         const _supabase = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
-        let products = [], cart = [], currentModalProduct = null, selectedVariant = null, profile = null;
+        
+        let products = [], cart = [], currentModalProduct = null, selectedVariant = null;
+        
+        // Default Fallback Profile in case DB is empty
+        let profile = {
+            store_name: "JINIHOME",
+            hero_title: "Architecture<br>Of <span class='accent-text'>Style.</span>",
+            hero_subtitle: "Premium footwear and precision horology. Connecting local excellence with modern design.",
+            header_url: "https://images.unsplash.com/photo-1549298916-b41d501d3772?q=80&w=1200&auto=format&fit=crop",
+            payment_number: "919999999999" // Replace with real number
+        };
+
+        // --- MOCK DATA (Fallback) ---
+        const mockProducts = [
+            { id: 1, name: "Cyber Runner High", price: 250, description: "Limited edition high-top sneakers with neon accents.", images: ["https://images.unsplash.com/photo-1552346154-21d32810aba3?w=800&auto=format&fit=crop"], variants: ["US 8", "US 9", "US 10"], category: "shoes" },
+            { id: 2, name: "Obsidian Bomber", price: 180, description: "Classic bomber jacket in deep black.", images: ["https://images.unsplash.com/photo-1591047139829-d91aecb6caea?w=800&auto=format&fit=crop"], variants: ["M", "L", "XL"], category: "apparel" },
+            { id: 3, name: "Chrono Silver", price: 400, description: "Stainless steel analog watch.", images: ["https://images.unsplash.com/photo-1524592094714-0f0654e20314?w=800&auto=format&fit=crop"], variants: ["Silver", "Gold"], category: "accessories" },
+            { id: 4, name: "Urban Tech Hoodie", price: 120, description: "Heavyweight cotton with tech-fleece lining.", images: ["https://images.unsplash.com/photo-1556821840-3a63f95609a7?w=800&auto=format&fit=crop"], variants: ["S", "M", "L"], category: "apparel" },
+            { id: 5, name: "Retro Kicks 90s", price: 210, description: "Throwback style with modern comfort.", images: ["https://images.unsplash.com/photo-1560769629-975ec94e6a86?w=800&auto=format&fit=crop"], variants: ["US 9", "US 10"], category: "shoes" },
+            { id: 6, name: "Matrix Shades", price: 85, description: "Polarized lenses with UV400 protection.", images: ["https://images.unsplash.com/photo-1511499767150-a48a237f0083?w=800&auto=format&fit=crop"], variants: ["Black", "Gunmetal"], category: "accessories" }
+        ];
 
         // --- INIT ---
         window.onload = async function() {
-            setInterval(drawMatrix, 35);
-            document.body.style.overflow = 'hidden';
+            setInterval(drawMatrix, 45); // Slower matrix for better vibe
+            document.body.style.overflow = 'hidden'; // Lock scroll for intro
             await loadStoreData();
         };
 
@@ -174,57 +343,90 @@
 
         // --- DATA LOGIC ---
         async function loadStoreData() {
-            let slug = window.location.pathname.replace('/', '').replace('.html', ''); 
-            if(!slug || slug.length === 0) {
-                 const { data } = await _supabase.from('profiles').select('*').eq('is_published', true).limit(1);
-                 if(data && data.length > 0) profile = data[0];
-            } else {
-                 const { data } = await _supabase.from('profiles').select('*').eq('store_slug', slug).single();
-                 profile = data;
+            try {
+                // 1. Try to fetch profile from URL slug or default published one
+                let slug = window.location.pathname.replace('/', '').replace('.html', ''); 
+                if(!slug || slug.length === 0 || slug === 'index') {
+                     const { data, error } = await _supabase.from('profiles').select('*').eq('is_published', true).limit(1);
+                     if(data && data.length > 0) profile = { ...profile, ...data[0] };
+                } else {
+                     const { data, error } = await _supabase.from('profiles').select('*').eq('store_slug', slug).single();
+                     if(data) profile = { ...profile, ...data };
+                }
+
+                updateBranding(profile);
+
+                // 2. Fetch Products
+                const { data: dbProducts, error } = await _supabase.from('products').select('*').eq('user_id', profile.id).order('created_at', { ascending: false });
+                
+                if (dbProducts && dbProducts.length > 0) {
+                    products = dbProducts;
+                } else {
+                    console.log("Using Mock Data (DB empty or error)");
+                    products = mockProducts;
+                }
+                
+                renderProducts(products);
+
+            } catch (e) {
+                console.error("Setup failed, using mocks:", e);
+                products = mockProducts;
+                renderProducts(products);
             }
-
-            if(!profile) return;
-            updateBranding(profile);
-
-            const { data: dbProducts } = await _supabase.from('products').select('*').eq('user_id', profile.id).order('created_at', { ascending: false });
-            if(dbProducts) { products = dbProducts; renderProducts(products); }
         }
 
         function updateBranding(profile) {
             if(profile.store_name) {
-                document.getElementById('intro-store-name').innerText = profile.store_name;
-                document.getElementById('nav-store-name').innerText = profile.store_name;
-                document.getElementById('footer-store-name').innerText = profile.store_name + ".";
+                const els = ['intro-store-name', 'nav-store-name', 'footer-store-name'];
+                els.forEach(id => {
+                    const el = document.getElementById(id);
+                    if(el) el.innerText = id === 'footer-store-name' ? profile.store_name + "." : profile.store_name;
+                });
             }
             if(profile.hero_title) {
                 const titleHtml = profile.hero_title.replace(/\n/g, '<br>');
-                document.getElementById('intro-hero-title').innerHTML = titleHtml;
-                document.getElementById('main-hero-text').innerHTML = titleHtml;
+                const els = ['intro-hero-title', 'main-hero-text'];
+                els.forEach(id => { const el = document.getElementById(id); if(el) el.innerHTML = titleHtml; });
             }
             if(profile.hero_subtitle) {
-                document.getElementById('intro-subtitle').innerText = profile.hero_subtitle;
-                document.getElementById('main-sub-text').innerText = profile.hero_subtitle;
+                const els = ['intro-subtitle', 'main-sub-text'];
+                els.forEach(id => { const el = document.getElementById(id); if(el) el.innerText = profile.hero_subtitle; });
             }
-            if(profile.header_url) document.getElementById('hero-image').src = profile.header_url;
+            if(profile.header_url) {
+                const img = document.getElementById('hero-image');
+                if(img) img.src = profile.header_url;
+            }
+            
+            // Optional: Update CSS variable if color is in profile
+            if(profile.color) {
+                document.documentElement.style.setProperty('--accent', profile.color);
+            }
         }
 
         function renderProducts(list) {
             const grid = document.getElementById('productGrid');
-            if(list.length === 0) { grid.innerHTML = '<div>No products found.</div>'; return; }
+            if(list.length === 0) { grid.innerHTML = '<div class="col-span-full text-center py-20">No products found.</div>'; return; }
 
             grid.innerHTML = list.map(product => {
-                const img = (product.images && product.images.length > 0) ? product.images[0] : 'https://placehold.co/600';
+                const img = (product.images && product.images.length > 0) ? product.images[0] : 'https://placehold.co/600x600/101010/FFF';
+                // Escape single quotes for the onclick JSON
+                const productJson = JSON.stringify(product).replace(/'/g, "&#39;");
+                
                 return `
                 <div class="product-card" data-type="${product.category || 'general'}">
-                    <div class="product-shell cursor-pointer" onclick='openModalWrapper(${JSON.stringify(product).replace(/'/g, "&#39;")})'>
-                        <div class="aspect-square rounded-[3rem] overflow-hidden bg-[#F9F9F9] mb-8 group">
-                            <img src="${img}" class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700">
+                    <div class="product-shell cursor-pointer group" onclick='openModalWrapper(${productJson})'>
+                        <div class="aspect-square rounded-[3rem] overflow-hidden bg-[#101010] mb-8 relative">
+                             <div class="absolute inset-0 bg-black/20 group-hover:bg-transparent transition-colors z-10"></div>
+                            <img src="${img}" class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700 ease-in-out">
                         </div>
-                        <div class="flex justify-between items-center px-4 mb-6">
-                            <h4 class="text-2xl font-bold truncate pr-4 text-black">${product.name}</h4>
+                        <div class="flex justify-between items-end px-2 mb-6">
+                            <div class="overflow-hidden">
+                                <h4 class="text-xl md:text-2xl font-bold truncate pr-4 text-white group-hover:text-[var(--accent)] transition-colors">${product.name}</h4>
+                                <p class="text-xs text-gray-500 uppercase tracking-widest mt-1">${product.category || 'Collection'}</p>
+                            </div>
                             <p class="text-xl font-black accent-text">$${product.price}</p>
                         </div>
-                        <button onclick="event.stopPropagation(); quickAdd(${product.id})" class="w-full py-5 bg-black text-white rounded-[2rem] font-bold text-[10px] uppercase tracking-widest hover-accent transition-all">Add To Bag</button>
+                        <button onclick="event.stopPropagation(); quickAdd(${product.id})" class="w-full py-4 bg-white text-black rounded-full font-bold text-[10px] uppercase tracking-widest hover-accent transition-all transform active:scale-95">Add To Bag</button>
                     </div>
                 </div>`;
             }).join('');
@@ -232,17 +434,24 @@
 
         function openModalWrapper(product) {
             currentModalProduct = product;
-            selectedVariant = (product.variants && product.variants.length > 0) ? product.variants[0] : null;
+            selectedVariant = (product.variants && product.variants.length > 0) ? product.variants[0] : 'Standard';
 
             document.getElementById('modalTitle').innerText = product.name;
             document.getElementById('modalPrice').innerText = '$' + product.price;
-            document.getElementById('modalDesc').innerText = product.description;
-            document.getElementById('modalImgMain').src = (product.images && product.images.length > 0) ? product.images[0] : 'https://placehold.co/600';
+            document.getElementById('modalDesc').innerText = product.description || "No description available.";
+            
+            const mainImg = (product.images && product.images.length > 0) ? product.images[0] : 'https://placehold.co/600';
+            document.getElementById('modalImgMain').src = mainImg;
 
             const thumbContainer = document.getElementById('modalThumbnails');
-            thumbContainer.innerHTML = (product.images || []).map(img => `
-                <img onclick="document.getElementById('modalImgMain').src=this.src" class="w-20 h-20 rounded-2xl cursor-pointer border-2 border-transparent hover-border-accent object-cover" src="${img}">
-            `).join('');
+            if(product.images && product.images.length > 1) {
+                thumbContainer.innerHTML = product.images.map(img => `
+                    <img onclick="document.getElementById('modalImgMain').src=this.src" class="w-20 h-20 rounded-2xl cursor-pointer border-2 border-transparent hover:border-black object-cover" src="${img}">
+                `).join('');
+                thumbContainer.style.display = 'flex';
+            } else {
+                thumbContainer.style.display = 'none';
+            }
 
             const vWrap = document.getElementById('variantWrapper');
             vWrap.innerHTML = '';
@@ -250,15 +459,18 @@
                 product.variants.forEach((v, i) => {
                     const div = document.createElement('div');
                     div.innerText = v;
-                    div.className = `px-6 py-2 border-2 rounded-full text-[10px] font-black cursor-pointer transition-all ${i === 0 ? 'accent-border accent-text' : 'border-gray-100 text-gray-400'}`;
+                    div.className = `px-6 py-2 border-2 rounded-full text-[10px] font-black cursor-pointer transition-all ${i === 0 ? 'border-black text-black bg-gray-100' : 'border-gray-200 text-gray-400 hover:border-gray-400'}`;
                     div.onclick = function() {
                         selectedVariant = v;
-                        vWrap.querySelectorAll('div').forEach(d => d.className = `px-6 py-2 border-2 rounded-full text-[10px] font-black cursor-pointer transition-all border-gray-100 text-gray-400`);
-                        this.className = `px-6 py-2 border-2 rounded-full text-[10px] font-black cursor-pointer transition-all accent-border accent-text`;
+                        vWrap.querySelectorAll('div').forEach(d => d.className = `px-6 py-2 border-2 rounded-full text-[10px] font-black cursor-pointer transition-all border-gray-200 text-gray-400 hover:border-gray-400`);
+                        this.className = `px-6 py-2 border-2 rounded-full text-[10px] font-black cursor-pointer transition-all border-black text-black bg-gray-100`;
                     };
                     vWrap.appendChild(div);
                 });
+            } else {
+                vWrap.innerHTML = '<span class="text-xs text-gray-400">Standard Edition</span>';
             }
+
             document.getElementById('productModal').classList.replace('hidden', 'flex');
             document.body.style.overflow = 'hidden';
         }
@@ -266,53 +478,89 @@
         function addToCartCurrent() {
             if(!currentModalProduct) return;
             cart.push({ ...currentModalProduct, variant: selectedVariant });
-            updateCartUI(); closeModal();
+            updateCartUI(); 
+            closeModal();
+            // Optional visual feedback
+            const btn = document.querySelector('button[onclick="openCartModal()"]');
+            btn.classList.add('bg-[var(--accent)]');
+            setTimeout(() => btn.classList.remove('bg-[var(--accent)]'), 300);
         }
 
         function quickAdd(id) {
             const product = products.find(p => p.id === id);
-            if(product) { cart.push({ ...product, variant: 'Default' }); updateCartUI(); }
+            if(product) { 
+                cart.push({ ...product, variant: (product.variants && product.variants[0]) || 'Standard' }); 
+                updateCartUI(); 
+            }
         }
 
         function updateCartUI() {
             document.getElementById('cart-count').innerText = cart.length;
             const btn = document.getElementById('cart-count').parentElement;
-            btn.classList.add('scale-105'); setTimeout(() => btn.classList.remove('scale-105'), 200);
+            btn.classList.add('scale-110'); setTimeout(() => btn.classList.remove('scale-110'), 200);
         }
 
         function buyNowCurrent() {
-            if(!currentModalProduct) return;
-            const msg = `Hi ${profile.store_name}, I want to buy: ${currentModalProduct.name} ($${currentModalProduct.price}). Edition: ${selectedVariant || 'Standard'}.`;
-            window.open(`https://wa.me/${profile.payment_number}?text=${encodeURIComponent(msg)}`, '_blank');
+            let msg = "";
+            let finalNumber = profile.payment_number || "919999999999";
+
+            if (cart.length > 0) {
+                // Buying cart
+                msg = `Hi ${profile.store_name}, I want to place an order:\n\n`;
+                let total = 0;
+                cart.forEach(item => {
+                    msg += `- ${item.name} (${item.variant}): $${item.price}\n`;
+                    total += item.price;
+                });
+                msg += `\nTotal: $${total}`;
+            } else if (currentModalProduct) {
+                // Direct Buy from Modal
+                msg = `Hi ${profile.store_name}, I want to buy: ${currentModalProduct.name} ($${currentModalProduct.price}).\nEdition: ${selectedVariant || 'Standard'}.`;
+            } else {
+                return; // Nothing to buy
+            }
+
+            window.open(`https://wa.me/${finalNumber}?text=${encodeURIComponent(msg)}`, '_blank');
         }
 
-        // --- MATRIX ENGINE (Using CSS Variables) ---
+        // --- MATRIX ENGINE ---
         const canvas = document.getElementById('matrix-canvas');
         const ctx = canvas.getContext('2d');
-        canvas.width = window.innerWidth;
-        canvas.height = window.innerHeight;
+        let width, height;
+
+        function resizeMatrix() {
+            width = canvas.width = window.innerWidth;
+            height = canvas.height = window.innerHeight;
+        }
+        window.addEventListener('resize', resizeMatrix);
+        resizeMatrix();
+
         const letters = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
         const fontSize = 16;
-        const columns = canvas.width / fontSize;
-        const drops = Array(Math.floor(columns)).fill(1);
+        const columns = Math.floor(width / fontSize);
+        const drops = Array(columns).fill(1);
 
         function drawMatrix() {
-            ctx.fillStyle = 'rgba(0, 0, 0, 0.05)';
-            ctx.fillRect(0, 0, canvas.width, canvas.height);
-            // READS COLOR FROM CSS VARIABLE
+            ctx.fillStyle = 'rgba(5, 5, 5, 0.05)'; // Fade out effect
+            ctx.fillRect(0, 0, width, height);
+            
             ctx.fillStyle = getAccentColor(); 
             ctx.font = fontSize + 'px monospace';
+            
             for (let i = 0; i < drops.length; i++) {
                 const text = letters[Math.floor(Math.random() * letters.length)];
                 ctx.fillText(text, i * fontSize, drops[i] * fontSize);
-                if (drops[i] * fontSize > canvas.height && Math.random() > 0.975) drops[i] = 0;
+                
+                if (drops[i] * fontSize > height && Math.random() > 0.975) {
+                    drops[i] = 0;
+                }
                 drops[i]++;
             }
         }
 
         function enterSite() {
             document.getElementById('intro-screen').classList.add('intro-hidden');
-            document.body.style.overflow = 'auto';
+            document.body.style.overflow = 'auto'; // Re-enable scroll
         }
 
         function closeModal() {
@@ -322,24 +570,40 @@
 
         function advancedFilter(category, element) {
             document.querySelectorAll('.category-card').forEach(card => {
-                card.classList.remove('active'); card.classList.add('opacity-50');
-                // Ensure text returns to grey when inactive
-                card.querySelector('h4').style.color = ''; 
-                card.querySelector('h4').style.color = 'var(--text-secondary)'; 
+                card.classList.remove('active'); 
+                card.classList.add('opacity-50');
+                const title = card.querySelector('h4');
+                if(title) {
+                   title.classList.remove('accent-text');
+                   title.classList.add('text-gray-500');
+                }
             });
-            element.classList.add('active'); element.classList.remove('opacity-50');
-            // Element color is handled by CSS classes now
+            
+            element.classList.add('active'); 
+            element.classList.remove('opacity-50');
+            const activeTitle = element.querySelector('h4');
+            if(activeTitle) {
+                activeTitle.classList.remove('text-gray-500');
+                activeTitle.classList.add('accent-text');
+            }
             
             document.querySelectorAll('.product-card').forEach(card => {
                 const type = card.dataset.type ? card.dataset.type.toLowerCase() : 'general';
-                if (category === 'all' || type.includes(category)) card.style.display = 'block';
-                else card.style.display = 'none';
+                if (category === 'all' || type.includes(category)) {
+                    card.style.display = 'block';
+                    card.style.animation = 'none';
+                    card.offsetHeight; /* trigger reflow */
+                    card.style.animation = 'fadeUp 0.5s ease-out forwards';
+                } else {
+                    card.style.display = 'none';
+                }
             });
         }
         
         function openCartModal() {
             if(cart.length === 0) { alert("Your cart is empty."); return; }
-            buyNowCurrent(); // Simplified flow
+            // For this demo, clicking cart triggers checkout immediately
+            buyNowCurrent(); 
         }
     </script>
 </body>
