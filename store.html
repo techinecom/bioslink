@@ -2,638 +2,344 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>Urban Ultra | Flagship Store</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>JINIHOME | Storefront</title>
     
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-    <link href="https://fonts.googleapis.com/css2?family=Syncopate:wght@400;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.tailwindcss.com"></script>
     
-    <script src="https://unpkg.com/@phosphor-icons/web"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;600;800&family=Outfit:wght@300;400;700&display=swap" rel="stylesheet">
+    
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
-    <style>
-        /* =========================================
-           1. CORE VARIABLES & THEME
-           ========================================= */
-        :root {
-            --primary: #DFFF00; /* Acid Green */
-            --primary-glow: rgba(223, 255, 0, 0.4);
-            --dark: #050505;
-            --surface: #121212;
-            --text-main: #FFFFFF;
-            --text-muted: #888888;
-            --border: rgba(255,255,255,0.1);
-            
-            --max-w: 480px;
-            --ease-out: cubic-bezier(0.23, 1, 0.32, 1);
-            --font-main: 'Plus Jakarta Sans', sans-serif;
-            --font-head: 'Syncopate', sans-serif;
-            
-            --bg-top: #000000;
-            --bg-bottom: #FFFFFF;
-        }
-
-        /* RESET */
-        * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; outline: none; }
-        
-        body {
-            font-family: var(--font-main);
-            background-color: var(--dark);
-            color: var(--text-main);
-            min-height: 100vh;
-            overflow-y: auto; 
-            display: flex; justify-content: center;
-        }
-
-        .hide-scroll::-webkit-scrollbar { display: none; }
-        .hide-scroll { -ms-overflow-style: none; scrollbar-width: none; }
-
-        /* =========================================
-           2. INTRO LAYER
-           ========================================= */
-        #intro-layer {
-            position: fixed; inset: 0; background: #000; z-index: 9999;
-            display: flex; justify-content: center; align-items: center;
-            transition: opacity 0.8s var(--ease-out);
-        }
-        .intro-card { text-align: center; border: 1px solid var(--primary); padding: 50px; border-radius: 40px; box-shadow: 0 0 30px var(--primary-glow); }
-        .brand-logo { font-family: var(--font-head); font-weight: 700; font-size: 2.2rem; color: #fff; text-transform: uppercase; margin-bottom: 20px;}
-        .enter-btn { background: var(--primary); color: #000; padding: 16px 40px; border-radius: 100px; border: none; font-weight: 800; cursor: pointer; text-transform: uppercase; letter-spacing: 1px; }
-
-        /* =========================================
-           3. MAIN APP LAYER
-           ========================================= */
-        #app-layer { opacity: 0; pointer-events: none; transition: opacity 0.8s ease; width: 100%; display: flex; justify-content: center; }
-        .mobile-shell { width: 100%; max-width: var(--max-w); min-height: 100vh; background: var(--bg-bottom); position: relative; padding-bottom: 80px; }
-
-        /* Zones */
-        .zone-top { background-color: var(--bg-top); padding-bottom: 30px; border-bottom-left-radius: 40px; border-bottom-right-radius: 40px; box-shadow: 0 10px 30px rgba(0,0,0,0.5); position: relative; z-index: 2; }
-        .zone-bottom { background-color: var(--bg-bottom); padding-top: 30px; min-height: 50vh; position: relative; z-index: 1; }
-        .zone-bottom h3 { color: #000; }
-
-        /* Header */
-        .app-header { position: sticky; top: 0; z-index: 100; background: rgba(0, 0, 0, 0.9); backdrop-filter: blur(20px); padding: 20px 24px; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--border); }
-        .logo-sm { font-family: var(--font-head); font-weight: 700; color: #fff; }
-        
-        /* Cart Badge */
-        .bag-wrap { position: relative; cursor: pointer; }
-        .cart-badge { 
-            position: absolute; top: -5px; right: -8px; background: var(--primary); color: #000; 
-            font-size: 0.7rem; font-weight: 800; width: 18px; height: 18px; border-radius: 50%; 
-            display: flex; align-items: center; justify-content: center; 
-            opacity: 0; transform: scale(0); transition: 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-        }
-        .cart-badge.show { opacity: 1; transform: scale(1); }
-
-        /* Hero Banner */
-        .hero-banner { margin: 24px; height: 240px; border-radius: 32px; position: relative; overflow: hidden; display: flex; align-items: center; padding: 30px; background: #000; border: 1px solid var(--border); }
-        .hero-bg { position: absolute; inset: 0; background: url('https://images.unsplash.com/photo-1600609842360-12863925e0c5?auto=format&fit=crop&w=800&q=80') center/cover; opacity: 0.5; transition: 0.5s; filter: grayscale(100%); }
-        .hero-text { position: relative; z-index: 2; }
-        .hero-text h2 { font-size: 2rem; font-family: var(--font-head); color: var(--primary); text-transform: uppercase; }
-
-        /* =========================================
-           4. CATEGORIES (WITH SCROLL BUTTONS)
-           ========================================= */
-        .section-head { padding: 0 24px 15px; display: flex; justify-content: space-between; align-items: flex-end; }
-        .section-head h3 { font-size: 1.3rem; font-weight: 800; color: #fff; font-family: var(--font-head); }
-
-        .cat-scroll-wrapper { position: relative; width: 100%; display: flex; align-items: center; }
-        
-        .cat-horizontal-scroll {
-            display: flex; flex-direction: row; flex-wrap: nowrap !important;
-            gap: 20px; overflow-x: auto; padding: 10px 24px 30px;
-            scroll-snap-type: x mandatory; scroll-behavior: smooth; width: 100%;
-        }
-
-        .nav-btn-circle {
-            position: absolute; width: 40px; height: 40px; background: rgba(20,20,20,0.8);
-            backdrop-filter: blur(10px); border: 1px solid var(--border); border-radius: 50%;
-            color: #fff; display: flex; align-items: center; justify-content: center;
-            z-index: 10; cursor: pointer; transition: 0.3s;
-            box-shadow: 0 5px 15px rgba(0,0,0,0.5);
-        }
-        .nav-btn-circle:hover { background: var(--primary); color: #000; }
-        .btn-left { left: 10px; }
-        .btn-right { right: 10px; }
-
-        .cat-item-round { flex: 0 0 auto; width: 100px; display: flex; flex-direction: column; align-items: center; gap: 12px; cursor: pointer; scroll-snap-align: center; }
-        .cat-circle-img { width: 90px; height: 90px; border-radius: 50%; overflow: hidden; border: 2px solid rgba(255,255,255,0.1); background: #222; }
-        .cat-circle-img img { width: 100%; height: 100%; object-fit: cover; }
-        .cat-item-round.active .cat-circle-img { border-color: var(--primary); box-shadow: 0 0 20px var(--primary-glow); }
-        .cat-name-below { font-size: 0.75rem; font-weight: 700; color: #888; text-transform: uppercase; }
-
-        /* =========================================
-           5. PRODUCT GRID
-           ========================================= */
-        .prod-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; padding: 0 24px 40px; }
-        .prod-card { background: #181818; border-radius: 28px; padding: 12px; cursor: pointer; transition: 0.3s; border: 1px solid transparent; }
-        .prod-card:hover { border-color: var(--primary); transform: translateY(-5px); }
-        .prod-img-box { width: 100%; aspect-ratio: 1/1.1; background: #151515; border-radius: 20px; overflow: hidden; margin-bottom: 15px; position: relative; }
-        .prod-img { width: 100%; height: 100%; object-fit: cover; }
-        .prod-title { font-size: 0.95rem; font-weight: 700; color: #fff; margin-bottom: 6px; }
-        .prod-price { font-size: 1rem; font-weight: 600; color: var(--primary); font-family: var(--font-head); }
-        .empty-state { grid-column: span 2; text-align: center; padding: 50px 20px; color: #666; }
-
-        /* =========================================
-           6. OVERLAYS (DETAILS & CART)
-           ========================================= */
-        .overlay-view { position: fixed; inset: 0; z-index: 200; pointer-events: none; visibility: hidden; display: flex; flex-direction: column; justify-content: flex-end; }
-        .overlay-view.active { pointer-events: all; visibility: visible; }
-        .overlay-backdrop { position: absolute; inset: 0; background: rgba(0,0,0,0.8); backdrop-filter: blur(8px); opacity: 0; transition: 0.5s; }
-        .overlay-view.active .overlay-backdrop { opacity: 1; }
-        .overlay-card { background: #181818; width: 100%; height: 90vh; border-top-left-radius: 40px; border-top-right-radius: 40px; position: relative; transform: translateY(110%); transition: transform 0.5s var(--ease-out); display: flex; flex-direction: column; box-shadow: 0 -20px 50px rgba(0,0,0,0.8); }
-        .overlay-view.active .overlay-card { transform: translateY(0); }
-        .close-btn { position: absolute; top: 20px; right: 20px; z-index: 50; width: 40px; height: 40px; border-radius: 50%; background: rgba(0,0,0,0.5); color: #fff; display: flex; align-items: center; justify-content: center; cursor: pointer; border: 1px solid rgba(255,255,255,0.2); }
-
-        /* Gallery */
-        .gallery-wrap { height: 45%; position: relative; width: 100%; flex-shrink: 0; }
-        .gallery-scroll { width: 100%; height: 100%; display: flex; overflow-x: auto; scroll-snap-type: x mandatory; scroll-behavior: smooth; }
-        .g-item { min-width: 100%; height: 100%; scroll-snap-align: center; position: relative; }
-        .g-img { width: 100%; height: 100%; object-fit: cover; border-top-left-radius: 40px; border-top-right-radius: 40px; }
-        .gal-btn { position: absolute; top: 50%; transform: translateY(-50%); width: 44px; height: 44px; background: rgba(0,0,0,0.6); border-radius: 50%; color: #fff; display: flex; align-items: center; justify-content: center; border: 1px solid rgba(255,255,255,0.2); cursor: pointer; z-index: 20; transition: 0.2s; }
-        .gal-btn:active { transform: translateY(-50%) scale(0.9); }
-        .gal-prev { left: 20px; }
-        .gal-next { right: 20px; }
-
-        /* Details Content */
-        .details-content { flex: 1; padding: 30px 24px; overflow-y: auto; color: #fff; }
-        .d-title { font-size: 1.6rem; font-family: var(--font-head); font-weight: 700; text-transform: uppercase; }
-        .d-price { font-size: 1.5rem; color: var(--primary); font-weight: 700; font-family: var(--font-head); margin-top: 10px; }
-        .d-desc { color: #aaa; margin-top: 20px; line-height: 1.6; font-size: 0.9rem; }
-        .d-footer { padding: 20px 24px 40px; border-top: 1px solid var(--border); display: flex; gap: 15px; background: #181818; }
-        
-        .btn-primary-action { flex: 1; padding: 18px; border-radius: 100px; border: none; background: var(--primary); color: #000; font-weight: 800; cursor: pointer; text-transform: uppercase; letter-spacing: 1px; }
-        .btn-primary-action:active { transform: scale(0.95); }
-
-        /* CART SPECIFIC */
-        .cart-title { font-size: 2rem; font-family: var(--font-head); font-weight: 700; padding: 30px 24px 10px; color: #fff; }
-        .cart-items-wrap { flex: 1; overflow-y: auto; padding: 0 24px; }
-        .cart-item { display: flex; justify-content: space-between; align-items: center; padding: 20px 0; border-bottom: 1px solid var(--border); }
-        .ci-info h4 { font-size: 1rem; color: #fff; margin-bottom: 5px; }
-        .ci-info p { color: #666; font-size: 0.8rem; }
-        .ci-right { text-align: right; display: flex; flex-direction: column; align-items: flex-end; gap: 10px; }
-        .ci-price { color: var(--primary); font-family: var(--font-head); font-weight: 700; }
-        .ci-remove { color: #ff4444; font-size: 0.8rem; cursor: pointer; display: flex; align-items: center; gap: 4px; }
-        .cart-total-bar { display: flex; justify-content: space-between; padding: 20px 24px; font-size: 1.2rem; font-weight: 700; color: #fff; }
-
-        /* Toast Notification */
-        #toast { 
-            position: fixed; top: 100px; left: 50%; transform: translateX(-50%) translateY(-20px); 
-            background: rgba(255,255,255,0.9); color: #000; padding: 12px 24px; 
-            border-radius: 50px; font-weight: 600; opacity: 0; pointer-events: none; 
-            transition: 0.3s; z-index: 300; box-shadow: 0 10px 30px rgba(0,0,0,0.5);
-            display: flex; align-items: center; gap: 8px;
-        }
-        #toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
-
-        /* Nav Bar */
-        .nav-bar { position: fixed; bottom: 30px; left: 50%; transform: translateX(-50%); width: calc(100% - 48px); max-width: 400px; height: 70px; background: rgba(20, 20, 20, 0.9); backdrop-filter: blur(20px); border: 1px solid rgba(255,255,255,0.15); border-radius: 24px; display: flex; justify-content: space-evenly; align-items: center; z-index: 90; }
-        .nav-item { color: #888; font-size: 1.6rem; cursor: pointer; }
-        .nav-item.active { color: var(--primary); }
-
-        /* Desktop Adjustments */
-        @media (min-width: 768px) {
-            :root { --max-w: 100%; }
-            .mobile-shell { max-width: 100%; border: none; }
-            .zone-top, .zone-bottom { padding-left: 50px; padding-right: 50px; }
-            .prod-grid { grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); }
-            .overlay-card { width: 800px; height: 600px; margin: auto; border-radius: 30px; top: 50%; transform: translateY(-50%); position: absolute; }
-            .overlay-view { align-items: center; justify-content: center; }
-            .overlay-view.active .overlay-card { transform: translateY(-50%); }
-            
-            /* Split layout for details */
-            #product-view .gallery-wrap { height: 100%; width: 50%; float: left; }
-            #product-view .details-content { height: 100%; width: 50%; float: left; padding-bottom: 100px; }
-            #product-view .d-footer { position: absolute; bottom: 0; right: 0; width: 50%; border-top: none; }
-            .g-img { border-radius: 0; }
-        }
-    </style>
+    <link rel="stylesheet" href="style.css">
 </head>
-<body>
+<body class="antialiased">
 
-    <div id="toast"><i class="ph-fill ph-check-circle" style="color:green;"></i> Added to Bag</div>
-
-    <div id="intro-layer">
-        <div class="intro-card">
-            <div class="brand-logo" id="intro-brand">Urban<br>Ultra</div>
-            <p style="color:#888; margin-bottom:30px; font-size:0.8rem;">OFFICIAL STOREFRONT</p>
-            <button class="enter-btn" onclick="enterApp()">Enter Experience</button>
-        </div>
-    </div>
-
-    <div id="app-layer">
-        <div class="mobile-shell hide-scroll">
-            
-            <div class="zone-top">
-                <header class="app-header">
-                    <div class="logo-sm" id="header-brand">U / ULTRA</div>
-                    <div class="bag-wrap" onclick="openCart()">
-                        <i class="ph ph-bag" style="color:#fff; font-size:1.5rem;"></i>
-                        <div class="cart-badge" id="cart-count">0</div>
-                    </div>
-                </header>
-
-                <div class="hero-banner">
-                    <div class="hero-bg"></div>
-                    <div class="hero-text">
-                        <h2>New<br>Collection</h2>
-                        <p style="color:#fff; opacity:0.8;">2026 Arrivals</p>
-                    </div>
-                </div>
-
-                <div class="section-head">
-                    <h3>Collections</h3>
-                </div>
-                
-                <div class="cat-scroll-wrapper">
-                    <div class="nav-btn-circle btn-left" onclick="scrollCats(-150)"><i class="ph-bold ph-caret-left"></i></div>
-                    <div class="cat-horizontal-scroll hide-scroll" id="cat-container"></div>
-                    <div class="nav-btn-circle btn-right" onclick="scrollCats(150)"><i class="ph-bold ph-caret-right"></i></div>
-                </div>
-            </div>
-
-            <div class="zone-bottom">
-                <div class="section-head">
-                    <h3>Trending Now</h3>
-                </div>
-                
-                <div class="prod-grid" id="product-grid">
-                    <div class="empty-state">
-                        <i class="ph ph-spinner" style="font-size:2rem; animation: spin 1s infinite;"></i>
-                        <p style="margin-top:10px;">Loading Products...</p>
+    <div id="intro-screen">
+        <canvas id="matrix-canvas"></canvas>
+        <div class="relative z-10 flex flex-col lg:flex-row items-center gap-16 max-w-6xl px-8">
+            <div class="intro-3d-card w-72 h-[420px] hidden lg:block">
+                <div class="card-inner w-full h-full gradient-bg rounded-[3rem] p-1 shadow-glow">
+                    <div class="w-full h-full bg-black rounded-[2.8rem] flex flex-col items-center justify-center p-8 text-center border border-white/10">
+                        <div class="w-20 h-20 accent-bg rounded-full mb-6 flex items-center justify-center font-black text-4xl italic text-white">J</div>
+                        <h2 class="text-white text-3xl font-black italic tracking-tighter" id="intro-store-name">JINIHOME</h2>
+                        <p class="text-gray-500 text-[10px] uppercase tracking-[0.4em] mt-2">Bengaluru Series '26</p>
                     </div>
                 </div>
             </div>
-        </div>
 
-        <nav class="nav-bar">
-            <div class="nav-item active"><i class="ph-fill ph-house"></i></div>
-            <div class="nav-item"><i class="ph ph-magnifying-glass"></i></div>
-            <div class="nav-item" onclick="openCart()"><i class="ph ph-shopping-cart"></i></div>
-        </nav>
-    </div>
-
-    <div id="product-view" class="overlay-view">
-        <div class="overlay-backdrop" onclick="closeOverlay('product-view')"></div>
-        <div class="overlay-card">
-            <div class="close-btn" onclick="closeOverlay('product-view')"><i class="ph-bold ph-x"></i></div>
-            
-            <div class="gallery-wrap">
-                <div class="gal-btn gal-prev" onclick="scrollGallery(-1)"><i class="ph-bold ph-caret-left"></i></div>
-                <div class="gallery-scroll hide-scroll" id="gallery-scroller"></div>
-                <div class="gal-btn gal-next" onclick="scrollGallery(1)"><i class="ph-bold ph-caret-right"></i></div>
-            </div>
-
-            <div class="details-content">
-                <div class="d-title" id="d-title">Product Name</div>
-                <div class="d-price" id="d-price">$0.00</div>
-                <p class="d-desc" id="d-desc">Description...</p>
-                
-                <div style="margin-top:30px;">
-                    <div style="font-weight:700; font-size:0.8rem; text-transform:uppercase; color:#888; margin-bottom:10px;">Select Size</div>
-                    <div style="display:flex; gap:10px;">
-                        <div style="border:1px solid #444; padding:8px 15px; border-radius:8px; cursor:pointer;">S</div>
-                        <div style="border:1px solid #fff; padding:8px 15px; border-radius:8px; cursor:pointer; background:#fff; color:#000;">M</div>
-                        <div style="border:1px solid #444; padding:8px 15px; border-radius:8px; cursor:pointer;">L</div>
-                    </div>
+            <div class="text-center lg:text-left text-white space-y-8">
+                <h1 class="text-5xl md:text-8xl font-black tracking-tighter leading-[0.9] mb-4" id="intro-hero-title">Architecture<br>Of <span class="accent-text">Style.</span></h1>
+                <p class="text-gray-400 text-sm md:text-lg max-w-lg leading-relaxed" id="intro-subtitle">
+                    Premium footwear and precision horology. Connecting local excellence with modern design.
+                </p>
+                <div class="pt-4">
+                    <button onclick="enterSite()" class="bg-white text-black px-12 py-5 rounded-full font-black text-xs uppercase tracking-[0.2em] hover-accent transition-all duration-500 shadow-2xl active:scale-95">
+                        Enter Showroom
+                    </button>
                 </div>
-            </div>
-            
-            <div class="d-footer">
-                <button class="btn-primary-action" id="add-btn">Add to Bag</button>
+                <p class="text-[9px] text-gray-600 uppercase tracking-widest pt-4">Indiranagar • Bangalore • 2026</p>
             </div>
         </div>
     </div>
 
-    <div id="cart-view" class="overlay-view">
-        <div class="overlay-backdrop" onclick="closeOverlay('cart-view')"></div>
-        <div class="overlay-card">
-            <div class="close-btn" onclick="closeOverlay('cart-view')"><i class="ph-bold ph-x"></i></div>
-            
-            <div class="cart-title">Your Bag</div>
-            
-            <div class="cart-items-wrap hide-scroll" id="cart-items-container">
+    <div id="main-wrapper">
+        
+        <header class="header-bg text-white pt-48 pb-32 border-b-radius-lg overflow-hidden rounded-b-[100px]">
+            <nav class="fixed top-0 w-full z-50 py-6 px-8 md:px-12 bg-black/50 backdrop-blur-2xl border-b border-white/5">
+                <div class="max-w-[1600px] mx-auto flex justify-between items-center">
+                    <div class="text-3xl font-black tracking-tighter italic cursor-pointer" onclick="window.scrollTo({top:0, behavior:'smooth'})">
+                        <span class="accent-text">.</span><span id="nav-store-name">JINIHOME</span>
+                    </div>
+                    <button class="flex items-center gap-4 bg-white/5 border border-white/10 px-8 py-3 rounded-full hover:bg-white/10 transition-all" onclick="openCartModal()">
+                        <span class="text-[10px] font-bold uppercase tracking-widest text-gray-400">Cart</span>
+                        <div id="cart-count" class="w-6 h-6 accent-bg text-[10px] flex items-center justify-center rounded-full text-white font-black">0</div>
+                    </button>
                 </div>
-            
-            <div class="cart-total-bar">
-                <span>Total</span>
-                <span id="cart-total">$0.00</span>
+            </nav>
+
+            <div class="max-w-[1500px] mx-auto px-8 grid md:grid-cols-2 gap-20 items-center">
+                <div class="space-y-10">
+                    <h1 class="hero-title text-6xl md:text-9xl font-black leading-[0.85] tracking-tighter" id="main-hero-text">Style in<br><span class="accent-text">Motion.</span></h1>
+                    <p class="text-gray-400 text-xl font-light max-w-md" id="main-sub-text">The pinnacle of digital shopping. Curated fashion drops from Bengaluru's elite boutiques.</p>
+                </div>
+                <div class="relative group">
+                    <div class="absolute -inset-4 accent-blur opacity-50"></div>
+                    <img id="hero-image" src="https://images.unsplash.com/photo-1542291026-7eec264c27ff?auto=format&fit=crop&q=80&w=1200" class="relative rounded-[4rem] shadow-2xl rotate-2 group-hover:rotate-0 transition-all duration-1000">
+                </div>
             </div>
+        </header>
+
+        <section class="py-24 px-8">
+            <div class="flex justify-center gap-8 md:gap-16 flex-wrap" id="categoryBox">
+                <div class="category-card active group cursor-pointer text-center" onclick="advancedFilter('all', this)">
+                    <div class="relative w-40 h-40 md:w-48 md:h-48 mx-auto mb-4">
+                        <div class="orbit-ring"></div>
+                        <div class="w-full h-full rounded-full bg-black flex items-center justify-center border-4 border-white text-white font-bold text-xs shadow-2xl">ALL</div>
+                    </div>
+                    <h4 class="text-[10px] font-black tracking-widest accent-text uppercase">Showroom</h4>
+                </div>
+            </div>
+        </section>
+
+        <section class="pb-40 px-8">
+            <div id="productGrid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-12 md:gap-16 max-w-[1500px] mx-auto min-h-[500px]">
+                <div class="col-span-full text-center text-gray-400 py-20 flex flex-col items-center">
+                    <div class="w-8 h-8 border-4 border-accent border-t-transparent rounded-full animate-spin mb-4"></div>
+                    Loading Collection...
+                </div>
+            </div>
+        </section>
+    </div>
+
+    <footer class="px-8 md:px-20">
+        <div class="max-w-[1500px] mx-auto w-full grid md:grid-cols-3 gap-20">
+            <div class="space-y-8">
+                <h2 class="text-5xl font-black italic accent-text" id="footer-store-name">JINIHOME.</h2>
+                <p class="text-gray-500 text-sm leading-relaxed">Elevating lifestyle through curated excellence.</p>
+            </div>
+            <div class="grid grid-cols-2 gap-10">
+                <div class="space-y-6">
+                    <h5 class="accent-text font-bold uppercase text-xs tracking-widest">Shop</h5>
+                    <ul class="space-y-4 text-gray-400 text-sm">
+                        <li class="hover:text-white cursor-pointer transition-colors">New Arrivals</li>
+                        <li class="hover:text-white cursor-pointer transition-colors">Best Sellers</li>
+                    </ul>
+                </div>
+                <div class="space-y-6">
+                    <h5 class="accent-text font-bold uppercase text-xs tracking-widest">Support</h5>
+                    <ul class="space-y-4 text-gray-400 text-sm">
+                        <li class="hover:text-white cursor-pointer transition-colors">Shipping</li>
+                    </ul>
+                </div>
+            </div>
+            <div class="space-y-8">
+                <h5 class="text-white font-bold uppercase text-xs tracking-widest">Newsletter</h5>
+                <div class="flex border-b border-gray-800 pb-3">
+                    <input type="text" placeholder="Your Email" class="bg-transparent text-sm w-full outline-none text-white">
+                    <button class="accent-text font-black text-xs uppercase">Join</button>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <div id="productModal" class="fixed inset-0 z-[100] hidden items-center justify-center p-6 bg-black/90 backdrop-blur-md">
+        <div class="bg-white rounded-[4rem] max-w-5xl w-full max-h-[90vh] overflow-hidden relative shadow-2xl flex flex-col lg:flex-row">
+            <button onclick="closeModal()" class="absolute top-8 right-8 z-10 bg-black/5 hover:bg-black/10 p-4 rounded-full transition-all">
+                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+            </button>
             
-            <div class="d-footer">
-                <button class="btn-primary-action" onclick="checkout()">Checkout</button>
+            <div class="lg:w-1/2 p-8 bg-gray-50 flex flex-col justify-center items-center">
+                <img id="modalImgMain" class="w-full aspect-square object-cover rounded-[3rem] shadow-lg mb-8" src="">
+                <div class="flex gap-4 overflow-x-auto scrollbar-hide" id="modalThumbnails"></div>
+            </div>
+
+            <div class="lg:w-1/2 p-12 flex flex-col justify-center">
+                <span class="accent-text font-bold uppercase text-[10px] tracking-[0.4em] mb-4">Official Release</span>
+                <h2 id="modalTitle" class="text-5xl font-black mb-2 tracking-tighter text-black">Product</h2>
+                <p id="modalPrice" class="text-3xl font-black accent-text mb-8">$00</p>
+                <p id="modalDesc" class="text-gray-500 leading-relaxed mb-10 text-sm">Desc</p>
+                
+                <div class="mb-12">
+                    <h5 class="text-[10px] font-black uppercase tracking-widest mb-6 text-gray-400">Select Edition</h5>
+                    <div class="flex gap-4 flex-wrap" id="variantWrapper"></div>
+                </div>
+
+                <div class="grid grid-cols-2 gap-4">
+                    <button onclick="addToCartCurrent()" class="py-5 bg-black text-white rounded-2xl font-black text-[10px] uppercase tracking-widest hover:bg-gray-800 transition-all">Add to Bag</button>
+                    <button onclick="buyNowCurrent()" class="py-5 accent-bg text-white rounded-2xl font-black text-[10px] uppercase tracking-widest shadow-xl shadow-glow">Buy Now</button>
+                </div>
             </div>
         </div>
     </div>
 
     <script>
-        // ===========================================
-        // SUPABASE CONFIGURATION
-        // ===========================================
+        // --- CONFIG ---
         const SUPABASE_URL = 'https://rujozgysdnaxlpqadqff.supabase.co';
-        // Use the Anon Key provided in your previous steps
         const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InJ1am96Z3lzZG5heGxwcWFkcWZmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Njk0OTY1MTUsImV4cCI6MjA4NTA3MjUxNX0.zi4FwC0xfq0brTrYs3i18rwO3hbFeVhDBq6TpLQCyVs';
         const _supabase = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+        let products = [], cart = [], currentModalProduct = null, selectedVariant = null, profile = null;
 
-        const CART_KEY = 'urban_store_cart';
-        
-        let products = [];
-        let cart = [];
-        let categories = [];
-        let currentProfile = null;
+        // --- INIT ---
+        window.onload = async function() {
+            setInterval(drawMatrix, 35);
+            document.body.style.overflow = 'hidden';
+            await loadStoreData();
+        };
 
-        // ===========================================
-        // INITIALIZATION
-        // ===========================================
-        function enterApp() {
-            document.getElementById('intro-layer').style.opacity = '0';
-            setTimeout(() => {
-                document.getElementById('intro-layer').style.display = 'none';
-                document.getElementById('app-layer').style.opacity = '1';
-                document.getElementById('app-layer').style.pointerEvents = 'all';
-                // Note: We already call loadData on window.onload now
-            }, 800);
+        // --- HELPER TO GET THEME COLOR ---
+        function getAccentColor() {
+            return getComputedStyle(document.documentElement).getPropertyValue('--accent').trim();
         }
 
-        // Run immediately on page load to fetch data
-        window.onload = loadData;
-
-        async function loadData() {
-            // 1. Get the Slug (e.g., "rahul-shoes")
-            // We strip the leading "/"
-            let slug = window.location.pathname.substring(1);
-            
-            // If empty or "store.html", we might be in dev mode or root.
-            // You can hardcode a slug here for testing if you want, e.g. slug = 'my-shop';
-            if(!slug || slug === 'store.html') {
-                console.log("No slug found, waiting for user...");
-                // Ideally, show an error or a "Create Store" button here
-                // For now, we return so it doesn't crash
-                // return; 
-            }
-
-            // 2. Fetch Profile from Supabase
-            const { data: profile, error } = await _supabase
-                .from('profiles')
-                .select('*')
-                .eq('store_slug', slug)
-                .single();
-
-            if (error || !profile) {
-                // If store not found, show empty state
-                document.getElementById('intro-brand').innerHTML = "Store<br>Not Found";
-                showEmptyStore();
-                return;
-            }
-
-            currentProfile = profile;
-            
-            // 3. Apply Branding
-            document.title = `${profile.store_name} | BiosSTORE`;
-            document.getElementById('intro-brand').innerHTML = profile.store_name.replace(" ", "<br>");
-            document.getElementById('header-brand').innerText = profile.store_name.toUpperCase();
-            
-            // Optional: Set primary color if you stored it in profile
-            // if(profile.theme_color) {
-            //     document.documentElement.style.setProperty('--primary', profile.theme_color);
-            // }
-
-            // 4. Fetch Products for this User
-            const { data: dbProducts } = await _supabase
-                .from('products')
-                .select('*')
-                .eq('user_id', profile.id);
-
-            // Map DB structure to UI structure if needed, or use directly
-            // Our UI expects: id, name, price, image (string), category, description, images (array)
-            if (dbProducts) {
-                products = dbProducts.map(p => ({
-                    id: p.id,
-                    name: p.name,
-                    price: p.price,
-                    category: p.category,
-                    description: p.description,
-                    // Handle image array vs string logic
-                    image: (p.images && p.images.length > 0) ? p.images[0] : 'https://placehold.co/400',
-                    images: (p.images && p.images.length > 0) ? p.images : ['https://placehold.co/400']
-                }));
-            }
-
-            // 5. Initialize Cart (Local Session)
-            const cartData = localStorage.getItem(CART_KEY);
-            if (cartData) {
-                cart = JSON.parse(cartData);
-            }
-
-            updateStoreUI();
-            updateCartUI();
-        }
-
-        function showEmptyStore() {
-            document.getElementById('product-grid').innerHTML = `
-                <div class="empty-state">
-                    <i class="ph ph-warning-circle" style="font-size:2rem; color: #ccc;"></i>
-                    <p style="margin-top:10px;">Store not found or empty.</p>
-                </div>
-            `;
-            document.getElementById('cat-container').innerHTML = '<div style="color:#666; font-size:0.8rem; padding:10px;">-</div>';
-        }
-
-        // ===========================================
-        // STORE LOGIC
-        // ===========================================
-        function updateStoreUI() {
-            // 1. Categories
-            if (products.length > 0) {
-                const rawCats = products.map(p => p.category);
-                categories = ['All', ...new Set(rawCats)];
-                renderCategories();
-                renderProducts(products);
+        // --- DATA LOGIC ---
+        async function loadStoreData() {
+            let slug = window.location.pathname.replace('/', '').replace('.html', ''); 
+            if(!slug || slug.length === 0) {
+                 const { data } = await _supabase.from('profiles').select('*').eq('is_published', true).limit(1);
+                 if(data && data.length > 0) profile = data[0];
             } else {
-                showEmptyStore();
+                 const { data } = await _supabase.from('profiles').select('*').eq('store_slug', slug).single();
+                 profile = data;
             }
+
+            if(!profile) return;
+            updateBranding(profile);
+
+            const { data: dbProducts } = await _supabase.from('products').select('*').eq('user_id', profile.id).order('created_at', { ascending: false });
+            if(dbProducts) { products = dbProducts; renderProducts(products); }
         }
 
-        function renderCategories() {
-            const container = document.getElementById('cat-container');
-            const defaultImg = 'https://images.unsplash.com/photo-1552346154-21d32810aba3?auto=format&fit=crop&w=150';
-            
-            if(categories.length === 1 && categories[0] === 'All' && products.length === 0) return;
-
-            container.innerHTML = categories.map(cat => {
-                const productInCat = products.find(p => p.category === cat);
-                const img = (cat === 'All' && products.length > 0) ? products[0].image : (productInCat ? productInCat.image : defaultImg);
-                
-                return `
-                    <div class="cat-item-round ${cat === 'All' ? 'active' : ''}" onclick="filterProducts('${cat}', this)">
-                        <div class="cat-circle-img">
-                            <img src="${img}" onerror="this.src='${defaultImg}'">
-                        </div>
-                        <div class="cat-name-below">${cat}</div>
-                    </div>
-                `;
-            }).join('');
+        function updateBranding(profile) {
+            if(profile.store_name) {
+                document.getElementById('intro-store-name').innerText = profile.store_name;
+                document.getElementById('nav-store-name').innerText = profile.store_name;
+                document.getElementById('footer-store-name').innerText = profile.store_name + ".";
+            }
+            if(profile.hero_title) {
+                const titleHtml = profile.hero_title.replace(/\n/g, '<br>');
+                document.getElementById('intro-hero-title').innerHTML = titleHtml;
+                document.getElementById('main-hero-text').innerHTML = titleHtml;
+            }
+            if(profile.hero_subtitle) {
+                document.getElementById('intro-subtitle').innerText = profile.hero_subtitle;
+                document.getElementById('main-sub-text').innerText = profile.hero_subtitle;
+            }
+            if(profile.header_url) document.getElementById('hero-image').src = profile.header_url;
         }
 
         function renderProducts(list) {
-            const grid = document.getElementById('product-grid');
-            if(list.length === 0 && products.length > 0) {
-                grid.innerHTML = '<div class="empty-state">No products found in this category.</div>';
-                return;
-            } else if (products.length === 0) {
-                return; // Already showed empty state in loadData
-            }
+            const grid = document.getElementById('productGrid');
+            if(list.length === 0) { grid.innerHTML = '<div>No products found.</div>'; return; }
 
-            grid.innerHTML = list.map(p => `
-                <div class="prod-card" onclick="openProduct('${p.id}')">
-                    <div class="prod-img-box">
-                        <img src="${p.image}" class="prod-img" loading="lazy">
+            grid.innerHTML = list.map(product => {
+                const img = (product.images && product.images.length > 0) ? product.images[0] : 'https://placehold.co/600';
+                return `
+                <div class="product-card" data-type="${product.category || 'general'}">
+                    <div class="product-shell cursor-pointer" onclick='openModalWrapper(${JSON.stringify(product).replace(/'/g, "&#39;")})'>
+                        <div class="aspect-square rounded-[3rem] overflow-hidden bg-[#F9F9F9] mb-8 group">
+                            <img src="${img}" class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700">
+                        </div>
+                        <div class="flex justify-between items-center px-4 mb-6">
+                            <h4 class="text-2xl font-bold truncate pr-4 text-black">${product.name}</h4>
+                            <p class="text-xl font-black accent-text">$${product.price}</p>
+                        </div>
+                        <button onclick="event.stopPropagation(); quickAdd(${product.id})" class="w-full py-5 bg-black text-white rounded-[2rem] font-bold text-[10px] uppercase tracking-widest hover-accent transition-all">Add To Bag</button>
                     </div>
-                    <div class="prod-title">${p.name}</div>
-                    <div class="prod-price">₹${p.price}</div>
-                </div>
+                </div>`;
+            }).join('');
+        }
+
+        function openModalWrapper(product) {
+            currentModalProduct = product;
+            selectedVariant = (product.variants && product.variants.length > 0) ? product.variants[0] : null;
+
+            document.getElementById('modalTitle').innerText = product.name;
+            document.getElementById('modalPrice').innerText = '$' + product.price;
+            document.getElementById('modalDesc').innerText = product.description;
+            document.getElementById('modalImgMain').src = (product.images && product.images.length > 0) ? product.images[0] : 'https://placehold.co/600';
+
+            const thumbContainer = document.getElementById('modalThumbnails');
+            thumbContainer.innerHTML = (product.images || []).map(img => `
+                <img onclick="document.getElementById('modalImgMain').src=this.src" class="w-20 h-20 rounded-2xl cursor-pointer border-2 border-transparent hover-border-accent object-cover" src="${img}">
             `).join('');
-        }
 
-        function filterProducts(cat, el) {
-            document.querySelectorAll('.cat-item-round').forEach(c => c.classList.remove('active'));
-            el.classList.add('active');
-            if (cat === 'All') {
-                renderProducts(products);
-            } else {
-                renderProducts(products.filter(p => p.category === cat));
+            const vWrap = document.getElementById('variantWrapper');
+            vWrap.innerHTML = '';
+            if(product.variants && product.variants.length > 0) {
+                product.variants.forEach((v, i) => {
+                    const div = document.createElement('div');
+                    div.innerText = v;
+                    div.className = `px-6 py-2 border-2 rounded-full text-[10px] font-black cursor-pointer transition-all ${i === 0 ? 'accent-border accent-text' : 'border-gray-100 text-gray-400'}`;
+                    div.onclick = function() {
+                        selectedVariant = v;
+                        vWrap.querySelectorAll('div').forEach(d => d.className = `px-6 py-2 border-2 rounded-full text-[10px] font-black cursor-pointer transition-all border-gray-100 text-gray-400`);
+                        this.className = `px-6 py-2 border-2 rounded-full text-[10px] font-black cursor-pointer transition-all accent-border accent-text`;
+                    };
+                    vWrap.appendChild(div);
+                });
             }
+            document.getElementById('productModal').classList.replace('hidden', 'flex');
+            document.body.style.overflow = 'hidden';
         }
 
-        // ===========================================
-        // CART LOGIC
-        // ===========================================
-        function addToCart(productId) {
-            const product = products.find(p => p.id == productId);
-            if (!product) return;
-
-            // Add to cart array
-            cart.push(product);
-            
-            // Save to localStorage
-            localStorage.setItem(CART_KEY, JSON.stringify(cart));
-
-            // Update UI
-            updateCartUI();
-            
-            // Show Feedback
-            showToast();
-            closeOverlay('product-view');
+        function addToCartCurrent() {
+            if(!currentModalProduct) return;
+            cart.push({ ...currentModalProduct, variant: selectedVariant });
+            updateCartUI(); closeModal();
         }
 
-        function removeFromCart(index) {
-            cart.splice(index, 1);
-            localStorage.setItem(CART_KEY, JSON.stringify(cart));
-            updateCartUI();
+        function quickAdd(id) {
+            const product = products.find(p => p.id === id);
+            if(product) { cart.push({ ...product, variant: 'Default' }); updateCartUI(); }
         }
 
         function updateCartUI() {
-            // 1. Badge
-            const badge = document.getElementById('cart-count');
-            badge.innerText = cart.length;
-            if(cart.length > 0) badge.classList.add('show');
-            else badge.classList.remove('show');
+            document.getElementById('cart-count').innerText = cart.length;
+            const btn = document.getElementById('cart-count').parentElement;
+            btn.classList.add('scale-105'); setTimeout(() => btn.classList.remove('scale-105'), 200);
+        }
 
-            // 2. Cart List
-            const container = document.getElementById('cart-items-container');
-            const totalEl = document.getElementById('cart-total');
-            let total = 0;
+        function buyNowCurrent() {
+            if(!currentModalProduct) return;
+            const msg = `Hi ${profile.store_name}, I want to buy: ${currentModalProduct.name} ($${currentModalProduct.price}). Edition: ${selectedVariant || 'Standard'}.`;
+            window.open(`https://wa.me/${profile.payment_number}?text=${encodeURIComponent(msg)}`, '_blank');
+        }
 
-            if (cart.length === 0) {
-                container.innerHTML = '<div class="empty-state">Your bag is empty.</div>';
-                totalEl.innerText = '₹0.00';
-                return;
+        // --- MATRIX ENGINE (Using CSS Variables) ---
+        const canvas = document.getElementById('matrix-canvas');
+        const ctx = canvas.getContext('2d');
+        canvas.width = window.innerWidth;
+        canvas.height = window.innerHeight;
+        const letters = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
+        const fontSize = 16;
+        const columns = canvas.width / fontSize;
+        const drops = Array(Math.floor(columns)).fill(1);
+
+        function drawMatrix() {
+            ctx.fillStyle = 'rgba(0, 0, 0, 0.05)';
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+            // READS COLOR FROM CSS VARIABLE
+            ctx.fillStyle = getAccentColor(); 
+            ctx.font = fontSize + 'px monospace';
+            for (let i = 0; i < drops.length; i++) {
+                const text = letters[Math.floor(Math.random() * letters.length)];
+                ctx.fillText(text, i * fontSize, drops[i] * fontSize);
+                if (drops[i] * fontSize > canvas.height && Math.random() > 0.975) drops[i] = 0;
+                drops[i]++;
             }
-
-            container.innerHTML = cart.map((item, index) => {
-                total += parseFloat(item.price);
-                return `
-                    <div class="cart-item">
-                        <div class="ci-info">
-                            <h4>${item.name}</h4>
-                            <p>${item.category} | Size: M</p>
-                        </div>
-                        <div class="ci-right">
-                            <div class="ci-price">₹${item.price}</div>
-                            <div class="ci-remove" onclick="removeFromCart(${index})"><i class="ph-bold ph-trash"></i> Remove</div>
-                        </div>
-                    </div>
-                `;
-            }).join('');
-
-            totalEl.innerText = '₹' + total.toFixed(2);
         }
 
-        function openCart() {
-            updateCartUI();
-            document.getElementById('cart-view').classList.add('active');
+        function enterSite() {
+            document.getElementById('intro-screen').classList.add('intro-hidden');
+            document.body.style.overflow = 'auto';
         }
 
-        function checkout() {
-            if(cart.length === 0) return;
-            // Integrate WhatsApp Order or Payment Gateway here
-            // For now, construct a WhatsApp message
-            let msg = `Hi ${currentProfile ? currentProfile.store_name : 'Store'}, I want to order:\n`;
-            cart.forEach(c => msg += `- ${c.name} (₹${c.price})\n`);
-            msg += `Total: ${document.getElementById('cart-total').innerText}`;
+        function closeModal() {
+            document.getElementById('productModal').classList.replace('flex', 'hidden');
+            document.body.style.overflow = 'auto';
+        }
+
+        function advancedFilter(category, element) {
+            document.querySelectorAll('.category-card').forEach(card => {
+                card.classList.remove('active'); card.classList.add('opacity-50');
+                // Ensure text returns to grey when inactive
+                card.querySelector('h4').style.color = ''; 
+                card.querySelector('h4').style.color = 'var(--text-secondary)'; 
+            });
+            element.classList.add('active'); element.classList.remove('opacity-50');
+            // Element color is handled by CSS classes now
             
-            alert(msg); // Testing
-            
-            // Reset
-            cart = [];
-            localStorage.setItem(CART_KEY, JSON.stringify(cart));
-            updateCartUI();
-            closeOverlay('cart-view');
+            document.querySelectorAll('.product-card').forEach(card => {
+                const type = card.dataset.type ? card.dataset.type.toLowerCase() : 'general';
+                if (category === 'all' || type.includes(category)) card.style.display = 'block';
+                else card.style.display = 'none';
+            });
         }
-
-        // ===========================================
-        // UI HELPERS (SCROLL, OVERLAYS, TOAST)
-        // ===========================================
-        function openProduct(id) {
-            // Important: ID might be string (UUID) or number depending on DB
-            const product = products.find(p => p.id == id);
-            if (!product) return;
-
-            document.getElementById('d-title').innerText = product.name;
-            document.getElementById('d-price').innerText = '₹' + product.price;
-            document.getElementById('d-desc').innerText = product.description || "No description.";
-
-            // Bind Add Button to this ID
-            const btn = document.getElementById('add-btn');
-            btn.onclick = function() { addToCart(id); };
-
-            // Gallery
-            const scroller = document.getElementById('gallery-scroller');
-            const images = product.images || [product.image]; // Fallback
-            scroller.innerHTML = images.map(img => `<div class="g-item"><img src="${img}" class="g-img"></div>`).join('');
-
-            document.getElementById('product-view').classList.add('active');
-        }
-
-        function closeOverlay(id) {
-            document.getElementById(id).classList.remove('active');
-        }
-
-        function scrollCats(amount) {
-            document.getElementById('cat-container').scrollBy({ left: amount, behavior: 'smooth' });
-        }
-
-        function scrollGallery(direction) {
-            const scroller = document.getElementById('gallery-scroller');
-            scroller.scrollBy({ left: direction * scroller.offsetWidth, behavior: 'smooth' });
-        }
-
-        function showToast() {
-            const t = document.getElementById('toast');
-            t.classList.add('show');
-            setTimeout(() => { t.classList.remove('show'); }, 2000);
+        
+        function openCartModal() {
+            if(cart.length === 0) { alert("Your cart is empty."); return; }
+            buyNowCurrent(); // Simplified flow
         }
     </script>
 </body>
