@@ -321,7 +321,7 @@
                         <i class="fa-regular fa-copy text-xs text-gray-400 cursor-pointer hover:text-black" onclick="app.copyLink()"></i>
                     </div>
                 </div>
-                <a id="sidebar-url" href="#" target="_blank" class="link-text hover:underline">bios.store/...</a>
+                <a id="sidebar-url" href="#" target="_blank" class="link-text hover:underline">Loading...</a>
             </div>
 
             <div class="p-4 mt-2 border-t border-gray-100">
@@ -389,6 +389,9 @@
 
     <script>
         // --- 1. CONFIGURATION ---
+        // !!! IMPORTANT: ENTER YOUR VERCEL URL HERE !!!
+        const STOREFRONT_BASE_URL = 'https://YOUR-APP-NAME.vercel.app'; 
+
         const SUPABASE_URL = 'https://rujozgysdnaxlpqadqff.supabase.co';
         const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InJ1am96Z3lzZG5heGxwcWFkcWZmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Njk0OTY1MTUsImV4cCI6MjA4NTA3MjUxNX0.zi4FwC0xfq0brTrYs3i18rwO3hbFeVhDBq6TpLQCyVs';
         const _supabase = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
@@ -399,7 +402,7 @@
             user: null,
             liveState: false,
             isPublished: false,
-            publishedSlug: null, // NEW: Store the actual DB slug
+            publishedSlug: null,
             branding: { name: 'My Store', tagline: 'Welcome', color: '#2563EB', logo_url: '', font: 'Inter', btnTextCart: 'Add to Cart', btnTextBuy: 'Buy Now' },
             payment: { method: 'manual', whatsappNumber: '', paymentLink: '' },
             collections: [],
@@ -411,14 +414,14 @@
             tempVariant: { name: '', valueStr: '' },
             storeUrl: '',
             
-            // NEW: LOCAL DRAFT ENGINE STATE
+            // LOCAL DRAFT ENGINE STATE
             hasUnsavedChanges: false,
             pendingActions: {
                 products: [], // { type: 'upsert' | 'delete', data: object, id: string }
                 collections: [],
                 branding: null,
                 uploads: [], // { file: Blob, path: string, tempUrl: string }
-                deletions: [] // New: Track cloud deletions
+                deletions: []
             }
         };
 
@@ -450,9 +453,7 @@
                         btnTextBuy: profile.btn_buy_text
                     };
                     store.isPublished = profile.is_published;
-                    store.publishedSlug = profile.store_slug; // Capture the real slug
-                    
-                    // SYNC HIDDEN INPUT FOR PUBLISH LOGIC
+                    store.publishedSlug = profile.store_slug;
                     document.getElementById('store-name-input').value = profile.store_name || '';
                 } else {
                     await _supabase.from('profiles').insert([{ id: store.user.id }]);
@@ -479,7 +480,6 @@
                 app.setLiveStatus(store.isPublished);
             },
 
-            // --- MOBILE SIDEBAR TOGGLE ---
             toggleSidebar: () => {
                 const sb = document.getElementById('sidebar');
                 const bd = document.querySelector('.sidebar-backdrop');
@@ -487,7 +487,6 @@
                 bd.classList.toggle('open');
             },
 
-            // --- NEW: COMPRESSOR & DRAFT ENGINE ---
             compressImage: (file) => {
                 return new Promise((resolve) => {
                     const reader = new FileReader();
@@ -498,17 +497,13 @@
                         img.onload = () => {
                             const canvas = document.createElement('canvas');
                             const ctx = canvas.getContext('2d');
-                            // Web-optimized dimensions
                             const maxWidth = 800; 
                             const scale = maxWidth / img.width;
                             const newWidth = scale < 1 ? maxWidth : img.width;
                             const newHeight = scale < 1 ? img.height * scale : img.height;
-                            
                             canvas.width = newWidth;
                             canvas.height = newHeight;
                             ctx.drawImage(img, 0, 0, newWidth, newHeight);
-                            
-                            // Compress to JPEG at 70% quality
                             canvas.toBlob((blob) => {
                                 resolve(new File([blob], file.name, { type: 'image/jpeg' }));
                             }, 'image/jpeg', 0.7); 
@@ -527,7 +522,7 @@
                 store.hasUnsavedChanges = false;
                 store.pendingActions = { products: [], collections: [], branding: null, uploads: [], deletions: [] };
                 document.getElementById('action-bar').classList.remove('visible');
-                app.loadUserData(); // Re-fetch true state from Supabase
+                app.loadUserData();
             },
 
             commitChanges: async () => {
@@ -536,7 +531,7 @@
                 btn.innerText = "Saving...";
 
                 try {
-                    // 0. Handle Deletions (Fix for stuck files)
+                    // 0. Handle Deletions
                     if (store.pendingActions.deletions && store.pendingActions.deletions.length > 0) {
                         const pathsToDelete = store.pendingActions.deletions.map(url => {
                             try { return url.split('/store-assets/')[1]; } catch(e) { return null; }
@@ -547,7 +542,7 @@
                         }
                     }
 
-                    // 1. Process Image Uploads First (Batch)
+                    // 1. Process Uploads
                     const uploadMap = {}; 
                     for (const item of store.pendingActions.uploads) {
                         const { error } = await _supabase.storage.from('store-assets').upload(item.path, item.file, { upsert: true });
@@ -560,11 +555,9 @@
                     // 2. Sync Collections
                     for (const action of store.pendingActions.collections) {
                         if(action.type === 'upsert') {
-                            // Swap blob URL for real URL if it exists
                             if(action.data.img_url && uploadMap[action.data.img_url]) {
                                 action.data.img_url = uploadMap[action.data.img_url];
                             }
-                            // Clean data
                             const { id, ...cleanData } = action.data;
                             if(typeof id === 'string' && id.startsWith('temp_')) {
                                 await _supabase.from('collections').insert(cleanData);
@@ -579,11 +572,9 @@
                     // 3. Sync Products
                     for (const action of store.pendingActions.products) {
                         if(action.type === 'upsert') {
-                            // Swap blob URLs
                             if(action.data.images) {
                                 action.data.images = action.data.images.map(img => uploadMap[img] || img);
                             }
-                            // Clean data logic
                             const { id, ...cleanData } = action.data;
                             if(typeof id === 'string' && id.startsWith('temp_')) {
                                 await _supabase.from('products').insert(cleanData);
@@ -602,12 +593,11 @@
                         await _supabase.from('profiles').update(d).eq('id', store.user.id);
                     }
 
-                    // Success Clean Up
                     store.hasUnsavedChanges = false;
                     store.pendingActions = { products: [], collections: [], branding: null, uploads: [], deletions: [] };
                     document.getElementById('action-bar').classList.remove('visible');
                     alert("Changes saved to cloud!");
-                    await app.loadUserData(); // Refresh to get real IDs
+                    await app.loadUserData(); 
 
                 } catch (e) {
                     alert("Sync Error: " + e.message);
@@ -617,20 +607,14 @@
             },
 
             // --- LOCAL ACTION HANDLERS ---
-
             handleUpload: async (files, type) => {
                 if (!files.length) return;
                 const originalFile = files[0];
-                
-                // Compress local
                 const compressedFile = await app.compressImage(originalFile);
-                
-                // Create Blob for instant UI
                 const tempUrl = URL.createObjectURL(compressedFile);
                 const fileName = `${Date.now()}.jpg`;
                 const filePath = `${store.user.id}/${fileName}`;
 
-                // Queue for upload on Save
                 store.pendingActions.uploads.push({
                     file: compressedFile,
                     path: filePath,
@@ -639,7 +623,6 @@
 
                 app.triggerUnsaved();
 
-                // Update UI State instantly
                 if (type === 'product') {
                     store.draftProduct.images.push(tempUrl);
                     app.renderWorkspace();
@@ -700,11 +683,8 @@
                     variants: p.variants
                 };
 
-                // Determine ID (Real or Temp)
-                const isNew = !p.id;
                 const finalId = p.id || `temp_${Date.now()}`;
                 
-                // Update Local UI State
                 const newProdUI = { 
                     id: finalId, 
                     ...payload, 
@@ -719,7 +699,6 @@
                     store.products.unshift(newProdUI);
                 }
 
-                // Add to Pending Queue
                 store.pendingActions.products.push({ 
                     type: 'upsert', 
                     data: { id: finalId, ...payload } 
@@ -733,11 +712,9 @@
             saveCollection: async () => {
                 const c = store.draftCollection;
                 if(!c.name) return alert("Name required");
-                
                 const finalId = c.id || `temp_${Date.now()}`;
                 const payload = { user_id: store.user.id, name: c.name, img_url: c.img };
 
-                // Update Local UI
                 const newColUI = { id: finalId, ...payload };
                 const existingIndex = store.collections.findIndex(x => x.id === finalId);
                 if(existingIndex > -1) {
@@ -746,7 +723,6 @@
                     store.collections.push(newColUI);
                 }
 
-                // Add to Pending Queue
                 store.pendingActions.collections.push({
                     type: 'upsert',
                     data: { id: finalId, ...payload }
@@ -761,6 +737,7 @@
                 if (k === 'name') {
                     store.branding.name = v;
                     document.getElementById('store-name-input').value = v; 
+                    // Update slug logic in realtime for preview, but save on publish
                     app.updateStoreUrl();
                 }
                 if (k === 'tagline') store.branding.tagline = v;
@@ -791,7 +768,6 @@
                     });
                 }
 
-                // Update Local UI
                 store.products = store.products.filter(p => p.id !== id);
                 
                 if(id.toString().startsWith('temp_')) {
@@ -806,25 +782,20 @@
 
             deleteCollection: async (id) => {
                 if(!confirm("Delete collection?")) return;
-                
                 store.collections = store.collections.filter(c => c.id !== id);
-                
                 if(id.toString().startsWith('temp_')) {
                     store.pendingActions.collections = store.pendingActions.collections.filter(a => a.data.id !== id);
                 } else {
                     store.pendingActions.collections.push({ type: 'delete', id: id });
                 }
-                
                 app.triggerUnsaved();
                 app.renderWorkspace();
             },
 
             deleteLogo: async () => {
                 store.branding.logo_url = '';
-                
                 if(!store.pendingActions.branding) store.pendingActions.branding = {};
                 store.pendingActions.branding.logo_url = '';
-                
                 app.triggerUnsaved();
                 app.renderWorkspace();
             },
@@ -840,7 +811,6 @@
                 const nav = document.querySelector(`.nav-item[onclick*="'${tab}'"]`);
                 if(nav) nav.classList.add('active');
                 
-                // Close sidebar on mobile after selection
                 const sb = document.getElementById('sidebar');
                 if(sb.classList.contains('open')) app.toggleSidebar();
 
@@ -857,18 +827,24 @@
                 if(count > 0) { badge.innerText = count; badge.classList.remove('hidden'); } else { badge.classList.add('hidden'); }
             },
 
-            // --- FIXED URL LOGIC ---
+            // --- FIXED URL LOGIC FOR VERCEL ---
             updateStoreUrl: () => {
-                if (store.isPublished && store.publishedSlug) {
-                    store.storeUrl = `${window.location.host}/${store.publishedSlug}`;
+                let slug = store.publishedSlug;
+                
+                // If not published yet, generate a preview slug from the current name input
+                if (!slug) {
+                    slug = store.branding.name.toLowerCase().replace(/ /g, '-').replace(/[^\w-]+/g, '');
+                }
+
+                if (STOREFRONT_BASE_URL.includes('YOUR-APP-NAME')) {
+                    store.storeUrl = `Configure STOREFRONT_BASE_URL in Code!`;
                 } else {
-                    const slug = store.branding.name.toLowerCase().replace(/ /g, '-').replace(/[^\w-]+/g, '');
-                    store.storeUrl = `${window.location.host}/${slug}`;
+                    store.storeUrl = `${STOREFRONT_BASE_URL}/${slug}`;
                 }
 
                 if(document.getElementById('sidebar-url')) {
-                    document.getElementById('sidebar-url').innerText = store.storeUrl;
-                    document.getElementById('sidebar-url').href = `//${store.storeUrl}`;
+                    document.getElementById('sidebar-url').innerText = store.storeUrl.replace('https://', '');
+                    document.getElementById('sidebar-url').href = store.storeUrl;
                 }
             },
 
@@ -882,8 +858,8 @@
                     .replace(/[\s_-]+/g, '-') // Spaces to dashes
                     .replace(/^-+|-+$/g, ''); // Trim dashes
 
-                const btn = document.querySelector('.publish-btn'); // Target header btn
-                const bottomBtn = document.getElementById('publish-btn'); // Target bottom btn
+                const btn = document.querySelector('.publish-btn');
+                const bottomBtn = document.getElementById('publish-btn');
                 
                 if(btn) btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin mr-2"></i>Publishing...';
                 if(bottomBtn) { bottomBtn.innerText = "PUBLISHING..."; bottomBtn.disabled = true; }
@@ -903,9 +879,12 @@
                     if(btn) btn.innerHTML = '<i class="fa-solid fa-rocket mr-2"></i>Publish Live';
                     if(bottomBtn) { bottomBtn.innerText = "PUBLISH STORE"; bottomBtn.disabled = false; }
                 } else {
-                    const finalUrl = `${window.location.origin}/${slug}`;
+                    // Update local state with new slug
                     store.isPublished = true;
-                    store.publishedSlug = slug; // Update local state
+                    store.publishedSlug = slug;
+                    
+                    // Force URL update so Vercel link is used
+                    app.updateStoreUrl();
                     
                     if(btn) btn.innerHTML = '<i class="fa-solid fa-check mr-2"></i>Live!';
                     if(bottomBtn) { 
@@ -916,31 +895,28 @@
                     const linkDisplay = document.getElementById('link-display');
                     if(linkDisplay) {
                         linkDisplay.classList.remove('hidden');
-                        document.getElementById('live-url').innerText = finalUrl;
+                        document.getElementById('live-url').innerText = store.storeUrl;
                     }
                     
                     app.setLiveStatus(true);
-                    app.updateStoreUrl(); // Sync sidebar link
-                    alert(`Success! Store live at: ${finalUrl}`);
+                    alert(`Success! Store live at: ${store.storeUrl}`);
                 }
             },
 
             copyLink: () => { 
-                const url = document.getElementById('live-url')?.innerText || `https://${store.storeUrl}`;
+                const url = document.getElementById('live-url')?.innerText || store.storeUrl;
                 navigator.clipboard.writeText(url);
                 alert("Link copied!"); 
             },
 
-            // --- QR CODE FEATURE ---
             showQR: () => {
                 if(!store.isPublished) return alert("Publish your store first to generate a QR Code.");
                 
-                const url = `https://${store.storeUrl}`;
                 const container = document.getElementById('qr-container');
-                container.innerHTML = ""; // Clear old
+                container.innerHTML = ""; 
                 
                 new QRCode(container, {
-                    text: url,
+                    text: store.storeUrl,
                     width: 180,
                     height: 180,
                     colorDark : "#000000",
@@ -966,9 +942,7 @@
             
             viewStore: () => { 
                 if(!store.isPublished) { if(confirm("Store not published. Publish?")) app.publishStore(); return; } 
-                // Open dynamic slug from state or branding
-                const slug = store.publishedSlug || store.branding.name.toLowerCase().replace(/ /g, '-').replace(/[^\w-]+/g, '');
-                window.open(`/${slug}`, '_blank'); 
+                window.open(store.storeUrl, '_blank'); 
             },
             
             dragStart: (e, i) => { e.dataTransfer.setData('text/plain', i); e.currentTarget.classList.add('dragging'); },
@@ -986,18 +960,15 @@
                     const rev = store.orders.reduce((acc, o) => acc + (o.total || 0), 0);
                     ws.innerHTML = `<div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8"><div class="tilt-card border-l-4 border-lime-500"><span class="label-3d">Revenue</span><div class="text-3xl font-black mt-2">₹${rev.toLocaleString()}</div></div><div class="tilt-card border-l-4 border-blue-500"><span class="label-3d">Orders</span><div class="text-3xl font-black mt-2">${store.orders.length}</div></div><div class="tilt-card border-l-4 border-indigo-500"><span class="label-3d">Products</span><div class="text-3xl font-black mt-2">${store.products.length}</div></div></div>`;
                     
-                    // Show publishing widget in dashboard view if not published
                     if(document.getElementById('bottom-publish-container')) {
                          document.getElementById('bottom-publish-container').style.display = 'block';
                          ws.appendChild(document.getElementById('bottom-publish-container'));
                     }
                 }
                 else if (store.view === 'orders') {
-                    // UPGRADED ORDER VIEW
                     if(store.orders.length === 0) { 
                         ws.innerHTML = `<div class="flex flex-col items-center justify-center pt-10 text-center"><div class="w-24 h-24 bg-gray-100 rounded-full flex items-center justify-center mb-4"><i class="fa-solid fa-receipt text-3xl text-gray-300"></i></div><h3 class="font-bold text-gray-900 text-lg">No orders yet</h3><p class="text-gray-400 text-sm max-w-xs mt-2">Share your store link on social media to get your first sale.</p><button onclick="app.showQR()" class="mt-6 px-6 py-2 bg-blue-600 text-white font-bold rounded-lg shadow-lg hover:scale-105 transition"><i class="fa-solid fa-qrcode mr-2"></i>Get Store QR</button></div>`; 
                     } else {
-                        // Place for order list logic
                         ws.innerHTML = `<div>Order List (Coming Soon)</div>`;
                     }
                 }
@@ -1041,7 +1012,6 @@
             }
         };
 
-        // Bridge to support the bottom button click handler
         window.handlePublish = app.publishStore;
         window.copyLink = app.copyLink;
 
