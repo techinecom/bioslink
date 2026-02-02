@@ -241,6 +241,10 @@
         .store-link-box { background: rgba(255,255,255,0.5); border: 1px solid rgba(255,255,255,0.6); border-radius: 12px; padding: 12px; margin-top: auto; margin-bottom: 12px; display: none; animation: fadeIn 0.5s ease; }
         .store-link-box.visible { display: block; }
         .link-text { font-family: 'JetBrains Mono', monospace; font-size: 10px; color: var(--primary); word-break: break-all; }
+        
+        /* Mobile Toggle Styles */
+        #mob-live-toggle.live { background: #d9f99d; border-color: #84cc16; color: #3f6212; }
+        #mob-live-toggle.live #mob-live-indicator { background: #65a30d; box-shadow: 0 0 8px #65a30d; }
     </style>
 </head>
 <body>
@@ -295,6 +299,19 @@
                     </div>
                 </div>
                 <button class="lg:hidden text-gray-400 p-2" onclick="app.toggleSidebar()"><i class="fa-solid fa-xmark text-xl"></i></button>
+            </div>
+
+            <div class="lg:hidden px-6 pt-2 pb-4 mb-2 border-b border-gray-100/50">
+                <div class="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-3">Store Status</div>
+                <div class="flex gap-3">
+                    <button onclick="app.publishStore()" class="flex-1 bg-blue-600 text-white py-2 rounded-xl text-xs font-bold shadow-md active:scale-95 transition">
+                        <i class="fa-solid fa-rocket mr-1"></i> Publish
+                    </button>
+                    <div id="mob-live-toggle" class="px-3 py-2 rounded-xl border border-gray-200 bg-gray-50 text-xs font-bold text-gray-400 flex items-center gap-2 cursor-pointer" onclick="app.toggleLive()">
+                        <div class="w-2 h-2 rounded-full bg-gray-300 transition" id="mob-live-indicator"></div>
+                        <span id="mob-live-text">OFF</span>
+                    </div>
+                </div>
             </div>
             
             <div class="flex-1 overflow-y-auto px-2 space-y-1 no-scroll">
@@ -389,7 +406,8 @@
 
     <script>
         // --- 1. CONFIGURATION ---
-        // !!! IMPORTANT: ENTER YOUR VERCEL URL HERE !!!
+        // !!! IMPORTANT: CHANGE THE LINE BELOW TO YOUR ACTUAL VERCEL URL !!!
+        // EXAMPLE: const STOREFRONT_BASE_URL = 'https://my-shoe-store.vercel.app';
         const STOREFRONT_BASE_URL = 'https://YOUR-APP-NAME.vercel.app'; 
 
         const SUPABASE_URL = 'https://rujozgysdnaxlpqadqff.supabase.co';
@@ -975,8 +993,35 @@
                 const btn = document.getElementById('live-toggle');
                 const txt = document.getElementById('live-text');
                 const box = document.getElementById('sidebar-link-box');
-                if(status) { btn.classList.add('live'); txt.innerText = "STORE LIVE"; box.classList.add('visible'); } 
-                else { btn.classList.remove('live'); txt.innerText = "OFFLINE"; box.classList.remove('visible'); }
+                
+                // Mobile Elements
+                const mobBtn = document.getElementById('mob-live-toggle');
+                const mobTxt = document.getElementById('mob-live-text');
+
+                if(status) { 
+                    btn.classList.add('live'); 
+                    txt.innerText = "STORE LIVE"; 
+                    
+                    if(mobBtn) {
+                        mobBtn.classList.add('live');
+                        mobTxt.innerText = "LIVE";
+                        mobTxt.classList.add('text-lime-700');
+                    }
+
+                    box.classList.add('visible'); 
+                } 
+                else { 
+                    btn.classList.remove('live'); 
+                    txt.innerText = "OFFLINE"; 
+                    
+                    if(mobBtn) {
+                        mobBtn.classList.remove('live');
+                        mobTxt.innerText = "OFF";
+                        mobTxt.classList.remove('text-lime-700');
+                    }
+
+                    box.classList.remove('visible'); 
+                }
             },
             
             viewStore: () => { 
