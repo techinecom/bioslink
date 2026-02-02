@@ -371,21 +371,21 @@
         </main>
     </div>
 
-<div class="publish-zone p-6 bg-gray-900 rounded-3xl border border-white/10 mt-6" style="max-width: 500px; margin: 20px auto; display: none;" id="bottom-publish-container">
-    <h3 class="text-xl font-bold mb-4 text-white">Store Visibility</h3>
-    
-    <button onclick="handlePublish()" id="publish-btn" class="w-full bg-[#DFFF00] text-black py-4 rounded-2xl font-black text-lg shadow-xl hover:scale-105 active:scale-95 transition">
-        PUBLISH STORE
-    </button>
+    <div class="publish-zone p-6 bg-gray-900 rounded-3xl border border-white/10 mt-6" style="max-width: 500px; margin: 20px auto; display: none;" id="bottom-publish-container">
+        <h3 class="text-xl font-bold mb-4 text-white">Store Visibility</h3>
+        
+        <button onclick="handlePublish()" id="publish-btn" class="w-full bg-[#DFFF00] text-black py-4 rounded-2xl font-black text-lg shadow-xl hover:scale-105 active:scale-95 transition">
+            PUBLISH STORE
+        </button>
 
-    <div id="link-display" class="hidden mt-4 p-4 bg-white/5 border border-dashed border-white/20 rounded-xl">
-        <p class="text-xs text-gray-400 uppercase font-black mb-2">Your Live Link:</p>
-        <div class="flex items-center justify-between">
-            <span id="live-url" class="text-[#DFFF00] font-bold truncate mr-2"></span>
-            <button onclick="copyLink()" class="text-white hover:text-[#DFFF00]"><i class="fa-solid fa-copy"></i></button>
+        <div id="link-display" class="hidden mt-4 p-4 bg-white/5 border border-dashed border-white/20 rounded-xl">
+            <p class="text-xs text-gray-400 uppercase font-black mb-2">Your Live Link:</p>
+            <div class="flex items-center justify-between">
+                <span id="live-url" class="text-[#DFFF00] font-bold truncate mr-2"></span>
+                <button onclick="copyLink()" class="text-white hover:text-[#DFFF00]"><i class="fa-solid fa-copy"></i></button>
+            </div>
         </div>
     </div>
-</div>
 
     <script>
         // --- 1. CONFIGURATION ---
@@ -403,7 +403,19 @@
             liveState: false,
             isPublished: false,
             publishedSlug: null,
-            branding: { name: 'My Store', tagline: 'Welcome', color: '#2563EB', logo_url: '', font: 'Inter', btnTextCart: 'Add to Cart', btnTextBuy: 'Buy Now' },
+            branding: { 
+                name: 'My Store', 
+                tagline: 'Welcome', 
+                color: '#2563EB', 
+                logo_url: '', 
+                font: 'Inter', 
+                btnTextCart: 'Add to Cart', 
+                btnTextBuy: 'Buy Now',
+                // --- NEW HERO FIELDS ---
+                heroTitle: 'Architecture\nOf Style.',
+                heroSubtitle: 'Premium footwear and precision horology.',
+                headerImage: ''
+            },
             payment: { method: 'manual', whatsappNumber: '', paymentLink: '' },
             collections: [],
             products: [],
@@ -417,10 +429,10 @@
             // LOCAL DRAFT ENGINE STATE
             hasUnsavedChanges: false,
             pendingActions: {
-                products: [], // { type: 'upsert' | 'delete', data: object, id: string }
+                products: [], 
                 collections: [],
                 branding: null,
-                uploads: [], // { file: Blob, path: string, tempUrl: string }
+                uploads: [], 
                 deletions: []
             }
         };
@@ -450,7 +462,11 @@
                         logo_url: profile.logo_url,
                         font: profile.font_family,
                         btnTextCart: profile.btn_cart_text,
-                        btnTextBuy: profile.btn_buy_text
+                        btnTextBuy: profile.btn_buy_text,
+                        // --- NEW MAPPING ---
+                        heroTitle: profile.hero_title || 'Architecture\nOf Style.',
+                        heroSubtitle: profile.hero_subtitle || 'Premium footwear.',
+                        headerImage: profile.header_url || ''
                     };
                     store.isPublished = profile.is_published;
                     store.publishedSlug = profile.store_slug;
@@ -590,6 +606,9 @@
                     if(store.pendingActions.branding) {
                         let d = store.pendingActions.branding;
                         if(d.logo_url && uploadMap[d.logo_url]) d.logo_url = uploadMap[d.logo_url];
+                        // --- NEW HEADER UPLOAD SYNC ---
+                        if(d.header_url && uploadMap[d.header_url]) d.header_url = uploadMap[d.header_url];
+                        
                         await _supabase.from('profiles').update(d).eq('id', store.user.id);
                     }
 
@@ -633,6 +652,13 @@
                     store.branding.logo_url = tempUrl;
                     if(!store.pendingActions.branding) store.pendingActions.branding = {};
                     store.pendingActions.branding.logo_url = tempUrl;
+                    app.renderWorkspace();
+                } 
+                // --- NEW HEADER LOGIC ---
+                else if (type === 'header') {
+                    store.branding.headerImage = tempUrl;
+                    if(!store.pendingActions.branding) store.pendingActions.branding = {};
+                    store.pendingActions.branding.header_url = tempUrl; 
                     app.renderWorkspace();
                 }
             },
@@ -734,6 +760,10 @@
             },
 
             updateBranding: async (k, v) => {
+                // --- NEW CHECKS ---
+                if (k === 'heroTitle') store.branding.heroTitle = v;
+                if (k === 'heroSubtitle') store.branding.heroSubtitle = v;
+
                 if (k === 'name') {
                     store.branding.name = v;
                     document.getElementById('store-name-input').value = v; 
@@ -746,7 +776,16 @@
                 if (k === 'btnTextCart') store.branding.btnTextCart = v;
                 if (k === 'btnTextBuy') store.branding.btnTextBuy = v;
                 
-                const dbKeyMap = { name: 'store_name', tagline: 'tagline', color: 'color', font: 'font_family', btnTextCart: 'btn_cart_text', btnTextBuy: 'btn_buy_text' };
+                const dbKeyMap = { 
+                    name: 'store_name', 
+                    tagline: 'tagline', 
+                    color: 'color', 
+                    font: 'font_family', 
+                    btnTextCart: 'btn_cart_text', 
+                    btnTextBuy: 'btn_buy_text',
+                    heroTitle: 'hero_title',
+                    heroSubtitle: 'hero_subtitle'
+                };
                 
                 if(dbKeyMap[k]) {
                     if(!store.pendingActions.branding) store.pendingActions.branding = {};
@@ -1007,7 +1046,58 @@
                     ws.innerHTML = `<div class="grid grid-cols-1 lg:grid-cols-2 gap-8"><div class="tilt-card h-fit sticky top-0"><h3 class="font-bold mb-6 text-lg text-gray-900">${store.draftCollection.id ? 'Edit' : 'Create'} Collection</h3><div class="space-y-5"><div><label class="label-3d">Collection Name</label><input class="input-3d" placeholder="e.g. Summer Wear" value="${store.draftCollection.name || ''}" oninput="store.draftCollection.name=this.value"></div><div><label class="label-3d">Cover Image</label><div class="img-upload-box h-48 w-full relative" onclick="document.getElementById('c-up').click()">${store.draftCollection.img ? `<img src="${store.draftCollection.img}" class="w-full h-full object-cover rounded-xl shadow-inner">` : `<div class="text-center p-4"><i class="fa-solid fa-cloud-arrow-up text-lime-500 text-3xl mb-3"></i><p class="text-xs text-gray-400 font-bold uppercase tracking-widest">Select Cover Photo</p></div>`}</div><input type="file" id="c-up" hidden accept="image/*" onchange="app.handleUpload(this.files, 'collection')"></div><button onclick="app.saveCollection()" class="btn-primary w-full py-4" style="background: linear-gradient(135deg, #84cc16, #65a30d); border: none; color: white; border-radius: 14px; font-weight: 700;">${store.draftCollection.id ? 'Update Collection' : 'Create Collection'}</button></div></div><div class="space-y-4">${store.collections.length === 0 ? `<div class="glass-panel p-12 text-center border-dashed border-2 border-gray-200"><p class="text-gray-400 font-medium">No collections created yet.</p></div>` : store.collections.map((c, i) => { const productsInCol = store.products.filter(p => p.category_id === c.id); return `<div class="glass-panel p-4"><div class="flex items-center gap-4 mb-4 border-b border-gray-100/50 pb-4"><img src="${c.img_url || 'https://via.placeholder.com/150'}" class="w-14 h-14 rounded-xl object-cover bg-gray-100 shadow-sm border border-white"><div class="flex-1"><div class="font-bold text-gray-800 leading-tight">${c.name}</div><div class="text-[10px] text-lime-600 font-bold uppercase mt-1 tracking-tighter">${productsInCol.length} Products Linked</div></div><div class="flex gap-1"><button onclick="app.editCollection('${c.id}')" class="w-8 h-8 rounded-lg flex items-center justify-center text-blue-500 hover:bg-blue-50 transition"><i class="fa-solid fa-pen-to-square"></i></button><button onclick="app.deleteCollection('${c.id}')" class="w-8 h-8 rounded-lg flex items-center justify-center text-red-400 hover:bg-red-50 transition"><i class="fa-solid fa-trash-can"></i></button></div></div></div>`; }).join('')}</div></div>`;
                 }
                 else if (store.view === 'branding') {
-                    ws.innerHTML = `<div class="max-w-md mx-auto space-y-6"><div class="tilt-card"><h3 class="font-bold text-lg mb-6">Core Identity</h3><div class="space-y-5"><div><label class="label-3d">Name</label><input class="input-3d" value="${store.branding.name}" oninput="app.updateBranding('name', this.value)"></div><div><label class="label-3d">Tagline</label><input class="input-3d" value="${store.branding.tagline}" oninput="app.updateBranding('tagline', this.value)"></div><div><label class="label-3d">Color</label><input type="color" class="w-full h-10 rounded-xl" value="${store.branding.color}" oninput="app.updateBranding('color', this.value)"></div><div><label class="label-3d">Logo</label><div class="img-upload-box h-32 w-full" onclick="document.getElementById('l-up').click()">${store.branding.logo_url ? `<img src="${store.branding.logo_url}" class="object-contain p-4"><div class="absolute top-2 right-2 w-6 h-6 bg-red-500 text-white rounded-full flex items-center justify-center shadow hover:bg-red-600 transition" onclick="event.stopPropagation(); app.deleteLogo()"><i class="fa-solid fa-trash text-xs"></i></div>` : `Upload / Take Photo`}</div><input type="file" id="l-up" hidden accept="image/*" onchange="app.handleUpload(this.files, 'logo')"></div></div></div></div>`;
+                    // --- UPDATED BRANDING VIEW WITH NEW "STOREFRONT HERO" CARD ---
+                    ws.innerHTML = `
+                    <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 max-w-5xl mx-auto">
+                        <div class="tilt-card h-fit">
+                            <h3 class="font-bold text-lg mb-6 text-gray-800">Core Identity</h3>
+                            <div class="space-y-5">
+                                <div>
+                                    <label class="label-3d">Store Name</label>
+                                    <input class="input-3d" value="${store.branding.name}" oninput="app.updateBranding('name', this.value)">
+                                </div>
+                                <div>
+                                    <label class="label-3d">Accent Color</label>
+                                    <div class="flex gap-4 items-center">
+                                        <input type="color" class="w-12 h-12 rounded-xl border-none cursor-pointer" value="${store.branding.color}" oninput="app.updateBranding('color', this.value)">
+                                        <span class="text-xs text-gray-400 font-mono">Controls buttons & highlights</span>
+                                    </div>
+                                </div>
+                                <div>
+                                    <label class="label-3d">Store Logo</label>
+                                    <div class="img-upload-box h-32 w-full" onclick="document.getElementById('l-up').click()">
+                                        ${store.branding.logo_url ? `<img src="${store.branding.logo_url}" class="object-contain p-4"><div class="absolute top-2 right-2 w-6 h-6 bg-red-500 text-white rounded-full flex items-center justify-center shadow hover:bg-red-600 transition" onclick="event.stopPropagation(); app.deleteLogo()"><i class="fa-solid fa-trash text-xs"></i></div>` : `<div class="text-center"><i class="fa-solid fa-cloud-arrow-up text-gray-300 text-2xl mb-2"></i><p class="text-[10px] uppercase font-bold text-gray-400">Upload Logo</p></div>`}
+                                    </div>
+                                    <input type="file" id="l-up" hidden accept="image/*" onchange="app.handleUpload(this.files, 'logo')">
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="tilt-card h-fit">
+                            <h3 class="font-bold text-lg mb-6 text-gray-800">Storefront Hero</h3>
+                            <div class="space-y-5">
+                                <div>
+                                    <label class="label-3d">Hero Headline</label>
+                                    <textarea class="input-3d" rows="3" placeholder="Architecture\nOf Style." oninput="app.updateBranding('heroTitle', this.value)">${store.branding.heroTitle}</textarea>
+                                    <p class="text-[10px] text-gray-400 mt-1">Use Enter key for line breaks on the big text.</p>
+                                </div>
+                                <div>
+                                    <label class="label-3d">Hero Subtitle</label>
+                                    <input class="input-3d" value="${store.branding.heroSubtitle}" oninput="app.updateBranding('heroSubtitle', this.value)">
+                                </div>
+                                <div>
+                                    <label class="label-3d">Hero Image (The Rotating Image)</label>
+                                    <div class="img-upload-box h-48 w-full relative" onclick="document.getElementById('h-up').click()">
+                                        ${store.branding.headerImage ? 
+                                            `<img src="${store.branding.headerImage}" class="w-full h-full object-cover rounded-xl shadow-inner">` : 
+                                            `<div class="text-center p-4"><i class="fa-regular fa-image text-blue-500 text-3xl mb-3"></i><p class="text-xs text-gray-400 font-bold uppercase tracking-widest">Select Hero Image</p></div>`
+                                        }
+                                    </div>
+                                    <input type="file" id="h-up" hidden accept="image/*" onchange="app.handleUpload(this.files, 'header')">
+                                </div>
+                            </div>
+                        </div>
+                    </div>`;
                 }
             }
         };
