@@ -20,7 +20,7 @@
             --glass-border: 1px solid rgba(255, 255, 255, 0.5);
             --inner-glow: inset 0 1px 0 0 rgba(255, 255, 255, 0.8);
             --shadow-lg: 0 20px 40px -10px rgba(0,0,0,0.08), 0 0 0 1px rgba(255,255,255,0.3) inset;
-            --ease-spring: cubic-bezier(0.34, 1.56, 0.64, 1); /* Bouncy Physics */
+            --ease-spring: cubic-bezier(0.34, 1.56, 0.64, 1);
         }
 
         body {
@@ -37,19 +37,16 @@
             -webkit-tap-highlight-color: transparent;
         }
 
-        /* --- TEXTURE OVERLAY (REALISM) --- */
         .noise-overlay {
             position: fixed; inset: 0; pointer-events: none; z-index: 0; opacity: 0.03;
             background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E");
         }
 
-        /* --- UTILS --- */
         .no-scroll::-webkit-scrollbar { display: none; }
         .no-scroll { -ms-overflow-style: none; scrollbar-width: none; }
         .fade-in-up { animation: fadeInUp 0.6s var(--ease-spring) forwards; opacity: 0; transform: translateY(20px); }
         @keyframes fadeInUp { to { opacity: 1; transform: translateY(0); } }
 
-        /* --- 3D GLASS COMPONENTS --- */
         .glass-panel {
             background: var(--surface);
             backdrop-filter: blur(20px) saturate(180%);
@@ -74,7 +71,6 @@
             background: #FFF; z-index: 20; 
         }
 
-        /* --- INPUTS --- */
         .input-3d {
             width: 100%; padding: 14px 16px; background: rgba(255,255,255,0.6); border: 1px solid #E2E8F0;
             border-radius: 14px; outline: none; font-size: 14px; font-weight: 600; transition: all 0.3s;
@@ -83,7 +79,6 @@
         .input-3d:focus { background: #FFF; border-color: var(--primary); box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.1); transform: translateY(-1px); }
         .label-3d { font-size: 11px; font-weight: 800; text-transform: uppercase; letter-spacing: 0.05em; color: #64748B; margin-bottom: 8px; display: block; }
 
-        /* --- IMAGE UPLOAD --- */
         .img-upload-box {
             aspect-ratio: 1; border-radius: 16px; border: 2px dashed #CBD5E1; background: #F8FAFC;
             display: flex; align-items: center; justify-content: center; cursor: pointer; transition: 0.2s; overflow: hidden; position: relative;
@@ -91,7 +86,6 @@
         .img-upload-box:hover { border-color: var(--primary); background: #EFF6FF; }
         .img-upload-box img { width: 100%; height: 100%; object-fit: cover; }
 
-        /* --- ENGINE BUTTON --- */
         .engine-btn {
             padding: 8px 20px; border-radius: 99px; font-weight: 800; font-size: 11px; text-transform: uppercase; letter-spacing: 0.05em;
             cursor: pointer; transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
@@ -107,7 +101,6 @@
         .engine-btn.live .engine-indicator { background: #FFF; box-shadow: 0 0 10px #FFF; }
         @keyframes engine-pulse { 0% { box-shadow: 0 0 0 0 rgba(132, 204, 22, 0.7); } 70% { box-shadow: 0 0 0 10px rgba(132, 204, 22, 0); } 100% { box-shadow: 0 0 0 0 rgba(132, 204, 22, 0); } }
 
-        /* --- PUBLISH BUTTON --- */
         .publish-btn {
             background: var(--primary); color: white; padding: 10px 24px; border-radius: 14px; font-weight: 700; font-size: 12px;
             box-shadow: 0 10px 20px -5px rgba(59, 130, 246, 0.3), inset 0 1px 0 rgba(255,255,255,0.2); transition: transform 0.2s;
@@ -115,13 +108,11 @@
         .publish-btn:hover { transform: translateY(-2px); background: #2563EB; }
         .publish-btn:active { transform: translateY(0); }
 
-        /* --- LAYOUT WRAPPER --- */
         .layout-wrapper { 
             display: flex; width: 100%; height: 100vh; padding: 24px; gap: 24px; 
             position: relative; z-index: 1; box-sizing: border-box; 
         }
         
-        /* --- SIDEBAR DRAWER (MOBILE READY) --- */
         .sidebar-container { 
             width: 270px; display: flex; flex-direction: column; z-index: 100; flex-shrink: 0;
             height: 100%; transition: transform 0.3s var(--ease-spring);
@@ -142,18 +133,15 @@
         .nav-item:hover { background: rgba(255,255,255,0.6); color: #0F172A; }
         .nav-item.active { background: #FFFFFF; color: #0F172A; box-shadow: 0 4px 12px rgba(0,0,0,0.03); border-left: 3px solid var(--accent); }
 
-        /* --- MAIN WORKSPACE --- */
         .workspace-container { 
             flex: 1; display: flex; flex-direction: column; gap: 24px; 
             overflow: hidden; position: relative; min-width: 0; 
         }
         .content-scroll-area { flex: 1; overflow-y: auto; padding-right: 6px; padding-bottom: 100px; -webkit-overflow-scrolling: touch; }
 
-        /* --- MOBILE HEADER (Visible on Small Screens) --- */
         .mobile-header { display: none; }
         .desktop-header { display: flex; }
 
-        /* --- NEW: FLOATING ACTION BAR FOR DRAFT CHANGES --- */
         #action-bar {
             position: fixed; bottom: 30px; left: 50%; transform: translateX(-50%) translateY(150px);
             background: rgba(15, 23, 42, 0.95); backdrop-filter: blur(12px);
@@ -173,12 +161,10 @@
         .action-discard { color: #94A3B8; font-weight: 700; font-size: 12px; cursor: pointer; transition: 0.2s; }
         .action-discard:hover { color: white; }
 
-        /* --- RESPONSIVE MEDIA QUERIES --- */
         @media (max-width: 1024px) {
             body { height: 100vh; overflow: hidden; position: fixed; width: 100%; }
             .layout-wrapper { padding: 0; gap: 0; }
             
-            /* Sidebar becomes Drawer */
             .sidebar-container { 
                 position: fixed; left: 0; top: 0; bottom: 0; 
                 transform: translateX(-110%);
@@ -214,7 +200,6 @@
             }
         }
 
-        /* --- AUTH SCREEN --- */
         #auth-screen {
             position: fixed; inset: 0; z-index: 200;
             background: radial-gradient(at 0% 0%, #3b82f6 0px, transparent 50%), radial-gradient(at 100% 100%, #84cc16 0px, transparent 50%), #F8FAFC;
@@ -226,7 +211,6 @@
             width: 90%; max-width: 400px; text-align: center; box-shadow: 0 20px 40px rgba(0,0,0,0.1);
         }
 
-        /* --- QR MODAL --- */
         #qr-modal {
             position: fixed; inset: 0; background: rgba(0,0,0,0.5); backdrop-filter: blur(5px);
             z-index: 10000; display: none; align-items: center; justify-content: center;
@@ -236,13 +220,11 @@
 
         @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
 
-        /* Badges & Tags */
         .variant-tag { display: inline-flex; align-items: center; padding: 4px 10px; background: #ECFCCB; color: #365314; border-radius: 6px; font-size: 11px; font-weight: 600; margin-right: 6px; margin-bottom: 6px; }
         .store-link-box { background: rgba(255,255,255,0.5); border: 1px solid rgba(255,255,255,0.6); border-radius: 12px; padding: 12px; margin-top: auto; margin-bottom: 12px; display: none; animation: fadeIn 0.5s ease; }
         .store-link-box.visible { display: block; }
         .link-text { font-family: 'JetBrains Mono', monospace; font-size: 10px; color: var(--primary); word-break: break-all; }
         
-        /* Mobile Toggle Styles */
         #mob-live-toggle.live { background: #d9f99d; border-color: #84cc16; color: #3f6212; }
         #mob-live-toggle.live #mob-live-indicator { background: #65a30d; box-shadow: 0 0 8px #65a30d; }
     </style>
@@ -406,9 +388,7 @@
 
     <script>
         // --- 1. CONFIGURATION ---
-        // !!! IMPORTANT: CHANGE THE LINE BELOW TO YOUR ACTUAL VERCEL URL !!!
-        // EXAMPLE: const STOREFRONT_BASE_URL = 'https://my-shoe-store.vercel.app';
-        const STOREFRONT_BASE_URL = ''https://bioslink.vercel.app';'; 
+        const STOREFRONT_BASE_URL = 'https://bioslink.vercel.app'; 
 
         const SUPABASE_URL = 'https://rujozgysdnaxlpqadqff.supabase.co';
         const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InJ1am96Z3lzZG5heGxwcWFkcWZmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Njk0OTY1MTUsImV4cCI6MjA4NTA3MjUxNX0.zi4FwC0xfq0brTrYs3i18rwO3hbFeVhDBq6TpLQCyVs';
@@ -429,7 +409,6 @@
                 font: 'Inter', 
                 btnTextCart: 'Add to Cart', 
                 btnTextBuy: 'Buy Now',
-                // --- NEW HERO FIELDS ---
                 heroTitle: 'Architecture\nOf Style.',
                 heroSubtitle: 'Premium footwear and precision horology.',
                 headerImage: ''
@@ -443,8 +422,6 @@
             draftCollection: { id: null, name: '', img: null },
             tempVariant: { name: '', valueStr: '' },
             storeUrl: '',
-            
-            // LOCAL DRAFT ENGINE STATE
             hasUnsavedChanges: false,
             pendingActions: {
                 products: [], 
@@ -481,7 +458,6 @@
                         font: profile.font_family,
                         btnTextCart: profile.btn_cart_text,
                         btnTextBuy: profile.btn_buy_text,
-                        // --- NEW MAPPING ---
                         heroTitle: profile.hero_title || 'Architecture\nOf Style.',
                         heroSubtitle: profile.hero_subtitle || 'Premium footwear.',
                         headerImage: profile.header_url || ''
@@ -565,7 +541,6 @@
                 btn.innerText = "Saving...";
 
                 try {
-                    // 0. Handle Deletions
                     if (store.pendingActions.deletions && store.pendingActions.deletions.length > 0) {
                         const pathsToDelete = store.pendingActions.deletions.map(url => {
                             try { return url.split('/store-assets/')[1]; } catch(e) { return null; }
@@ -576,7 +551,6 @@
                         }
                     }
 
-                    // 1. Process Uploads
                     const uploadMap = {}; 
                     for (const item of store.pendingActions.uploads) {
                         const { error } = await _supabase.storage.from('store-assets').upload(item.path, item.file, { upsert: true });
@@ -586,7 +560,6 @@
                         }
                     }
 
-                    // 2. Sync Collections
                     for (const action of store.pendingActions.collections) {
                         if(action.type === 'upsert') {
                             if(action.data.img_url && uploadMap[action.data.img_url]) {
@@ -603,7 +576,6 @@
                         }
                     }
 
-                    // 3. Sync Products
                     for (const action of store.pendingActions.products) {
                         if(action.type === 'upsert') {
                             if(action.data.images) {
@@ -620,13 +592,10 @@
                         }
                     }
 
-                    // 4. Sync Branding
                     if(store.pendingActions.branding) {
                         let d = store.pendingActions.branding;
                         if(d.logo_url && uploadMap[d.logo_url]) d.logo_url = uploadMap[d.logo_url];
-                        // --- NEW HEADER UPLOAD SYNC ---
                         if(d.header_url && uploadMap[d.header_url]) d.header_url = uploadMap[d.header_url];
-                        
                         await _supabase.from('profiles').update(d).eq('id', store.user.id);
                     }
 
@@ -643,7 +612,6 @@
                 }
             },
 
-            // --- LOCAL ACTION HANDLERS ---
             handleUpload: async (files, type) => {
                 if (!files.length) return;
                 const originalFile = files[0];
@@ -652,12 +620,7 @@
                 const fileName = `${Date.now()}.jpg`;
                 const filePath = `${store.user.id}/${fileName}`;
 
-                store.pendingActions.uploads.push({
-                    file: compressedFile,
-                    path: filePath,
-                    tempUrl: tempUrl
-                });
-
+                store.pendingActions.uploads.push({ file: compressedFile, path: filePath, tempUrl: tempUrl });
                 app.triggerUnsaved();
 
                 if (type === 'product') {
@@ -671,9 +634,7 @@
                     if(!store.pendingActions.branding) store.pendingActions.branding = {};
                     store.pendingActions.branding.logo_url = tempUrl;
                     app.renderWorkspace();
-                } 
-                // --- NEW HEADER LOGIC ---
-                else if (type === 'header') {
+                } else if (type === 'header') {
                     store.branding.headerImage = tempUrl;
                     if(!store.pendingActions.branding) store.pendingActions.branding = {};
                     store.pendingActions.branding.header_url = tempUrl; 
@@ -778,14 +739,11 @@
             },
 
             updateBranding: async (k, v) => {
-                // --- NEW CHECKS ---
                 if (k === 'heroTitle') store.branding.heroTitle = v;
                 if (k === 'heroSubtitle') store.branding.heroSubtitle = v;
-
                 if (k === 'name') {
                     store.branding.name = v;
                     document.getElementById('store-name-input').value = v; 
-                    // Update slug logic in realtime for preview, but save on publish
                     app.updateStoreUrl();
                 }
                 if (k === 'tagline') store.branding.tagline = v;
@@ -795,14 +753,9 @@
                 if (k === 'btnTextBuy') store.branding.btnTextBuy = v;
                 
                 const dbKeyMap = { 
-                    name: 'store_name', 
-                    tagline: 'tagline', 
-                    color: 'color', 
-                    font: 'font_family', 
-                    btnTextCart: 'btn_cart_text', 
-                    btnTextBuy: 'btn_buy_text',
-                    heroTitle: 'hero_title',
-                    heroSubtitle: 'hero_subtitle'
+                    name: 'store_name', tagline: 'tagline', color: 'color', font: 'font_family', 
+                    btnTextCart: 'btn_cart_text', btnTextBuy: 'btn_buy_text',
+                    heroTitle: 'hero_title', heroSubtitle: 'hero_subtitle'
                 };
                 
                 if(dbKeyMap[k]) {
@@ -884,20 +837,13 @@
                 if(count > 0) { badge.innerText = count; badge.classList.remove('hidden'); } else { badge.classList.add('hidden'); }
             },
 
-            // --- FIXED URL LOGIC FOR VERCEL ---
             updateStoreUrl: () => {
                 let slug = store.publishedSlug;
-                
-                // If not published yet, generate a preview slug from the current name input
                 if (!slug) {
                     slug = store.branding.name.toLowerCase().replace(/ /g, '-').replace(/[^\w-]+/g, '');
                 }
-
-                if (STOREFRONT_BASE_URL.includes('YOUR-APP-NAME')) {
-                    store.storeUrl = `Configure STOREFRONT_BASE_URL in Code!`;
-                } else {
-                    store.storeUrl = `${STOREFRONT_BASE_URL}/${slug}`;
-                }
+                // --- CLEAN URL FORMAT ---
+                store.storeUrl = `${STOREFRONT_BASE_URL}/${slug}`;
 
                 if(document.getElementById('sidebar-url')) {
                     document.getElementById('sidebar-url').innerText = store.storeUrl.replace('https://', '');
@@ -911,9 +857,9 @@
 
                 const slug = rawName.toLowerCase()
                     .trim()
-                    .replace(/[^\w\s-]/g, '') // Remove symbols
-                    .replace(/[\s_-]+/g, '-') // Spaces to dashes
-                    .replace(/^-+|-+$/g, ''); // Trim dashes
+                    .replace(/[^\w\s-]/g, '')
+                    .replace(/[\s_-]+/g, '-')
+                    .replace(/^-+|-+$/g, '');
 
                 const btn = document.querySelector('.publish-btn');
                 const bottomBtn = document.getElementById('publish-btn');
@@ -924,11 +870,7 @@
                 const { data: { user } } = await _supabase.auth.getUser();
                 const { error } = await _supabase
                     .from('profiles')
-                    .update({ 
-                        store_slug: slug, 
-                        is_published: true,
-                        store_name: rawName 
-                    })
+                    .update({ store_slug: slug, is_published: true, store_name: rawName })
                     .eq('id', user.id);
 
                 if (error) {
@@ -936,11 +878,9 @@
                     if(btn) btn.innerHTML = '<i class="fa-solid fa-rocket mr-2"></i>Publish Live';
                     if(bottomBtn) { bottomBtn.innerText = "PUBLISH STORE"; bottomBtn.disabled = false; }
                 } else {
-                    // Update local state with new slug
                     store.isPublished = true;
                     store.publishedSlug = slug;
                     
-                    // Force URL update so Vercel link is used
                     app.updateStoreUrl();
                     
                     if(btn) btn.innerHTML = '<i class="fa-solid fa-check mr-2"></i>Live!';
@@ -993,33 +933,16 @@
                 const btn = document.getElementById('live-toggle');
                 const txt = document.getElementById('live-text');
                 const box = document.getElementById('sidebar-link-box');
-                
-                // Mobile Elements
                 const mobBtn = document.getElementById('mob-live-toggle');
                 const mobTxt = document.getElementById('mob-live-text');
 
                 if(status) { 
-                    btn.classList.add('live'); 
-                    txt.innerText = "STORE LIVE"; 
-                    
-                    if(mobBtn) {
-                        mobBtn.classList.add('live');
-                        mobTxt.innerText = "LIVE";
-                        mobTxt.classList.add('text-lime-700');
-                    }
-
+                    btn.classList.add('live'); txt.innerText = "STORE LIVE"; 
+                    if(mobBtn) { mobBtn.classList.add('live'); mobTxt.innerText = "LIVE"; mobTxt.classList.add('text-lime-700'); }
                     box.classList.add('visible'); 
-                } 
-                else { 
-                    btn.classList.remove('live'); 
-                    txt.innerText = "OFFLINE"; 
-                    
-                    if(mobBtn) {
-                        mobBtn.classList.remove('live');
-                        mobTxt.innerText = "OFF";
-                        mobTxt.classList.remove('text-lime-700');
-                    }
-
+                } else { 
+                    btn.classList.remove('live'); txt.innerText = "OFFLINE"; 
+                    if(mobBtn) { mobBtn.classList.remove('live'); mobTxt.innerText = "OFF"; mobTxt.classList.remove('text-lime-700'); }
                     box.classList.remove('visible'); 
                 }
             },
@@ -1043,7 +966,6 @@
                 if (store.view === 'dashboard') {
                     const rev = store.orders.reduce((acc, o) => acc + (o.total || 0), 0);
                     ws.innerHTML = `<div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8"><div class="tilt-card border-l-4 border-lime-500"><span class="label-3d">Revenue</span><div class="text-3xl font-black mt-2">₹${rev.toLocaleString()}</div></div><div class="tilt-card border-l-4 border-blue-500"><span class="label-3d">Orders</span><div class="text-3xl font-black mt-2">${store.orders.length}</div></div><div class="tilt-card border-l-4 border-indigo-500"><span class="label-3d">Products</span><div class="text-3xl font-black mt-2">${store.products.length}</div></div></div>`;
-                    
                     if(document.getElementById('bottom-publish-container')) {
                          document.getElementById('bottom-publish-container').style.display = 'block';
                          ws.appendChild(document.getElementById('bottom-publish-container'));
@@ -1052,9 +974,7 @@
                 else if (store.view === 'orders') {
                     if(store.orders.length === 0) { 
                         ws.innerHTML = `<div class="flex flex-col items-center justify-center pt-10 text-center"><div class="w-24 h-24 bg-gray-100 rounded-full flex items-center justify-center mb-4"><i class="fa-solid fa-receipt text-3xl text-gray-300"></i></div><h3 class="font-bold text-gray-900 text-lg">No orders yet</h3><p class="text-gray-400 text-sm max-w-xs mt-2">Share your store link on social media to get your first sale.</p><button onclick="app.showQR()" class="mt-6 px-6 py-2 bg-blue-600 text-white font-bold rounded-lg shadow-lg hover:scale-105 transition"><i class="fa-solid fa-qrcode mr-2"></i>Get Store QR</button></div>`; 
-                    } else {
-                        ws.innerHTML = `<div>Order List (Coming Soon)</div>`;
-                    }
+                    } else { ws.innerHTML = `<div>Order List (Coming Soon)</div>`; }
                 }
                 else if (store.view === 'customers') {
                     if (store.customers.length === 0) { ws.innerHTML = `<div class="text-center text-gray-400 mt-20"><i class="fa-solid fa-users-slash text-4xl mb-3 opacity-30"></i><p>No customers found.</p></div>`; }
@@ -1068,81 +988,13 @@
                     ws.innerHTML = `<div class="flex gap-8 flex-col lg:flex-row"><div class="flex-1 space-y-6">${noCol ? `<div class="p-4 bg-yellow-100 text-yellow-800 rounded-xl text-xs font-bold border border-yellow-200"><i class="fa-solid fa-triangle-exclamation mr-2"></i> You need to create a Collection before adding a product.</div>` : ''}<div class="tilt-card"><h3 class="font-bold text-lg mb-6">${isEdit ? 'Edit Product' : 'Create Product'}</h3><div class="space-y-4"><div><label class="label-3d">Name</label><input class="input-3d" value="${store.draftProduct.name}" oninput="store.draftProduct.name=this.value"></div><div class="grid grid-cols-2 gap-4"><div><label class="label-3d">Price</label><input type="number" class="input-3d" value="${store.draftProduct.price}" oninput="store.draftProduct.price=this.value"></div><div><label class="label-3d">Stock</label><input type="number" class="input-3d" value="${store.draftProduct.stock}" oninput="store.draftProduct.stock=this.value"></div></div><div><label class="label-3d">Category</label><select class="input-3d" ${noCol?'disabled':''} onchange="store.draftProduct.category_id=this.value; store.draftProduct.category=this.options[this.selectedIndex].text">${store.collections.length ? store.collections.map(c => `<option value="${c.id}" ${store.draftProduct.category_id===c.id?'selected':''}>${c.name}</option>`).join('') : '<option>Create a Collection First</option>'}</select></div></div></div><div class="tilt-card"><h3 class="font-bold text-lg mb-4">Variants</h3><div class="flex gap-2 mb-4"><input class="input-3d" placeholder="Name (e.g. Size)" value="${store.tempVariant.name}" oninput="store.tempVariant.name=this.value"><input class="input-3d" placeholder="Values (S, M)" value="${store.tempVariant.valueStr}" oninput="store.tempVariant.valueStr=this.value"><button class="bg-black text-white px-4 rounded-xl text-xs font-bold" onclick="app.addVariantToDraft()">Add</button></div><div class="space-y-2">${store.draftProduct.variants.map((v,i)=>`<div class="p-3 bg-gray-50 rounded-lg flex justify-between items-center"><div><span class="font-bold text-xs uppercase mr-2">${v.name}:</span>${v.values.map(val=>`<span class="variant-tag">${val}</span>`).join('')}</div><i class="fa-solid fa-trash text-red-500 cursor-pointer" onclick="app.removeVariantFromDraft(${i})"></i></div>`).join('')}</div></div><button onclick="${noCol ? "app.setTab('collections')" : "app.saveProduct()"}" class="w-full py-4 bg-blue-600 text-white font-bold rounded-xl shadow-lg hover:scale-[1.01] transition">${noCol ? "Go to Collections" : (isEdit ? "Update Product" : "Publish Product")}</button></div><div class="w-full lg:w-1/3"><div class="tilt-card"><h3 class="font-bold text-lg mb-4">Gallery</h3><div class="grid grid-cols-2 gap-3 mb-3">${store.draftProduct.images.map((img, i) => `<div class="img-upload-box border-none shadow-sm relative group"><img src="${img}"><div class="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition flex items-center justify-center rounded-xl cursor-pointer" onclick="app.removeImageFromDraft(${i})"><i class="fa-solid fa-trash text-white"></i></div></div>`).join('')}<div class="img-upload-box" onclick="document.getElementById('p-up').click()"><div class="text-center"><i class="fa-solid fa-camera-retro text-blue-500 text-2xl mb-1"></i><p class="text-[9px] font-black text-gray-400 uppercase tracking-tighter">Choose Media</p></div></div></div><input type="file" id="p-up" hidden accept="image/*" onchange="app.handleUpload(this.files, 'product')"></div></div></div>`;
                 }
                 else if (store.view === 'inventory') {
-                    ws.innerHTML = `<div class="glass-panel overflow-hidden border border-white/40 shadow-2xl fade-in-up">
-                        <div class="max-h-[650px] overflow-y-auto no-scroll p-2 md:p-0">
-                            ${store.products.length === 0 ? `<div class="text-center py-20"><i class="fa-solid fa-boxes-stacked text-gray-200 text-6xl mb-4"></i><p class="text-gray-400 font-bold">Your inventory is currently empty</p><button onclick="app.setTab('add_product')" class="mt-4 text-blue-500 text-xs font-black uppercase tracking-widest hover:underline">Add your first product</button></div>` : store.products.map(p => {
-                                const isLowStock = p.stock < 5;
-                                const stockColor = isLowStock ? 'bg-red-50 text-red-600 border-red-100' : 'bg-lime-50 text-lime-700 border-lime-100';
-                                return `<div class="flex flex-col md:flex-row gap-4 p-4 items-start md:items-center bg-white rounded-xl shadow-sm border border-gray-100 mb-2">
-                                    <div class="flex items-center gap-4 w-full md:w-auto"><div class="relative"><img src="${p.img || 'https://via.placeholder.com/50'}" class="w-14 h-14 rounded-xl bg-gray-200 object-cover shadow-sm"></div><div class="flex-1"><div class="font-extrabold text-sm text-gray-800">${p.name}</div><div class="text-[10px] text-gray-400 font-mono">ID: #${p.id.toString().slice(-6)}</div></div></div>
-                                    <div class="flex justify-between items-center w-full md:w-auto gap-4 mt-2 md:mt-0">
-                                        <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full border ${stockColor}"><span class="w-1.5 h-1.5 rounded-full ${isLowStock ? 'bg-red-500' : 'bg-lime-500'}"></span><span class="text-[11px] font-bold">${p.stock} Units</span></div>
-                                        <span class="font-mono text-sm font-black text-gray-800">₹${p.price.toLocaleString()}</span>
-                                    </div>
-                                    <div class="flex gap-2 w-full md:w-auto justify-end mt-2 md:mt-0">
-                                        <button onclick="app.editProduct('${p.id}')" class="p-2 text-blue-500 bg-blue-50 rounded-lg"><i class="fa-solid fa-pen-to-square"></i></button>
-                                        <button onclick="app.deleteProduct('${p.id}')" class="p-2 text-red-500 bg-red-50 rounded-lg"><i class="fa-solid fa-trash-can"></i></button>
-                                    </div>
-                                </div>`;
-                            }).join('')}
-                        </div></div>`;
+                    ws.innerHTML = `<div class="glass-panel overflow-hidden border border-white/40 shadow-2xl fade-in-up"><div class="max-h-[650px] overflow-y-auto no-scroll p-2 md:p-0">${store.products.length === 0 ? `<div class="text-center py-20"><i class="fa-solid fa-boxes-stacked text-gray-200 text-6xl mb-4"></i><p class="text-gray-400 font-bold">Your inventory is currently empty</p><button onclick="app.setTab('add_product')" class="mt-4 text-blue-500 text-xs font-black uppercase tracking-widest hover:underline">Add your first product</button></div>` : store.products.map(p => { const isLowStock = p.stock < 5; const stockColor = isLowStock ? 'bg-red-50 text-red-600 border-red-100' : 'bg-lime-50 text-lime-700 border-lime-100'; return `<div class="flex flex-col md:flex-row gap-4 p-4 items-start md:items-center bg-white rounded-xl shadow-sm border border-gray-100 mb-2"><div class="flex items-center gap-4 w-full md:w-auto"><div class="relative"><img src="${p.img || 'https://via.placeholder.com/50'}" class="w-14 h-14 rounded-xl bg-gray-200 object-cover shadow-sm"></div><div class="flex-1"><div class="font-extrabold text-sm text-gray-800">${p.name}</div><div class="text-[10px] text-gray-400 font-mono">ID: #${p.id.toString().slice(-6)}</div></div></div><div class="flex justify-between items-center w-full md:w-auto gap-4 mt-2 md:mt-0"><div class="inline-flex items-center gap-2 px-3 py-1 rounded-full border ${stockColor}"><span class="w-1.5 h-1.5 rounded-full ${isLowStock ? 'bg-red-500' : 'bg-lime-500'}"></span><span class="text-[11px] font-bold">${p.stock} Units</span></div><span class="font-mono text-sm font-black text-gray-800">₹${p.price.toLocaleString()}</span></div><div class="flex gap-2 w-full md:w-auto justify-end mt-2 md:mt-0"><button onclick="app.editProduct('${p.id}')" class="p-2 text-blue-500 bg-blue-50 rounded-lg"><i class="fa-solid fa-pen-to-square"></i></button><button onclick="app.deleteProduct('${p.id}')" class="p-2 text-red-500 bg-red-50 rounded-lg"><i class="fa-solid fa-trash-can"></i></button></div></div>`; }).join('')}</div></div>`;
                 }
                 else if (store.view === 'collections') {
                     ws.innerHTML = `<div class="grid grid-cols-1 lg:grid-cols-2 gap-8"><div class="tilt-card h-fit sticky top-0"><h3 class="font-bold mb-6 text-lg text-gray-900">${store.draftCollection.id ? 'Edit' : 'Create'} Collection</h3><div class="space-y-5"><div><label class="label-3d">Collection Name</label><input class="input-3d" placeholder="e.g. Summer Wear" value="${store.draftCollection.name || ''}" oninput="store.draftCollection.name=this.value"></div><div><label class="label-3d">Cover Image</label><div class="img-upload-box h-48 w-full relative" onclick="document.getElementById('c-up').click()">${store.draftCollection.img ? `<img src="${store.draftCollection.img}" class="w-full h-full object-cover rounded-xl shadow-inner">` : `<div class="text-center p-4"><i class="fa-solid fa-cloud-arrow-up text-lime-500 text-3xl mb-3"></i><p class="text-xs text-gray-400 font-bold uppercase tracking-widest">Select Cover Photo</p></div>`}</div><input type="file" id="c-up" hidden accept="image/*" onchange="app.handleUpload(this.files, 'collection')"></div><button onclick="app.saveCollection()" class="btn-primary w-full py-4" style="background: linear-gradient(135deg, #84cc16, #65a30d); border: none; color: white; border-radius: 14px; font-weight: 700;">${store.draftCollection.id ? 'Update Collection' : 'Create Collection'}</button></div></div><div class="space-y-4">${store.collections.length === 0 ? `<div class="glass-panel p-12 text-center border-dashed border-2 border-gray-200"><p class="text-gray-400 font-medium">No collections created yet.</p></div>` : store.collections.map((c, i) => { const productsInCol = store.products.filter(p => p.category_id === c.id); return `<div class="glass-panel p-4"><div class="flex items-center gap-4 mb-4 border-b border-gray-100/50 pb-4"><img src="${c.img_url || 'https://via.placeholder.com/150'}" class="w-14 h-14 rounded-xl object-cover bg-gray-100 shadow-sm border border-white"><div class="flex-1"><div class="font-bold text-gray-800 leading-tight">${c.name}</div><div class="text-[10px] text-lime-600 font-bold uppercase mt-1 tracking-tighter">${productsInCol.length} Products Linked</div></div><div class="flex gap-1"><button onclick="app.editCollection('${c.id}')" class="w-8 h-8 rounded-lg flex items-center justify-center text-blue-500 hover:bg-blue-50 transition"><i class="fa-solid fa-pen-to-square"></i></button><button onclick="app.deleteCollection('${c.id}')" class="w-8 h-8 rounded-lg flex items-center justify-center text-red-400 hover:bg-red-50 transition"><i class="fa-solid fa-trash-can"></i></button></div></div></div>`; }).join('')}</div></div>`;
                 }
                 else if (store.view === 'branding') {
-                    // --- UPDATED BRANDING VIEW WITH NEW "STOREFRONT HERO" CARD ---
-                    ws.innerHTML = `
-                    <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 max-w-5xl mx-auto">
-                        <div class="tilt-card h-fit">
-                            <h3 class="font-bold text-lg mb-6 text-gray-800">Core Identity</h3>
-                            <div class="space-y-5">
-                                <div>
-                                    <label class="label-3d">Store Name</label>
-                                    <input class="input-3d" value="${store.branding.name}" oninput="app.updateBranding('name', this.value)">
-                                </div>
-                                <div>
-                                    <label class="label-3d">Accent Color</label>
-                                    <div class="flex gap-4 items-center">
-                                        <input type="color" class="w-12 h-12 rounded-xl border-none cursor-pointer" value="${store.branding.color}" oninput="app.updateBranding('color', this.value)">
-                                        <span class="text-xs text-gray-400 font-mono">Controls buttons & highlights</span>
-                                    </div>
-                                </div>
-                                <div>
-                                    <label class="label-3d">Store Logo</label>
-                                    <div class="img-upload-box h-32 w-full" onclick="document.getElementById('l-up').click()">
-                                        ${store.branding.logo_url ? `<img src="${store.branding.logo_url}" class="object-contain p-4"><div class="absolute top-2 right-2 w-6 h-6 bg-red-500 text-white rounded-full flex items-center justify-center shadow hover:bg-red-600 transition" onclick="event.stopPropagation(); app.deleteLogo()"><i class="fa-solid fa-trash text-xs"></i></div>` : `<div class="text-center"><i class="fa-solid fa-cloud-arrow-up text-gray-300 text-2xl mb-2"></i><p class="text-[10px] uppercase font-bold text-gray-400">Upload Logo</p></div>`}
-                                    </div>
-                                    <input type="file" id="l-up" hidden accept="image/*" onchange="app.handleUpload(this.files, 'logo')">
-                                </div>
-                            </div>
-                        </div>
-
-                        <div class="tilt-card h-fit">
-                            <h3 class="font-bold text-lg mb-6 text-gray-800">Storefront Hero</h3>
-                            <div class="space-y-5">
-                                <div>
-                                    <label class="label-3d">Hero Headline</label>
-                                    <textarea class="input-3d" rows="3" placeholder="Architecture\nOf Style." oninput="app.updateBranding('heroTitle', this.value)">${store.branding.heroTitle}</textarea>
-                                    <p class="text-[10px] text-gray-400 mt-1">Use Enter key for line breaks on the big text.</p>
-                                </div>
-                                <div>
-                                    <label class="label-3d">Hero Subtitle</label>
-                                    <input class="input-3d" value="${store.branding.heroSubtitle}" oninput="app.updateBranding('heroSubtitle', this.value)">
-                                </div>
-                                <div>
-                                    <label class="label-3d">Hero Image (The Rotating Image)</label>
-                                    <div class="img-upload-box h-48 w-full relative" onclick="document.getElementById('h-up').click()">
-                                        ${store.branding.headerImage ? 
-                                            `<img src="${store.branding.headerImage}" class="w-full h-full object-cover rounded-xl shadow-inner">` : 
-                                            `<div class="text-center p-4"><i class="fa-regular fa-image text-blue-500 text-3xl mb-3"></i><p class="text-xs text-gray-400 font-bold uppercase tracking-widest">Select Hero Image</p></div>`
-                                        }
-                                    </div>
-                                    <input type="file" id="h-up" hidden accept="image/*" onchange="app.handleUpload(this.files, 'header')">
-                                </div>
-                            </div>
-                        </div>
-                    </div>`;
+                    ws.innerHTML = `<div class="grid grid-cols-1 lg:grid-cols-2 gap-8 max-w-5xl mx-auto"><div class="tilt-card h-fit"><h3 class="font-bold text-lg mb-6 text-gray-800">Core Identity</h3><div class="space-y-5"><div><label class="label-3d">Store Name</label><input class="input-3d" value="${store.branding.name}" oninput="app.updateBranding('name', this.value)"></div><div><label class="label-3d">Accent Color</label><div class="flex gap-4 items-center"><input type="color" class="w-12 h-12 rounded-xl border-none cursor-pointer" value="${store.branding.color}" oninput="app.updateBranding('color', this.value)"><span class="text-xs text-gray-400 font-mono">Controls buttons & highlights</span></div></div><div><label class="label-3d">Store Logo</label><div class="img-upload-box h-32 w-full" onclick="document.getElementById('l-up').click()">${store.branding.logo_url ? `<img src="${store.branding.logo_url}" class="object-contain p-4"><div class="absolute top-2 right-2 w-6 h-6 bg-red-500 text-white rounded-full flex items-center justify-center shadow hover:bg-red-600 transition" onclick="event.stopPropagation(); app.deleteLogo()"><i class="fa-solid fa-trash text-xs"></i></div>` : `<div class="text-center"><i class="fa-solid fa-cloud-arrow-up text-gray-300 text-2xl mb-2"></i><p class="text-[10px] uppercase font-bold text-gray-400">Upload Logo</p></div>`}</div><input type="file" id="l-up" hidden accept="image/*" onchange="app.handleUpload(this.files, 'logo')"></div></div></div><div class="tilt-card h-fit"><h3 class="font-bold text-lg mb-6 text-gray-800">Storefront Hero</h3><div class="space-y-5"><div><label class="label-3d">Hero Headline</label><textarea class="input-3d" rows="3" placeholder="Architecture\nOf Style." oninput="app.updateBranding('heroTitle', this.value)">${store.branding.heroTitle}</textarea><p class="text-[10px] text-gray-400 mt-1">Use Enter key for line breaks on the big text.</p></div><div><label class="label-3d">Hero Subtitle</label><input class="input-3d" value="${store.branding.heroSubtitle}" oninput="app.updateBranding('heroSubtitle', this.value)"></div><div><label class="label-3d">Hero Image (The Rotating Image)</label><div class="img-upload-box h-48 w-full relative" onclick="document.getElementById('h-up').click()">${store.branding.headerImage ? `<img src="${store.branding.headerImage}" class="w-full h-full object-cover rounded-xl shadow-inner">` : `<div class="text-center p-4"><i class="fa-regular fa-image text-blue-500 text-3xl mb-3"></i><p class="text-xs text-gray-400 font-bold uppercase tracking-widest">Select Hero Image</p></div>`}</div><input type="file" id="h-up" hidden accept="image/*" onchange="app.handleUpload(this.files, 'header')"></div></div></div></div>`;
                 }
             }
         };
