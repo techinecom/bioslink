@@ -291,285 +291,289 @@
             </div>
         </div>
     </div>
-<script>
-/* --- 1. CONFIGURATION --- */
-const SUPABASE_URL = 'https://rujozgysdnaxlpqadqff.supabase.co';
-const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InJ1am96Z3lzZG5heGxwcWFkcWZmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Njk0OTY1MTUsImV4cCI6MjA4NTA3MjUxNX0.zi4FwC0xfq0brTrYs3i18rwO3hbFeVhDBq6TpLQCyVs';
-const _supabase = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
-let products = [], cart = [], profile = {};
-let currentProduct = null;
-let selectedVariant = 'Standard';
+    <script>
+        const SUPABASE_URL = 'https://rujozgysdnaxlpqadqff.supabase.co';
+        const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InJ1am96Z3lzZG5heGxwcWFkcWZmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Njk0OTY1MTUsImV4cCI6MjA4NTA3MjUxNX0.zi4FwC0xfq0brTrYs3i18rwO3hbFeVhDBq6TpLQCyVs';
+        const _supabase = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
-/* --- 2. INITIALIZATION --- */
-window.onload = async () => {
-    initMatrixEffect();
-    await initializeStore();
-    setupAutoSync();
-    initAutomatedUI();
+        let products = [], cart = [], profile = {};
+        let currentProduct = null;
+        let selectedVariant = 'Standard';
+        let isSyncing = false;
 
-    // MOBILE RECOVERY: Re-sync when user unlocks phone or returns to tab
-    document.addEventListener('visibilitychange', () => {
-        if (document.visibilityState === 'visible') {
-            console.log("Mobile wakeup: Re-syncing dashboard...");
-            initializeStore();
+        window.onload = async () => {
+            initMatrixEffect();
+            await fullSync(); 
+            initAutomatedUI();
+
+            // CRITICAL MOBILE FIX: Force Sync on Wake/Return
+            document.addEventListener('visibilitychange', () => {
+                if (document.visibilityState === 'visible') {
+                    console.log("⚡ Mobile Wakeup: Syncing...");
+                    fullSync();
+                }
+            });
+            
+            window.addEventListener('online', () => {
+                console.log("🌐 Network Online: Syncing...");
+                fullSync();
+            });
+        };
+
+        async function fullSync() {
+            if(isSyncing) return;
+            isSyncing = true;
+            try {
+                let slug = window.location.pathname.replace('/', '').replace('.html', '');
+                let query = _supabase.from('profiles').select('*');
+
+                if (!slug || slug === 'index' || slug === '') {
+                    query = query.eq('is_published', true).limit(1);
+                } else {
+                    query = query.eq('store_slug', slug);
+                }
+
+                const { data: profData, error } = await query.maybeSingle();
+                
+                if (profData) {
+                    profile = profData;
+                    applyBranding(profile);
+                    setupRealtimeListeners(profile.id);
+                    await fetchProducts(profile.id);
+                } else {
+                    console.log("No profile found");
+                }
+            } catch (e) { console.error("Sync Error:", e); } 
+            finally { isSyncing = false; }
         }
-    });
-};
 
-/* --- 3. CORE SYNC LOGIC --- */
-async function initializeStore() {
-    try {
-        let slug = window.location.pathname.replace('/', '').replace('.html', '');
-        
-        // Fetch profile (Added .maybeSingle() for better mobile stability)
-        let query = _supabase.from('profiles').select('*');
-        
-        if (!slug || slug === 'index') {
-            query = query.eq('is_published', true).limit(1);
-        } else {
-            query = query.eq('store_slug', slug);
+        async function fetchProducts(userId) {
+            const { data } = await _supabase.from('products')
+                .select('*')
+                .eq('user_id', userId)
+                .order('created_at', { ascending: false });
+
+            if (data) {
+                products = data;
+                renderCategories(products);
+                
+                // Keep current category active if refetching
+                const activeBtn = document.querySelector('.category-card.active');
+                const currentCat = activeBtn ? activeBtn.innerText.split('\n')[0].trim().toLowerCase() : 'all';
+                filterProducts(currentCat === 'showroom' ? 'all' : currentCat);
+            }
         }
 
-        const { data, error } = await query.maybeSingle();
-        profile = data || {};
+        function setupRealtimeListeners(userId) {
+            _supabase.removeAllChannels(); // Clear old connections
 
-        if (profile.id) {
-            applyBranding(profile);
-            await fetchProducts(profile.id);
+            // Global Listener - Filters client side for better mobile reliability
+            _supabase.channel('global-changes')
+                .on('postgres_changes', { event: '*', schema: 'public', table: 'products' }, (payload) => {
+                    // Check if update is for this user
+                    if (payload.new?.user_id === userId || payload.old?.user_id === userId) {
+                        console.log("Product Update");
+                        fetchProducts(userId);
+                    }
+                })
+                .on('postgres_changes', { event: 'UPDATE', schema: 'public', table: 'profiles' }, (payload) => {
+                    if (payload.new.id === userId) {
+                        console.log("Profile Update");
+                        profile = payload.new;
+                        applyBranding(profile);
+                    }
+                })
+                .subscribe();
         }
-    } catch (e) { 
-        console.error("Dashboard connection failed:", e); 
-    }
-}
 
-async function fetchProducts(userId) {
-    // Fetch products ordered by newest first
-    const { data } = await _supabase.from('products')
-        .select('*')
-        .eq('user_id', userId)
-        .order('created_at', { ascending: false });
-
-    if (data) {
-        products = data;
-        renderCategories(products);
-        filterProducts('all');
-    }
-}
-
-/* --- 4. REALTIME AUTO-SYNC --- */
-function setupAutoSync() {
-    if (!profile.id) return;
-
-    // Clear old channels to prevent mobile lag
-    _supabase.removeAllChannels();
-
-    // Sync Products
-    _supabase.channel('products-sync')
-        .on('postgres_changes', { 
-            event: '*', 
-            schema: 'public', 
-            table: 'products',
-            filter: `user_id=eq.${profile.id}` 
-        }, (payload) => {
-            console.log('Realtime Product Update:', payload);
-            fetchProducts(profile.id);
-        })
-        .subscribe();
-
-    // Sync Branding/Theme
-    _supabase.channel('profile-sync')
-        .on('postgres_changes', { 
-            event: 'UPDATE', 
-            schema: 'public', 
-            table: 'profiles',
-            filter: `id=eq.${profile.id}` 
-        }, (payload) => {
-            console.log('Realtime Branding Update:', payload);
-            applyBranding(payload.new);
-        })
-        .subscribe();
-}
-
-/* --- 5. UI & BRANDING --- */
-function applyBranding(data) {
-    if (data.header_color) document.documentElement.style.setProperty('--header-bg', data.header_color);
-    if (data.color) document.documentElement.style.setProperty('--accent', data.color);
-    
-    document.querySelectorAll('#nav-store-name, #intro-store-name').forEach(el => {
-        el.innerText = data.store_name || "JINIHOME";
-    });
-
-    if (data.hero_title) document.getElementById('main-hero-text').innerHTML = data.hero_title;
-    if (data.hero_subtitle) document.getElementById('main-sub-text').innerText = data.hero_subtitle;
-    if (data.header_url) document.getElementById('hero-image').src = data.header_url;
-    if (data.description) document.getElementById('intro-description').innerText = data.description;
-    if (data.location) document.getElementById('intro-location').innerText = data.location;
-    if (data.category) document.getElementById('intro-store-type').innerText = data.category;
-}
-
-function initAutomatedUI() {
-    const nav = document.getElementById('top-nav');
-    window.addEventListener('scroll', () => {
-        if (window.scrollY > 50) {
-            nav.querySelector('div').classList.replace('bg-white/5', 'bg-black/80');
-        } else {
-            nav.querySelector('div').classList.replace('bg-black/80', 'bg-white/5');
+        function applyBranding(data) {
+            if (data.header_color) document.documentElement.style.setProperty('--header-bg', data.header_color);
+            if (data.color) document.documentElement.style.setProperty('--accent', data.color);
+            
+            document.querySelectorAll('#nav-store-name, #intro-store-name').forEach(el => el.innerText = data.store_name || "JINIHOME");
+            
+            if (data.hero_title) document.getElementById('main-hero-text').innerHTML = data.hero_title;
+            if (data.hero_subtitle) document.getElementById('main-sub-text').innerText = data.hero_subtitle;
+            if (data.header_url) document.getElementById('hero-image').src = data.header_url;
+            if (data.description) document.getElementById('intro-description').innerText = data.description;
+            if (data.location) document.getElementById('intro-location').innerText = data.location;
+            if (data.category) document.getElementById('intro-store-type').innerText = data.category;
         }
-    });
-}
 
-/* --- 6. CATEGORIES & GRID --- */
-function renderCategories(prods) {
-    const cats = [...new Set(prods.map(p => p.category?.toLowerCase() || 'general'))];
-    const container = document.getElementById('categoryBox');
-    
-    container.innerHTML = `<div class="category-card active cursor-pointer text-center" onclick="filterProducts('all', this)"><div class="relative w-24 h-24 mx-auto mb-2"><div class="orbit-ring"></div><div class="w-full h-full rounded-full bg-white border flex items-center justify-center shadow-lg relative z-10"><span class="font-black text-[10px] text-black">ALL</span></div></div><h4 class="text-[10px] font-bold uppercase">Showroom</h4></div>`;
-    
-    cats.forEach(cat => {
-        const div = document.createElement('div');
-        div.className = 'category-card cursor-pointer text-center';
-        div.onclick = (e) => filterProducts(cat, e.currentTarget);
-        div.innerHTML = `<div class="relative w-24 h-24 mx-auto mb-2"><div class="orbit-ring"></div><div class="w-full h-full rounded-full bg-white border flex items-center justify-center shadow-lg relative z-10"><span class="font-bold text-[10px] text-black uppercase">${cat}</span></div></div><h4 class="text-[10px] font-bold uppercase tracking-widest text-gray-500">${cat}</h4>`;
-        container.appendChild(div);
-    });
-}
+        function initAutomatedUI() {
+            const nav = document.getElementById('top-nav');
+            window.addEventListener('scroll', () => {
+                if (window.scrollY > 50) nav.querySelector('div').classList.replace('bg-white/5', 'bg-black/80');
+                else nav.querySelector('div').classList.replace('bg-black/80', 'bg-white/5');
+            });
+        }
 
-function filterProducts(cat, btn) {
-    if (btn) {
-        document.querySelectorAll('.category-card').forEach(c => c.classList.remove('active'));
-        btn.classList.add('active');
-    }
-    const grid = document.getElementById('productGrid');
-    const filtered = (cat === 'all') ? products : products.filter(p => p.category?.toLowerCase() === cat.toLowerCase());
-    
-    if(filtered.length === 0) {
-        grid.innerHTML = '<div class="col-span-full text-center text-gray-400 py-20">No items found.</div>';
-        return;
-    }
+        function renderCategories(prods) {
+            const cats = [...new Set(prods.map(p => p.category?.toLowerCase() || 'general'))];
+            const container = document.getElementById('categoryBox');
+            
+            // Save active state
+            const activeEl = document.querySelector('.category-card.active');
+            const activeCat = activeEl ? activeEl.innerText.split('\n')[0].trim().toLowerCase() : 'all';
 
-    grid.innerHTML = filtered.map(p => `
-        <div class="product-shell group cursor-pointer" onclick='openModal(${JSON.stringify(p).replace(/'/g, "&#39;")})'>
-            <div class="aspect-square bg-gray-50 rounded-[1.2rem] overflow-hidden relative shadow-inner">
-                <img src="${p.images?.[0] || ''}" class="w-full h-full object-cover group-hover:scale-110 transition-all duration-700">
-            </div>
-            <div class="mt-3 px-1">
-                <h3 class="font-bold text-sm truncate">${p.name}</h3>
-                <p class="font-black accent-text text-lg italic">$${p.price}</p>
-            </div>
-        </div>`).join('');
-}
+            container.innerHTML = `
+                <div class="category-card ${activeCat === 'all' || activeCat === 'showroom' ? 'active' : ''} cursor-pointer text-center" onclick="filterProducts('all', this)">
+                    <div class="relative w-24 h-24 mx-auto mb-2">
+                        <div class="orbit-ring"></div>
+                        <div class="w-full h-full rounded-full bg-white border flex items-center justify-center shadow-lg relative z-10">
+                            <span class="font-black text-[10px] text-black">ALL</span>
+                        </div>
+                    </div>
+                    <h4 class="text-[10px] font-bold uppercase">Showroom</h4>
+                </div>`;
+            
+            cats.forEach(cat => {
+                container.innerHTML += `
+                    <div class="category-card ${activeCat === cat ? 'active' : ''} cursor-pointer text-center" onclick="filterProducts('${cat}', this)">
+                        <div class="relative w-24 h-24 mx-auto mb-2">
+                            <div class="orbit-ring"></div>
+                            <div class="w-full h-full rounded-full bg-white border flex items-center justify-center shadow-lg relative z-10">
+                                <span class="font-bold text-[10px] text-black uppercase">${cat}</span>
+                            </div>
+                        </div>
+                        <h4 class="text-[10px] font-bold uppercase tracking-widest text-gray-500">${cat}</h4>
+                    </div>`;
+            });
+        }
 
-/* --- 7. CART & MODAL --- */
-function toggleCart() {
-    const sidebar = document.getElementById('cart-sidebar');
-    const overlay = document.getElementById('cart-overlay');
-    const isOpen = !sidebar.classList.contains('translate-x-full');
+        function filterProducts(cat, btn) {
+            if (btn) {
+                document.querySelectorAll('.category-card').forEach(c => c.classList.remove('active'));
+                btn.classList.add('active');
+            }
+            const grid = document.getElementById('productGrid');
+            const filtered = (cat === 'all') ? products : products.filter(p => p.category?.toLowerCase() === cat.toLowerCase());
+            
+            if(filtered.length === 0) {
+                grid.innerHTML = '<div class="col-span-full text-center text-gray-400 py-20 font-bold">No items found.</div>';
+                return;
+            }
 
-    if(!isOpen) {
-        sidebar.classList.remove('translate-x-full');
-        overlay.classList.remove('hidden');
-        setTimeout(() => overlay.classList.add('opacity-100'), 10);
-    } else {
-        sidebar.classList.add('translate-x-full');
-        overlay.classList.remove('opacity-100');
-        setTimeout(() => overlay.classList.add('hidden'), 300);
-    }
-    renderCart();
-}
+            grid.innerHTML = filtered.map(p => `
+                <div class="product-shell group cursor-pointer" onclick='openModal(${JSON.stringify(p).replace(/'/g, "&#39;")})'>
+                    <div class="aspect-square bg-gray-50 rounded-[1.2rem] overflow-hidden relative shadow-inner">
+                        <img src="${p.images?.[0] || ''}" class="w-full h-full object-cover group-hover:scale-110 transition-all duration-700" loading="lazy">
+                    </div>
+                    <div class="mt-3 px-1">
+                        <h3 class="font-bold text-sm truncate">${p.name}</h3>
+                        <p class="font-black accent-text text-lg italic">$${p.price}</p>
+                    </div>
+                </div>`).join('');
+        }
 
-function renderCart() {
-    const container = document.getElementById('cart-items');
-    if(cart.length === 0) {
-        container.innerHTML = '<p class="text-center text-gray-400 mt-10 text-sm uppercase">Empty Bag</p>';
-        document.getElementById('cart-total').innerText = '$0';
-        return;
-    }
-    let total = 0;
-    container.innerHTML = cart.map((item, i) => {
-        total += item.price;
-        return `
-        <div class="flex gap-3 items-center bg-gray-50 p-2 rounded-lg relative">
-            <img src="${item.images?.[0]}" class="w-12 h-12 rounded object-cover">
-            <div class="flex-1">
-                <p class="font-bold text-sm leading-tight">${item.name}</p>
-                <p class="text-[10px] text-gray-500">${item.variant}</p>
-            </div>
-            <p class="font-black text-sm">$${item.price}</p>
-            <button onclick="cart.splice(${i},1);renderCart();" class="absolute -top-2 -right-2 bg-red-500 text-white w-5 h-5 rounded-full text-xs">✕</button>
-        </div>`;
-    }).join('');
-    document.getElementById('cart-total').innerText = '$' + total;
-}
+        function toggleCart() {
+            const sidebar = document.getElementById('cart-sidebar');
+            const overlay = document.getElementById('cart-overlay');
+            const isOpen = !sidebar.classList.contains('translate-x-full');
 
-function openModal(p) {
-    document.getElementById('modalTitle').innerText = p.name;
-    document.getElementById('modalPrice').innerText = '$' + p.price;
-    document.getElementById('modalDesc').innerText = p.description || 'No description.';
-    document.getElementById('modalImg').src = p.images?.[0] || '';
-    
-    const vContainer = document.getElementById('modalVariants');
-    vContainer.innerHTML = '';
-    let variants = p.variants ? (typeof p.variants === 'string' ? JSON.parse(p.variants) : p.variants) : [];
-    
-    if(variants.length) {
-        variants.forEach(v => {
-            const b = document.createElement('button');
-            b.className = 'border px-3 py-1 rounded text-xs hover:bg-black hover:text-white transition';
-            b.innerText = v;
-            b.onclick = () => { selectedVariant = v; };
-            vContainer.appendChild(b);
-        });
-    } else { 
-        vContainer.innerHTML = '<span class="text-xs text-gray-400">Standard</span>'; 
-    }
-    
-    currentProduct = p;
-    selectedVariant = variants[0] || 'Standard';
-    document.getElementById('productModal').classList.replace('hidden', 'flex');
-}
+            if(!isOpen) {
+                sidebar.classList.remove('translate-x-full');
+                overlay.classList.remove('hidden');
+                setTimeout(() => overlay.classList.add('opacity-100'), 10);
+            } else {
+                sidebar.classList.add('translate-x-full');
+                overlay.classList.remove('opacity-100');
+                setTimeout(() => overlay.classList.add('hidden'), 300);
+            }
+            renderCart();
+        }
 
-function addToCartFromModal() {
-    if(currentProduct) {
-        cart.push({...currentProduct, variant: selectedVariant});
-        toggleCart();
-        closeModal();
-    }
-}
+        function renderCart() {
+            const container = document.getElementById('cart-items');
+            if(cart.length === 0) {
+                container.innerHTML = '<p class="text-center text-gray-400 mt-10 text-sm uppercase">Empty Bag</p>';
+                document.getElementById('cart-total').innerText = '$0';
+                return;
+            }
+            let total = 0;
+            container.innerHTML = cart.map((item, i) => {
+                total += item.price;
+                return `
+                <div class="flex gap-3 items-center bg-gray-50 p-2 rounded-lg relative">
+                    <img src="${item.images?.[0]}" class="w-12 h-12 rounded object-cover">
+                    <div class="flex-1">
+                        <p class="font-bold text-sm leading-tight">${item.name}</p>
+                        <p class="text-[10px] text-gray-500">${item.variant}</p>
+                    </div>
+                    <p class="font-black text-sm">$${item.price}</p>
+                    <button onclick="cart.splice(${i},1);renderCart();" class="absolute -top-2 -right-2 bg-red-500 text-white w-5 h-5 rounded-full text-xs">✕</button>
+                </div>`;
+            }).join('');
+            document.getElementById('cart-total').innerText = '$' + total;
+        }
 
-function closeModal() { document.getElementById('productModal').classList.replace('flex', 'hidden'); }
+        function openModal(p) {
+            document.getElementById('modalTitle').innerText = p.name;
+            document.getElementById('modalPrice').innerText = '$' + p.price;
+            document.getElementById('modalDesc').innerText = p.description || 'No description.';
+            document.getElementById('modalImg').src = p.images?.[0] || '';
+            
+            const vContainer = document.getElementById('modalVariants');
+            vContainer.innerHTML = '';
+            let variants = p.variants ? (typeof p.variants === 'string' ? JSON.parse(p.variants) : p.variants) : [];
+            
+            if(variants.length) {
+                variants.forEach(v => {
+                    const b = document.createElement('button');
+                    b.className = 'border px-3 py-1 rounded text-xs hover:bg-black hover:text-white transition';
+                    b.innerText = v;
+                    b.onclick = () => { selectedVariant = v; };
+                    vContainer.appendChild(b);
+                });
+            } else { vContainer.innerHTML = '<span class="text-xs text-gray-400">Standard</span>'; }
+            
+            currentProduct = p;
+            selectedVariant = variants[0] || 'Standard';
+            document.getElementById('productModal').classList.replace('hidden', 'flex');
+        }
 
-function enterSite() { 
-    document.getElementById('intro-screen').classList.add('intro-hidden'); 
-    document.body.style.overflowY = 'auto';
-}
+        function addToCartFromModal() {
+            if(currentProduct) {
+                cart.push({...currentProduct, variant: selectedVariant});
+                toggleCart();
+                closeModal();
+            }
+        }
 
-function initMatrixEffect() {
-    const canvas = document.getElementById('matrix-canvas');
-    if(!canvas) return;
-    const ctx = canvas.getContext('2d');
-    canvas.width = window.innerWidth; 
-    canvas.height = window.innerHeight;
-    const drops = Array(Math.floor(canvas.width/20)).fill(1);
-    setInterval(() => {
-        ctx.fillStyle = 'rgba(0, 0, 0, 0.05)'; ctx.fillRect(0, 0, canvas.width, canvas.height);
-        ctx.fillStyle = getComputedStyle(document.documentElement).getPropertyValue('--accent');
-        drops.forEach((y, i) => {
-            ctx.fillText("01"[Math.floor(Math.random()*2)], i * 20, y * 20);
-            if (y * 20 > canvas.height && Math.random() > 0.975) drops[i] = 0;
-            drops[i]++;
-        });
-    }, 50);
-}
+        function closeModal() { document.getElementById('productModal').classList.replace('flex', 'hidden'); }
 
-function checkoutWhatsApp() {
-    if(cart.length === 0) return;
-    let msg = `*Order for ${profile.store_name}*\n`;
-    cart.forEach(i => msg += `• ${i.name} [${i.variant}] ($${i.price})\n`);
-    msg += `\n*Total: ${document.getElementById('cart-total').innerText}*`;
-    const num = profile.payment_number || "919999999999";
-    window.open(`https://wa.me/${num}?text=${encodeURIComponent(msg)}`, '_blank');
-}
+        function enterSite() { 
+            document.getElementById('intro-screen').classList.add('intro-hidden'); 
+            document.body.style.overflowY = 'auto';
+        }
+
+        function initMatrixEffect() {
+            const canvas = document.getElementById('matrix-canvas');
+            if(!canvas) return;
+            const ctx = canvas.getContext('2d');
+            canvas.width = window.innerWidth; 
+            canvas.height = window.innerHeight;
+            const drops = Array(Math.floor(canvas.width/20)).fill(1);
+            setInterval(() => {
+                ctx.fillStyle = 'rgba(0, 0, 0, 0.05)'; ctx.fillRect(0, 0, canvas.width, canvas.height);
+                ctx.fillStyle = getComputedStyle(document.documentElement).getPropertyValue('--accent');
+                drops.forEach((y, i) => {
+                    ctx.fillText("01"[Math.floor(Math.random()*2)], i * 20, y * 20);
+                    if (y * 20 > canvas.height && Math.random() > 0.975) drops[i] = 0;
+                    drops[i]++;
+                });
+            }, 50);
+        }
+
+        function checkoutWhatsApp() {
+            if(cart.length === 0) return;
+            let msg = `*Order for ${profile.store_name}*\n`;
+            cart.forEach(i => msg += `• ${i.name} [${i.variant}] ($${i.price})\n`);
+            msg += `\n*Total: ${document.getElementById('cart-total').innerText}*`;
+            const num = profile.payment_number || "919999999999";
+            window.open(`https://wa.me/${num}?text=${encodeURIComponent(msg)}`, '_blank');
+        }
     </script>
 </body>
 </html>
