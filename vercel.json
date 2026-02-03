@@ -9,8 +9,12 @@
       "destination": "/biostorelogin.html" 
     },
     { 
-      "source": "/:slug", 
-      "destination": "/store.html" 
+      "source": "/images/:path*", 
+      "destination": "/images/:path*" 
+    },
+    {
+      "source": "/:slug((?!.*\\.).*)", 
+      "destination": "/store.html"
     }
   ]
 }
