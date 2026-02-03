@@ -348,23 +348,54 @@
             finally { isSyncing = false; }
         }
 
-        async function fetchProducts(userId) {
-            const { data } = await _supabase.from('products')
-                .select('*')
-                .eq('user_id', userId)
-                .order('created_at', { ascending: false });
+async function initializeStore() {
+        if (isSyncing) return;
+        isSyncing = true;
+
+        try {
+            // 1. CLEAN URL DETECTION (Fixes Mobile "Trailing Slash" Issue)
+            // Removes trailing slash, .html, and query params (?)
+            const path = window.location.pathname.replace(/\/+$/, '').replace('.html', '');
+            const slug = path.split('/').pop(); // Gets the last part (e.g., 'nike')
+
+            console.log("Detected Slug:", slug); // Debugging
+
+            let query = _supabase.from('profiles').select('*');
+            
+            // 2. SMART QUERY
+            // If we are at the root domain or dashboard, load default
+            if (!slug || slug === 'index' || slug === '' || slug === 'dashboard') {
+                query = query.eq('is_published', true).limit(1);
+            } else {
+                // Otherwise, search for the specific store slug
+                query = query.eq('store_slug', slug);
+            }
+
+            const { data, error } = await query.maybeSingle();
 
             if (data) {
-                products = data;
-                renderCategories(products);
-                
-                // Keep current category active if refetching
-                const activeBtn = document.querySelector('.category-card.active');
-                const currentCat = activeBtn ? activeBtn.innerText.split('\n')[0].trim().toLowerCase() : 'all';
-                filterProducts(currentCat === 'showroom' ? 'all' : currentCat);
+                profile = data;
+                applyBranding(profile);
+                setupAutoSync(profile.id);
+                await fetchProducts(profile.id);
+            } else {
+                // FALLBACK: If specific slug fails, load the main default store
+                // This prevents the "Black Screen" if a user types a wrong url
+                console.warn("Store not found, loading default fallback.");
+                const { data: defaultData } = await _supabase.from('profiles').select('*').eq('is_published', true).limit(1).single();
+                if(defaultData) {
+                    profile = defaultData;
+                    applyBranding(profile);
+                    await fetchProducts(profile.id);
+                }
             }
-        }
 
+        } catch (e) {
+            console.error("Initialization Error:", e);
+        } finally {
+            isSyncing = false;
+        }
+    }
         function setupRealtimeListeners(userId) {
             _supabase.removeAllChannels(); // Clear old connections
 
