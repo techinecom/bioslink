@@ -1,284 +1,275 @@
+<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>JINIHOME | Storefront</title>
+    <meta name="viewport" content="width=1280">
+    <title>JINIHOME | Editorial Store</title>
     
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=Outfit:wght@300;400;500;700;900&display=swap" rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/ScrollTrigger.min.js"></script>
+    
+    <link href="https://fonts.googleapis.com/css2?family=Oswald:wght@200;400;500;700&family=Manrope:wght@300;400;600;800&display=swap" rel="stylesheet">
 
     <style>
-        /* ========================================
-           1. CORE VARIABLES
-           ======================================== */
-        :root {
-            --header-bg: #0A0A0B; 
-            --accent: #EA580C;
-            --body-bg: #F2F3F5; 
-            --card-bg: #FFFFFF;
-            --text-main: #0A0A0B;
-            --glass-border: rgba(255, 255, 255, 0.1);
-            --glass-bg: rgba(255, 255, 255, 0.05);
+        /* FORCE RESET */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
         }
 
-        body { 
-            font-family: 'Plus Jakarta Sans', sans-serif; 
-            background-color: var(--body-bg); 
-            color: var(--text-main);
-            margin: 0; padding: 0;
-            overflow-x: hidden;
-            -webkit-tap-highlight-color: transparent;
+        html, body {
+            width: 100%;
+            height: 100%;
+            background-color: #F8F8F8;
+            /* Prevents the 'shrink-to-fit' white bars on desktop */
+            min-width: 1280px; 
         }
 
-        h1, h2, h3, h4, .brand-font { font-family: 'Outfit', sans-serif; }
-        .accent-text { color: var(--accent) !important; }
-        .accent-bg { background-color: var(--accent) !important; }
-        .header-dynamic-bg { background-color: var(--header-bg) !important; }
-        .scrollbar-hide::-webkit-scrollbar { display: none; }
-
-        /* ========================================
-           2. ANIMATIONS (ALWAYS ON)
-           ======================================== */
-        @keyframes lightOrbit {
-            0% { transform: translate(-20%, -20%) scale(1); opacity: 0.1; }
-            50% { transform: translate(30%, 30%) scale(1.2); opacity: 0.2; }
-            100% { transform: translate(-20%, -20%) scale(1); opacity: 0.1; }
+        #app-content {
+            margin-top: 0 !important;
+            padding-top: 0 !important;
+            display: block; 
         }
-        @keyframes autoTilt {
-            0% { transform: perspective(1000px) rotateY(0deg) rotateX(0deg); }
-            50% { transform: perspective(1000px) rotateY(5deg) rotateX(2deg); }
-            100% { transform: perspective(1000px) rotateY(0deg) rotateX(0deg); }
+               
+        /* 1. GLOBAL RESET */
+        body {
+            color: var(--text);
+            font-family: 'Manrope', sans-serif; cursor: none;
         }
-        @keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
-        @keyframes float { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-10px); } }
+    
+        /* 2. ANIMATIONS */
+        @keyframes slideUp {
+            from { transform: translateY(40px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+        .animate-slideUp {
+            animation: slideUp 1s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+            opacity: 0; 
+        }
 
-        /* ========================================
-           3. UI COMPONENTS
-           ======================================== */
+        :root { --bg: #F8F8F8; --text: #050505; --accent: #EA580C; --border: #E5E5E5; }
+
+        h1, h2, .display-font { font-family: 'Oswald', sans-serif; text-transform: uppercase; }
+
+        ::-webkit-scrollbar { width: 4px; height: 4px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: #000; }
+
+        @keyframes logoFlicker {
+            0% { opacity: 0.3; } 3% { opacity: 0.1; } 6% { opacity: 0.3; }
+            7% { opacity: 0.3; } 8% { opacity: 0.15; } 9% { opacity: 0.3; }
+            10% { opacity: 0.3; } 20% { opacity: 0.3; } 22% { opacity: 0.1; }
+            24% { opacity: 0.3; } 50% { opacity: 0.3; } 55% { opacity: 0.2; }
+            60% { opacity: 0.3; } 100% { opacity: 0.3; }
+        }
+
+        .bg-flicker-logo {
+            position: absolute; top: 50%; left: 50%;
+            transform: translate(-50%, -50%); width: 100%;
+            text-align: center; z-index: 0; pointer-events: none;
+            animation: logoFlicker 3s infinite linear;
+        }
+
+        .bg-flicker-logo h1 {
+            font-family: 'Oswald', sans-serif; font-size: 25vw;
+            font-weight: 700; line-height: 0.8; color: white;
+            filter: blur(4px); white-space: nowrap;
+        }
+
+        .marquee-container { overflow: hidden; white-space: nowrap; position: relative; }
+        .marquee-content { display: inline-block; animation: marquee 20s linear infinite; }
+        @keyframes marquee { 0% { transform: translateX(0); } 100% { transform: translateX(-50%); } }
+
+        .img-reveal-wrapper { overflow: hidden; position: relative; }
+        .img-reveal-wrapper img { transition: transform 1.2s cubic-bezier(0.165, 0.84, 0.44, 1); }
+        .img-reveal-wrapper:hover img { transform: scale(1.05); }
+
+        .cursor-dot { width: 8px; height: 8px; background: black; position: fixed; top: 0; left: 0; border-radius: 50%; pointer-events: none; z-index: 9999; }
+        .cursor-outline { width: 40px; height: 40px; border: 1px solid rgba(0,0,0,0.3); position: fixed; top: 0; left: 0; border-radius: 50%; pointer-events: none; z-index: 9999; transition: all 0.2s ease-out; }
+        body.hovering .cursor-outline { transform: scale(2); background: rgba(0,0,0,0.05); border-color: transparent; }
+
+        .snap-x-mandatory { scroll-snap-type: x mandatory; }
+        .snap-center { scroll-snap-align: center; }
+
+        .curtain { position: fixed; top: 0; left: 0; width: 100%; height: 100vh; background: #000; z-index: 10000; transform-origin: top; }
+
+        .typing::after { content: '|'; animation: blink 1s infinite; }
+        @keyframes blink { 0%, 100% { opacity: 1; } 50% { opacity: 0; } }
+
+        .motion-card-container { perspective: 1000px; transform-style: preserve-3d; }
+        .motion-card { transform-style: preserve-3d; box-shadow: 0 30px 60px -12px rgba(0, 0, 0, 0.25); }
+
+        .collection-card { position: relative; transition: all 0.5s cubic-bezier(0.25, 1, 0.5, 1); }
+        .collection-card:hover { transform: translateY(-10px); }
+        .collection-card::after { content: ''; position: absolute; inset: 0; border: 1px solid rgba(0,0,0,0.1); pointer-events: none; }
         
-        /* INTRO SCREEN - FORCED BIG ON MOBILE */
-        #intro-screen { 
-            position: fixed; inset: 0; z-index: 9999; 
-            background-color: #050505; display: flex; 
-            align-items: center; justify-content: center; 
-            transition: transform 0.8s cubic-bezier(0.77, 0, 0.175, 1);
-        }
-        .intro-hidden { transform: translateY(-100%); pointer-events: none; }
-        #matrix-canvas { position: absolute; inset: 0; opacity: 0.3; pointer-events: none; }
+        .prod-card-hover .details-panel { transform: translateY(100%); transition: transform 0.4s ease; }
+        .prod-card-hover:hover .details-panel { transform: translateY(0); }
+        
+        @keyframes slowZoom { 0% { transform: scale(1); } 50% { transform: scale(1.15); } 100% { transform: scale(1); } }
+        .auto-zoom { animation: slowZoom 18s ease-in-out infinite; will-change: transform; }
 
-        .glass-card {
-            background: var(--glass-bg);
-            backdrop-filter: blur(24px);
-            -webkit-backdrop-filter: blur(24px);
-            border: 1px solid var(--glass-border);
-            box-shadow: 0 40px 80px rgba(0, 0, 0, 0.6);
-        }
+        .collection-card-frame { border: 1px solid rgba(0,0,0,0.1); position: relative; overflow: hidden; background: #f0f0f0; }
 
-        /* HEADER - SIDE-BY-SIDE LAYOUT PRESERVED */
-        .header-section {
-            position: relative; 
-            padding-top: 7rem; 
-            padding-bottom: 80px;
-            background: var(--header-bg); 
-            overflow: hidden;
-            border-bottom-left-radius: 50px; 
-            border-bottom-right-radius: 50px;
-        }
-
-        .header-glow {
-            position: absolute; width: 600px; height: 600px;
-            background: radial-gradient(circle, var(--accent) 0%, transparent 70%);
-            filter: blur(60px); pointer-events: none; z-index: 1;
-            animation: lightOrbit 10s ease-in-out infinite;
-        }
-
-        /* CATEGORIES - CENTERED */
-        #categoryBox { 
-            display: flex; 
-            justify-content: center; /* Forced Center */
-            flex-wrap: wrap; 
-            gap: 1.5rem; 
-        }
-        .category-card { transition: transform 0.3s; opacity: 0.8; }
-        .category-card.active { opacity: 1; transform: scale(1.1); }
-        .orbit-ring {
-            position: absolute; inset: -5px; border: 2px solid transparent;
-            border-top-color: var(--accent); border-radius: 50%;
-            opacity: 0; transition: opacity 0.5s;
-        }
-        .active .orbit-ring { opacity: 1; animation: spin 4s linear infinite; }
-
-        /* PRODUCT GRID */
-        .product-shell {
-            background: var(--card-bg); border-radius: 1.5rem; padding: 0.8rem;
-            border: 1px solid rgba(0,0,0,0.05);
-            transition: transform 0.3s;
-        }
-
-        /* ========================================
-           4. STRICT MOBILE OVERRIDES (NO STACKING)
-           ======================================== */
-        @media (max-width: 768px) {
-            
-            /* 1. FORCE HEADER SIDE-BY-SIDE (Grid Cols 2) */
-            .mobile-force-row {
-                display: grid !important;
-                grid-template-columns: 1fr 1fr !important;
-                gap: 1rem !important;
-                align-items: center !important;
-                text-align: left !important;
-            }
-
-            /* 2. INTRO CARD - MAKE IT BIG */
-            #intro-screen .glass-card {
-                width: 95% !important; /* Almost full width */
-                padding: 2.5rem !important;
-                border-radius: 2rem !important;
-            }
-            #intro-store-name { font-size: 2.5rem !important; } /* Readable but big */
-
-            /* 3. HERO IMAGE - PRESERVE 3D TILT */
-            .hero-image-wrapper img {
-                height: 220px !important; /* Smaller height but side-by-side */
-                border-radius: 1.5rem !important;
-            }
-            #main-hero-text { font-size: 2.2rem !important; line-height: 1 !important; }
-            #main-sub-text { font-size: 0.7rem !important; display: block !important; }
-
-            /* 4. CATEGORIES - KEEP CENTERED (Wrap if needed) */
-            #categoryBox {
-                justify-content: center !important;
-                gap: 1rem !important;
-                padding: 0 10px;
-            }
-            .category-card { width: 4.5rem; } /* Smaller icons to fit more */
-            .category-card .w-24 { width: 4rem !important; height: 4rem !important; }
-
-            /* 5. PRODUCT GRID - 2 COLUMNS STRICT */
-            #productGrid {
-                grid-template-columns: repeat(2, 1fr) !important;
-                gap: 0.8rem !important;
-                padding: 0 10px;
-            }
-            .product-shell { padding: 0.6rem !important; }
+        /* MODIFIED FOR DESKTOP CONSISTENCY ON ALL DEVICES */
+        @media (max-width: 1024px) {
+            .cursor-dot, .cursor-outline { display: none; }
+            body { cursor: auto; }
         }
     </style>
 </head>
 
 <body class="antialiased">
 
-    <div id="intro-screen">
-        <canvas id="matrix-canvas"></canvas>
-        <div class="relative z-10 glass-card w-full max-w-lg mx-4 text-center space-y-6 animate-fadeIn">
-            <div class="w-20 h-20 mx-auto accent-bg rounded-full flex items-center justify-center font-black text-4xl italic text-white shadow-[0_0_30px_rgba(255,255,255,0.3)] border-4 border-white/10">J</div>
-            
-            <div class="space-y-1">
-                <h1 class="text-5xl font-black italic text-white tracking-tighter" id="intro-store-name">JINIHOME</h1>
-                <div class="inline-block px-3 py-1 rounded-full border border-[var(--accent)] bg-[var(--accent)]/10">
-                    <p class="text-[var(--accent)] font-bold uppercase tracking-widest text-[10px]" id="intro-store-type">Premium Store</p>
-                </div>
-            </div>
+    <div class="cursor-dot hidden md:block"></div>
+    <div class="cursor-outline hidden md:block"></div>
 
-            <div class="space-y-3 py-2">
-                <p class="text-gray-300 text-xs leading-relaxed max-w-xs mx-auto px-4" id="intro-description">
-                    Loading your exclusive experience...
-                </p>
-                <div class="flex items-center justify-center gap-2 text-gray-400 text-[10px] uppercase tracking-widest">
-                    <span>📍</span> <span id="intro-location">Online Store</span>
-                </div>
+    <div id="intro-screen" class="curtain p-8 md:p-12 text-white relative overflow-hidden">
+        <div class="bg-flicker-logo">
+            <h1 id="intro-bg-text">JINIHOME</h1>
+        </div>
+        <div class="absolute top-8 left-8 right-8 md:top-12 md:left-12 md:right-12 flex justify-between items-start opacity-0 intro-element z-10">
+            <div>
+                <p class="text-xs font-mono text-gray-400 mb-1">LOCATION</p>
+                <p id="intro-location" class="text-sm font-bold tracking-widest min-h-[1.25rem]"></p>
             </div>
-
-            <button onclick="enterSite()" class="w-full bg-white text-black py-4 rounded-xl font-black uppercase tracking-widest hover:bg-[var(--accent)] hover:text-white transition-all shadow-xl">
-                Enter Showroom
-            </button>
+            <div class="text-right max-w-xs">
+                <p class="text-xs font-mono text-gray-400 mb-1">ABOUT</p>
+                <p id="intro-desc" class="text-sm leading-relaxed text-gray-300 min-h-[3rem]"></p>
+            </div>
+        </div>
+        <div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 text-center w-full z-10">
+            <h1 id="intro-title" class="text-[15vw] leading-none font-bold tracking-tighter mix-blend-difference intro-title-anim">
+                JINIHOME
+            </h1>
+        </div>
+        <div class="absolute bottom-8 left-8 right-8 md:bottom-12 md:left-12 md:right-12 intro-element opacity-0 z-10">
+            <div class="flex justify-between text-xs font-mono text-gray-500 mb-2">
+                <span>INITIALIZING STOREFRONT</span>
+                <span id="loader-pct">0%</span>
+            </div>
+            <div class="w-full h-[1px] bg-gray-800 relative">
+                <div id="loader-bar" class="absolute left-0 top-0 h-full w-0 bg-white"></div>
+            </div>
         </div>
     </div>
 
-    <div id="main-wrapper">
-        
-        <header class="header-section header-dynamic-bg text-white" id="advanced-header">
-            <div class="header-glow"></div>
-            
-            <nav id="top-nav" class="fixed top-0 w-full z-[1000] py-4 px-4 md:px-12 transition-all duration-500">
-                <div class="max-w-[1500px] mx-auto flex justify-between items-center bg-white/5 backdrop-blur-xl border border-white/10 p-3 rounded-full">
-                    <div class="text-xl font-black italic flex gap-2 items-center cursor-pointer" onclick="window.scrollTo({top:0, behavior:'smooth'})">
-                        <div class="w-2 h-2 accent-bg rounded-full shadow-lg animate-pulse"></div>
-                        <span id="nav-store-name">JINIHOME</span>
-                    </div>
-                    <button class="relative bg-white/10 px-5 py-2 rounded-full flex items-center gap-2 font-bold text-[10px] uppercase" onclick="toggleCart()">
-                        <span>Bag</span>
-                        <div id="cart-count" class="w-5 h-5 accent-bg flex items-center justify-center rounded-full text-white">0</div>
+    <div id="app-content" class="opacity-0">
+        <nav class="fixed top-0 w-full z-50 px-6 py-6 mix-blend-difference text-white flex justify-between items-center">
+            <a href="#" class="interactable" onclick="location.reload()" id="nav-brand-container">
+                <span class="text-2xl font-bold tracking-tighter display-font" id="nav-brand-text">JINIHOME</span>
+                <img id="nav-brand-img" src="" class="h-8 md:h-10 w-auto object-contain hidden">
+            </a>
+            <button onclick="toggleCart()" class="interactable flex items-center gap-2 group">
+                <span class="text-xs font-bold uppercase tracking-widest group-hover:underline">Cart</span>
+                <span id="cart-count" class="flex items-center justify-center w-5 h-5 bg-white text-black text-[10px] rounded-full font-bold">0</span>
+            </button>
+        </nav>
+
+        <header class="relative w-full min-h-[70vh] md:h-[75vh] flex items-start justify-between px-6 md:px-12 border-b border-gray-200 overflow-hidden bg-[#F0F0F0] mt-0 pt-32 md:pt-40">
+            <div class="absolute inset-0 z-0 pointer-events-none">
+                <div class="absolute right-[-10%] top-[-10%] w-[60%] h-[120%] bg-gradient-to-l from-gray-200 to-transparent skew-x-12 opacity-50"></div>
+            </div>
+            <div class="relative z-10 w-full md:max-w-3xl flex flex-col justify-start">
+                <p class="text-xs md:text-sm font-mono text-gray-500 mb-4 animate-slideUp tracking-widest">
+                    EST. 2026 • DIGITAL BOUTIQUE
+                </p>
+                <h1 class="text-5xl md:text-[8vw] font-bold uppercase tracking-tighter leading-[0.9] mb-8 animate-slideUp">
+                    New <br><span class="text-transparent bg-clip-text bg-gradient-to-r from-orange-500 to-red-600">Era.</span>
+                </h1>
+                <div class="flex gap-4 animate-slideUp">
+                    <button onclick="scrollToSection('collections-section')" class="border border-black px-8 py-4 text-sm font-bold uppercase tracking-widest hover:bg-black hover:text-white transition-all">
+                        Explore
                     </button>
                 </div>
-            </nav>
-
-            <div class="max-w-[1500px] mx-auto px-6 mt-10 relative z-10 mobile-force-row grid md:grid-cols-2 gap-4 md:gap-16 items-center">
-                
-                <div class="space-y-4 md:space-y-8 order-1">
-                    <div class="inline-flex items-center gap-2 bg-white/5 border border-white/10 px-3 py-1 rounded-full backdrop-blur-md">
-                        <span class="flex h-1.5 w-1.5 rounded-full accent-bg animate-pulse"></span>
-                        <span class="text-[9px] font-bold uppercase tracking-widest text-gray-300">New 2026</span>
-                    </div>
-                    
-                    <h1 class="text-5xl md:text-9xl font-black leading-[0.9] tracking-tighter" id="main-hero-text">
-                        Pure<br><span class="accent-text italic">Style.</span>
-                    </h1>
-                    
-                    <p class="text-gray-400 text-xs md:text-xl font-light leading-snug" id="main-sub-text">
-                        Architecture in motion.
-                    </p>
-                </div>
-
-                <div class="hero-image-wrapper order-2" style="perspective: 1000px;">
-                    <img id="hero-image" src="" class="rounded-[2rem] md:rounded-[4.5rem] shadow-2xl w-full h-[400px] md:h-[600px] object-cover border-2 border-white/10" style="animation: autoTilt 8s ease-in-out infinite;">
-                    
-                    <div class="absolute -bottom-4 -left-4 bg-white text-black px-3 py-1 rounded-full text-[9px] font-black uppercase shadow-lg animate-bounce">
-                        ★ Verified
+            </div>
+            <div class="hidden lg:block absolute right-16 top-1/2 -translate-y-1/2 z-10 motion-card-container w-[1400px] h-[900px]">
+                <div id="hero-motion-card" class="motion-card w-full h-full bg-black relative group rounded-sm overflow-hidden">
+                    <img src="https://images.unsplash.com/photo-1483985988355-763728e1935b?q=80&w=1470&auto=format&fit=crop" class="w-full h-full object-cover opacity-90">
+                    <div class="absolute inset-0 flex flex-col justify-end p-8 bg-gradient-to-t from-black/90 via-transparent to-transparent">
+                        <p class="text-orange-500 text-xs font-mono mb-2">FEATURED COLLECTION</p>
+                        <h3 class="text-white text-3xl font-bold uppercase leading-none">Winter<br>Editorial</h3>
                     </div>
                 </div>
             </div>
         </header>
 
-        <section class="py-10">
-            <div id="categoryBox" class="px-4">
+        <div class="border-b border-gray-200 py-3 bg-black text-white overflow-hidden">
+            <div class="marquee-container">
+                <div class="marquee-content text-sm font-mono uppercase tracking-widest">
+                    Free Worldwide Shipping • Premium Quality Guaranteed • Exclusive Drops • 24/7 Support • Verified Authentic •&nbsp;
+                    Free Worldwide Shipping • Premium Quality Guaranteed • Exclusive Drops • 24/7 Support • Verified Authentic •&nbsp;
                 </div>
+            </div>
+        </div>
+
+        <section id="collections-section" class="py-24 border-b border-gray-200 bg-white">
+            <div class="px-6 md:px-12 mb-12 flex justify-between items-end">
+                <h2 class="text-5xl md:text-7xl font-bold tracking-tighter">COLLECTIONS</h2>
+                <span class="text-xs font-mono text-gray-400">DRAG TO EXPLORE →</span>
+            </div>
+            <div id="collection-track" class="flex overflow-x-auto gap-8 px-6 md:px-12 pb-12 snap-x-mandatory scroll-smooth no-scrollbar"></div>
         </section>
 
-        <section class="pb-32 px-4 max-w-[1500px] mx-auto">
-            <div id="productGrid" class="grid grid-cols-1 md:grid-cols-3 gap-6">
+        <section id="products-section" class="py-24 bg-[#F8F8F8]">
+            <div class="px-6 md:px-12 mb-12 flex items-center justify-between sticky top-0 z-20 py-4 bg-[#F8F8F8]/90 backdrop-blur-sm">
+                <h2 class="text-4xl md:text-5xl font-bold">ARCHIVE</h2>
+                <div class="flex gap-2 overflow-x-auto no-scrollbar" id="filter-container">
+                    <button class="px-5 py-2 bg-black text-white text-xs font-bold uppercase rounded-full" onclick="filterGrid('All')">All</button>
                 </div>
+            </div>
+            <div id="product-grid" class="px-6 md:px-12 grid grid-cols-4 gap-y-16 gap-x-8"></div>
         </section>
+
+        <footer class="bg-black text-white py-20 px-6 md:px-12">
+            <div class="flex flex-col md:flex-row justify-between items-start md:items-end gap-10">
+                <h2 class="text-[12vw] leading-none font-bold text-gray-800 select-none">JINIHOME</h2>
+                <div class="text-right">
+                    <p class="text-sm font-mono text-gray-500">POWERED BY SUPABASE</p>
+                    <p class="text-xs text-gray-600 mt-2">&copy; 2026 All Rights Reserved</p>
+                </div>
+            </div>
+        </footer>
     </div>
 
-    <div id="cart-overlay" onclick="toggleCart()" class="fixed inset-0 bg-black/60 z-[9000] hidden opacity-0 transition-opacity duration-300"></div>
-    <div id="cart-sidebar" class="fixed top-0 right-0 h-full w-full max-w-sm bg-white z-[10000] translate-x-full transition-transform duration-500 flex flex-col shadow-2xl">
-        <div class="p-5 border-b flex justify-between items-center bg-white sticky top-0">
-            <h3 class="font-black text-lg italic">Your Bag</h3>
-            <button onclick="toggleCart()" class="text-xl px-2">✕</button>
+    <div id="cart-sidebar" class="fixed inset-y-0 right-0 w-full md:w-[500px] bg-white z-[60] transform translate-x-full transition-transform duration-500 ease-[cubic-bezier(0.25,1,0.5,1)] flex flex-col shadow-2xl">
+        <div class="p-6 border-b border-gray-100 flex justify-between items-center">
+            <h3 class="font-bold text-xl font-mono">YOUR CART</h3>
+            <button onclick="toggleCart()" class="text-2xl hover:rotate-90 transition-transform">✕</button>
         </div>
-        <div id="cart-items" class="flex-1 overflow-y-auto p-5 space-y-4"></div>
-        <div class="p-5 border-t bg-gray-50">
-            <div class="flex justify-between mb-4 font-black text-lg">
-                <span class="text-gray-400">Total</span>
-                <span id="cart-total">$0</span>
+        <div id="cart-items" class="flex-1 overflow-y-auto p-6 space-y-6"></div>
+        <div class="p-6 bg-gray-50 border-t border-gray-100">
+            <div class="flex justify-between text-xl font-bold mb-6">
+                <span>TOTAL</span>
+                <span id="cart-total">$0.00</span>
             </div>
-            <button onclick="checkoutWhatsApp()" class="w-full py-4 accent-bg text-white rounded-xl font-black uppercase tracking-widest">Checkout</button>
+            <button onclick="checkoutWhatsApp()" class="w-full py-5 bg-black text-white font-bold uppercase tracking-widest hover:bg-orange-600 transition-colors">
+                Checkout via WhatsApp
+            </button>
         </div>
     </div>
 
-    <div id="productModal" class="fixed inset-0 z-[20000] hidden items-center justify-center p-4 bg-black/90 backdrop-blur-md">
-        <div class="bg-white rounded-[2rem] w-full max-w-3xl max-h-[85vh] overflow-hidden relative flex flex-col md:flex-row">
-            <button onclick="closeModal()" class="absolute top-4 right-4 z-20 bg-gray-100 w-8 h-8 rounded-full flex items-center justify-center">✕</button>
-            <div class="md:w-1/2 bg-gray-50 p-6 flex items-center justify-center">
-                <img id="modalImg" class="w-full h-auto max-h-[300px] object-contain rounded-xl">
+    <div id="modal-overlay" class="fixed inset-0 z-[70] bg-black/80 hidden items-center justify-center p-4 transition-opacity duration-300 opacity-0">
+        <div id="modal-content" class="bg-white w-full max-w-6xl h-[85vh] flex flex-col md:flex-row overflow-hidden shadow-2xl transform scale-95 transition-transform duration-300">
+            <button onclick="closeModal()" class="absolute top-4 right-4 z-20 bg-white/10 backdrop-blur-md p-2 rounded-full hover:bg-black hover:text-white transition-colors">✕</button>
+            <div class="md:w-3/5 bg-gray-100 relative flex items-center justify-center p-10">
+                <img id="modal-img" class="max-w-full max-h-full object-contain mix-blend-multiply">
             </div>
-            <div class="md:w-1/2 p-6 overflow-y-auto">
-                <h2 id="modalTitle" class="text-2xl font-black italic mb-2">Product</h2>
-                <p id="modalPrice" class="text-xl font-bold accent-text mb-4">$0</p>
-                <p id="modalDesc" class="text-sm text-gray-500 mb-6">Description...</p>
-                <div id="modalVariants" class="flex flex-wrap gap-2 mb-6"></div>
-                <button onclick="addToCartFromModal()" class="w-full py-3 bg-black text-white rounded-lg font-bold uppercase tracking-widest">Add to Bag</button>
+            <div class="md:w-2/5 p-10 md:p-14 flex flex-col overflow-y-auto bg-white">
+                <span id="modal-collection" class="text-xs font-bold uppercase text-orange-600 tracking-widest mb-4">Collection</span>
+                <h2 id="modal-title" class="text-4xl md:text-5xl font-bold mb-4 uppercase leading-none">Product Title</h2>
+                <p id="modal-price" class="text-2xl font-mono text-gray-400 mb-8">$0.00</p>
+                <div class="prose prose-sm text-gray-600 mb-8 leading-relaxed" id="modal-desc"></div>
+                <div class="mt-auto">
+                    <label class="text-xs font-bold uppercase block mb-3">Select Option</label>
+                    <div id="modal-variants" class="flex flex-wrap gap-2 mb-8"></div>
+                    <button onclick="addToCartFromModal()" class="w-full py-4 bg-black text-white font-bold uppercase tracking-widest hover:bg-orange-600 transition-colors">
+                        Add to Cart
+                    </button>
+                </div>
             </div>
         </div>
     </div>
@@ -286,309 +277,233 @@
     <script>
         const SUPABASE_URL = 'https://rujozgysdnaxlpqadqff.supabase.co';
         const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InJ1am96Z3lzZG5heGxwcWFkcWZmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Njk0OTY1MTUsImV4cCI6MjA4NTA3MjUxNX0.zi4FwC0xfq0brTrYs3i18rwO3hbFeVhDBq6TpLQCyVs';
-        const _supabase = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+        const sb = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
-        let products = [], cart = [], profile = {};
+        let products = [];
+        let cart = [];
+        let profile = {};
         let currentProduct = null;
-        let selectedVariant = 'Standard';
-        let isSyncing = false;
+        let selectedVariant = null;
 
         window.onload = async () => {
-            initMatrixEffect();
-            await initializeStore(); // Updated function name
-            initAutomatedUI();
-
-            // 
-            // CRITICAL MOBILE FIX: Force Sync on Wake/Return
-            document.addEventListener('visibilitychange', () => {
-                if (document.visibilityState === 'visible') {
-                    console.log("⚡ Mobile Wakeup: Syncing...");
-                    initializeStore(); // Updated function name
-                }
-            });
-            
-            window.addEventListener('online', () => {
-                console.log("🌐 Network Online: Syncing...");
-                initializeStore(); // Updated function name
-            });
+            initCursor();
+            initAutoCard(); 
+            runIntroSequence(); 
+            await loadData();   
         };
 
-        async function initializeStore() {
-            if (isSyncing) return;
-            isSyncing = true;
+        async function typeWriter(elementId, text, speed = 30) {
+            const el = document.getElementById(elementId);
+            if(!el) return;
+            el.innerHTML = "";
+            el.classList.add('typing');
+            await new Promise(r => setTimeout(r, 500));
+            for (let i = 0; i < text.length; i++) {
+                el.innerHTML += text.charAt(i);
+                await new Promise(r => setTimeout(r, speed));
+            }
+            el.classList.remove('typing');
+        }
+
+        function runIntroSequence() {
+            const tl = gsap.timeline();
+            tl.to(".intro-element", { opacity: 1, duration: 1, stagger: 0.2 })
+              .to("#loader-bar", { width: "100%", duration: 1.5, ease: "power2.inOut" })
+              .to("#loader-pct", { 
+                  innerHTML: "100%", duration: 1.5, snap: { innerHTML: 1 }, 
+                  onUpdate: function() { this.targets()[0].innerHTML += "%" } 
+              }, "<")
+              .to("#intro-screen", { 
+                  y: "-100%", 
+                  duration: 1.2, 
+                  ease: "power4.inOut", 
+                  delay: 0.5,
+                  onComplete: () => {
+                      document.getElementById('intro-screen').style.display = 'none';
+                  }
+              })
+              .to("#app-content", { opacity: 1, duration: 0.5 }, "-=0.8");
+        }
+
+        function initAutoCard() {
+            const card = document.getElementById('hero-motion-card');
+            if(!card) return;
+            gsap.to(card, {
+                y: -20, rotationX: 5, rotationY: -5,
+                duration: 4, repeat: -1, yoyo: true, ease: "sine.inOut"
+            });
+        }
+
+        function initCursor() {
+            const dot = document.querySelector('.cursor-dot');
+            const outline = document.querySelector('.cursor-outline');
+            window.addEventListener('mousemove', (e) => {
+                gsap.to(dot, { x: e.clientX, y: e.clientY, duration: 0.1 });
+                gsap.to(outline, { x: e.clientX, y: e.clientY, duration: 0.25 });
+            });
+            document.querySelectorAll('.interactable').forEach(el => {
+                el.addEventListener('mouseenter', () => document.body.classList.add('hovering'));
+                el.addEventListener('mouseleave', () => document.body.classList.remove('hovering'));
+            });
+        }
+
+        async function loadData() {
             try {
-                // 1. CLEAN URL DETECTION (Fixes Mobile "Trailing Slash" Issue)
                 const path = window.location.pathname.replace(/\/+$/, '').replace('.html', '');
                 const slug = path.split('/').pop();
-
-                console.log("Detected Slug:", slug);
-
-                let query = _supabase.from('profiles').select('*');
-                
-                // 2. SMART QUERY
-                // If we are at the root, index, or dashboard, we load the default
-                if (!slug || slug === 'index' || slug === '' || slug === 'dashboard' || slug === 'store') {
-                    query = query.eq('is_published', true).limit(1);
-                } else {
-                    query = query.eq('store_slug', slug);
+                let query = sb.from('profiles').select('*');
+                if (!slug || slug === 'index' || slug === 'store') query = query.eq('is_published', true).limit(1);
+                else query = query.eq('store_slug', slug);
+                const { data: prof } = await query.maybeSingle();
+                if(prof) {
+                    profile = prof;
+                    applyBranding();
                 }
+                const { data: prods } = await sb.from('products').select('*').eq('user_id', profile.id || prof?.id).order('created_at', {ascending: false});
+                const mockProducts = generateMockData(20);
+                products = (prods && prods.length > 0) ? [...prods, ...mockProducts] : mockProducts;
+                renderCollectionsSection(products);
+                renderProductGrid(products);
+            } catch(e) { console.error(e); }
+        }
 
-                // Use maybeSingle to prevent 406 errors on mobile
-                const { data: profData } = await query.maybeSingle();
-
-                // 3. FALLBACK MECHANISM (Crucial for mobile redirects)
-                if (profData) {
-                    profile = profData;
-                } else {
-                    console.warn("Slug not found, attempting fallback...");
-                    const { data: defaultData } = await _supabase.from('profiles').select('*').eq('is_published', true).limit(1).single();
-                    profile = defaultData || {};
-                }
-
-                if (profile.id) {
-                    applyBranding(profile);
-                    setupAutoSync(profile.id);
-                    await fetchProducts(profile.id);
-                } else {
-                    console.error("No profile could be loaded.");
-                }
-
-            } catch (e) {
-                console.error("Initialization Error:", e);
-            } finally {
-                isSyncing = false;
+        function generateMockData(count) {
+            const mocks = [];
+            const collections = ["Avant-Garde", "Neo-Tokyo", "Minimalist", "Industrial", "Cyber-Prep", "Noir", "Vintage Tech", "Eco-Futurism", "Monochrome", "High-Fidelity"];
+            const images = ["https://images.unsplash.com/photo-1515886657613-9f3515b0c78f?w=800","https://images.unsplash.com/photo-1529139574466-a302d2052505?w=800","https://images.unsplash.com/photo-1483985988355-763728e1935b?w=800","https://images.unsplash.com/photo-1539109136881-3be0616acf4b?w=800","https://images.unsplash.com/photo-1550614000-4b9519e09d43?w=800"];
+            for(let i=0; i<count; i++) {
+                mocks.push({
+                    name: `Sample Artifact ${i+1}`,
+                    price: Math.floor(Math.random() * 300) + 50,
+                    description: "This is a sample product description.",
+                    images: [images[i % images.length]],
+                    collection: collections[i % collections.length],
+                    variants: ["Small", "Medium", "Large"],
+                    id: `mock-${i}`
+                });
             }
+            return mocks;
         }
 
-        async function fetchProducts(userId) {
-            const { data } = await _supabase.from('products')
-                .select('*')
-                .eq('user_id', userId)
-                .order('created_at', { ascending: false });
-
-            if (data) {
-                products = data;
-                renderCategories(products);
-                
-                // Restore active category filter
-                const activeEl = document.querySelector('.category-card.active');
-                const currentCat = activeEl ? activeEl.innerText.split('\n')[0].trim().toLowerCase() : 'all';
-                filterProducts(currentCat === 'showroom' ? 'all' : currentCat);
+        function applyBranding() {
+            if(profile.store_name) {
+                document.title = profile.store_name;
+                document.getElementById('nav-brand-text').innerText = profile.store_name;
+                document.getElementById('intro-title').innerText = profile.store_name;
+                document.getElementById('intro-bg-text').innerText = profile.store_name;
             }
+            if(profile.logo_url) {
+                const img = document.getElementById('nav-brand-img');
+                const txt = document.getElementById('nav-brand-text');
+                img.src = profile.logo_url;
+                img.classList.remove('hidden');
+                txt.classList.add('hidden');
+            }
+            const loc = profile.location || "Online Worldwide";
+            const desc = profile.description || "Curating the finest digital aesthetics.";
+            typeWriter('intro-location', loc, 50);
+            typeWriter('intro-desc', desc, 20);
         }
 
-        function setupAutoSync(userId) {
-            _supabase.removeAllChannels();
-            _supabase.channel('public-updates')
-                .on('postgres_changes', { event: '*', schema: 'public', table: 'products' }, (payload) => {
-                    // Update only if it matches our store user
-                    if (payload.new?.user_id === userId || payload.old?.user_id === userId) {
-                        fetchProducts(userId);
-                    }
-                })
-                .on('postgres_changes', { event: 'UPDATE', schema: 'public', table: 'profiles' }, (payload) => {
-                    if (payload.new.id === userId) {
-                        profile = payload.new;
-                        applyBranding(profile);
-                    }
-                })
-                .subscribe();
+        function renderCollectionsSection(allProducts) {
+            const container = document.getElementById('collection-track');
+            const uniqueCols = [...new Set(allProducts.map(p => p.collection || p.category || 'Uncategorized'))];
+            container.innerHTML = uniqueCols.map((colName, index) => {
+                const coverProduct = allProducts.find(p => (p.collection || p.category) === colName);
+                const img = (coverProduct?.images?.[0] || '').replace(/ /g, '%20');
+                const isEven = index % 2 === 0;
+                const widthClass = isEven ? "w-[300px] md:w-[320px]" : "w-[350px] md:w-[450px]";
+                const heightClass = "h-[500px]";
+                const contentPos = isEven ? "justify-end items-start" : "justify-between items-start";
+                const gradient = isEven ? "bg-gradient-to-t from-black/90 via-transparent to-transparent" : "bg-gradient-to-b from-black/80 via-transparent to-black/80";
+                return `<div class="interactable flex-shrink-0 ${widthClass} ${heightClass} snap-center relative cursor-pointer collection-card-frame group" onclick="filterGrid('${colName}'); scrollToSection('products-section')"><div class="absolute inset-0 w-full h-full overflow-hidden"><img src="${img}" class="w-full h-full object-cover auto-zoom"></div><div class="absolute inset-0 ${gradient} opacity-80"></div><div class="absolute inset-0 p-8 flex flex-col ${contentPos} z-10">${!isEven ? `<div class="w-full flex justify-between items-center border-b border-white/30 pb-4 mb-auto"><span class="text-orange-500 font-mono text-xs tracking-widest">COLLECTION 0${index+1}</span><span class="text-white text-xs">2026</span></div>` : ''}<div class="w-full">${isEven ? `<p class="text-orange-500 font-mono text-xs tracking-widest mb-2">0${index+1}</p>` : ''}<h3 class="text-white text-4xl md:text-5xl font-bold uppercase tracking-tighter leading-[0.9] drop-shadow-lg">${colName}</h3><div class="mt-4 flex items-center gap-2 group-hover:gap-4 transition-all duration-300"><span class="h-[1px] w-8 bg-white"></span><span class="text-white text-xs font-bold uppercase tracking-widest">View Items</span></div></div></div></div>`;
+            }).join('');
         }
 
-        function applyBranding(data) {
-            if (data.header_color) document.documentElement.style.setProperty('--header-bg', data.header_color);
-            if (data.color) document.documentElement.style.setProperty('--accent', data.color);
-            
-            document.querySelectorAll('#nav-store-name, #intro-store-name').forEach(el => el.innerText = data.store_name || "JINIHOME");
-            
-            if (data.hero_title) document.getElementById('main-hero-text').innerHTML = data.hero_title;
-            if (data.hero_subtitle) document.getElementById('main-sub-text').innerText = data.hero_subtitle;
-            if (data.header_url) document.getElementById('hero-image').src = data.header_url;
-            if (data.description) document.getElementById('intro-description').innerText = data.description;
-            if (data.location) document.getElementById('intro-location').innerText = data.location;
-            if (data.category) document.getElementById('intro-store-type').innerText = data.category;
-        }
-
-        function initAutomatedUI() {
-            const nav = document.getElementById('top-nav');
-            window.addEventListener('scroll', () => {
-                if (window.scrollY > 50) nav.querySelector('div').classList.replace('bg-white/5', 'bg-black/80');
-                else nav.querySelector('div').classList.replace('bg-black/80', 'bg-white/5');
-            });
-        }
-
-        function renderCategories(prods) {
-            const cats = [...new Set(prods.map(p => p.category?.toLowerCase() || 'general'))];
-            const container = document.getElementById('categoryBox');
-            
-            // Save active state
-            const activeEl = document.querySelector('.category-card.active');
-            const activeCat = activeEl ? activeEl.innerText.split('\n')[0].trim().toLowerCase() : 'all';
-
-            container.innerHTML = `
-                <div class="category-card ${activeCat === 'all' || activeCat === 'showroom' ? 'active' : ''} cursor-pointer text-center" onclick="filterProducts('all', this)">
-                    <div class="relative w-24 h-24 mx-auto mb-2">
-                        <div class="orbit-ring"></div>
-                        <div class="w-full h-full rounded-full bg-white border flex items-center justify-center shadow-lg relative z-10">
-                            <span class="font-black text-[10px] text-black">ALL</span>
+        function renderProductGrid(prods) {
+            const grid = document.getElementById('product-grid');
+            grid.innerHTML = prods.map(p => `
+                <div class="interactable group cursor-pointer prod-card-hover relative" onclick='openModal(${JSON.stringify(p).replace(/'/g, "&#39;")})'>
+                    <div class="img-reveal-wrapper aspect-[3/4] bg-gray-200 relative overflow-hidden mb-4">
+                        <img src="${(p.images?.[0] || '').replace(/ /g, '%20')}" class="w-full h-full object-cover">
+                        <div class="details-panel absolute inset-0 bg-white/90 backdrop-blur-sm flex flex-col items-center justify-center text-center p-6 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                            <p class="text-xs font-bold uppercase tracking-widest mb-4">View Product</p>
+                            <div class="w-10 h-10 rounded-full border border-black flex items-center justify-center hover:bg-black hover:text-white transition-colors">↗</div>
                         </div>
                     </div>
-                    <h4 class="text-[10px] font-bold uppercase">Showroom</h4>
-                </div>`;
-            
-            cats.forEach(cat => {
-                container.innerHTML += `
-                    <div class="category-card ${activeCat === cat ? 'active' : ''} cursor-pointer text-center" onclick="filterProducts('${cat}', this)">
-                        <div class="relative w-24 h-24 mx-auto mb-2">
-                            <div class="orbit-ring"></div>
-                            <div class="w-full h-full rounded-full bg-white border flex items-center justify-center shadow-lg relative z-10">
-                                <span class="font-bold text-[10px] text-black uppercase">${cat}</span>
-                            </div>
+                    <div class="flex justify-between items-baseline border-t border-gray-300 pt-3 group-hover:border-black transition-colors">
+                        <div>
+                            <h4 class="font-bold uppercase text-sm leading-tight group-hover:underline">${p.name}</h4>
+                            <p class="text-[10px] text-gray-500 font-mono mt-1 uppercase tracking-widest">${p.collection || 'General'}</p>
                         </div>
-                        <h4 class="text-[10px] font-bold uppercase tracking-widest text-gray-500">${cat}</h4>
-                    </div>`;
-            });
-        }
-
-        function filterProducts(cat, btn) {
-            if (btn) {
-                document.querySelectorAll('.category-card').forEach(c => c.classList.remove('active'));
-                btn.classList.add('active');
-            }
-            const grid = document.getElementById('productGrid');
-            const filtered = (cat === 'all') ? products : products.filter(p => p.category?.toLowerCase() === cat.toLowerCase());
-            
-            if(filtered.length === 0) {
-                grid.innerHTML = '<div class="col-span-full text-center text-gray-400 py-20 font-bold">No items found.</div>';
-                return;
-            }
-
-            // SPACE FIX: .replace(/ /g, '%20') added to image source
-            grid.innerHTML = filtered.map(p => `
-                <div class="product-shell group cursor-pointer" onclick='openModal(${JSON.stringify(p).replace(/'/g, "&#39;")})'>
-                    <div class="aspect-square bg-gray-50 rounded-[1.2rem] overflow-hidden relative shadow-inner">
-                        <img src="${(p.images?.[0] || '').replace(/ /g, '%20')}" class="w-full h-full object-cover group-hover:scale-110 transition-all duration-700" loading="lazy">
-                    </div>
-                    <div class="mt-3 px-1">
-                        <h3 class="font-bold text-sm truncate">${p.name}</h3>
-                        <p class="font-black accent-text text-lg italic">$${p.price}</p>
+                        <span class="font-mono text-sm font-bold">$${p.price}</span>
                     </div>
                 </div>`).join('');
+            gsap.fromTo("#product-grid > div", { y: 50, opacity: 0 }, { y: 0, opacity: 1, duration: 0.6, stagger: 0.05, clearProps: "all" });
         }
 
-        function toggleCart() {
-            const sidebar = document.getElementById('cart-sidebar');
-            const overlay = document.getElementById('cart-overlay');
-            const isOpen = !sidebar.classList.contains('translate-x-full');
-
-            if(!isOpen) {
-                sidebar.classList.remove('translate-x-full');
-                overlay.classList.remove('hidden');
-                setTimeout(() => overlay.classList.add('opacity-100'), 10);
-            } else {
-                sidebar.classList.add('translate-x-full');
-                overlay.classList.remove('opacity-100');
-                setTimeout(() => overlay.classList.add('hidden'), 300);
-            }
-            renderCart();
+        function filterGrid(category) {
+            const filtered = category === 'All' ? products : products.filter(p => (p.collection || p.category) === category);
+            renderProductGrid(filtered);
         }
 
+        function scrollToSection(id) { document.getElementById(id).scrollIntoView({behavior: 'smooth'}); }
+        function toggleCart() { document.getElementById('cart-sidebar').classList.toggle('translate-x-full'); renderCart(); }
+        
         function renderCart() {
-            const container = document.getElementById('cart-items');
-            if(cart.length === 0) {
-                container.innerHTML = '<p class="text-center text-gray-400 mt-10 text-sm uppercase">Empty Bag</p>';
-                document.getElementById('cart-total').innerText = '$0';
-                return;
-            }
+            const cont = document.getElementById('cart-items');
             let total = 0;
-            
-            // SPACE FIX: .replace(/ /g, '%20') added to image source
-            container.innerHTML = cart.map((item, i) => {
+            cont.innerHTML = cart.map((item, i) => {
                 total += item.price;
-                return `
-                <div class="flex gap-3 items-center bg-gray-50 p-2 rounded-lg relative">
-                    <img src="${(item.images?.[0] || '').replace(/ /g, '%20')}" class="w-12 h-12 rounded object-cover">
-                    <div class="flex-1">
-                        <p class="font-bold text-sm leading-tight">${item.name}</p>
-                        <p class="text-[10px] text-gray-500">${item.variant}</p>
-                    </div>
-                    <p class="font-black text-sm">$${item.price}</p>
-                    <button onclick="cart.splice(${i},1);renderCart();" class="absolute -top-2 -right-2 bg-red-500 text-white w-5 h-5 rounded-full text-xs">✕</button>
-                </div>`;
+                return `<div class="flex gap-4 items-start"><img src="${(item.images?.[0] || '').replace(/ /g, '%20')}" class="w-20 h-24 object-cover bg-gray-100"><div class="flex-1"><h4 class="font-bold text-sm uppercase">${item.name}</h4><p class="text-xs text-gray-500 mb-2">${item.variant}</p><p class="font-mono text-sm">$${item.price}</p></div><button onclick="cart.splice(${i},1);renderCart()" class="text-gray-400 hover:text-black">✕</button></div>`;
             }).join('');
-            document.getElementById('cart-total').innerText = '$' + total;
+            document.getElementById('cart-total').innerText = '$' + total.toFixed(2);
+            document.getElementById('cart-count').innerText = cart.length;
         }
 
         function openModal(p) {
-            document.getElementById('modalTitle').innerText = p.name;
-            document.getElementById('modalPrice').innerText = '$' + p.price;
-            document.getElementById('modalDesc').innerText = p.description || 'No description.';
-            
-            // SPACE FIX: .replace(/ /g, '%20') added to image source
-            document.getElementById('modalImg').src = (p.images?.[0] || '').replace(/ /g, '%20');
-            
-            const vContainer = document.getElementById('modalVariants');
-            vContainer.innerHTML = '';
-            let variants = p.variants ? (typeof p.variants === 'string' ? JSON.parse(p.variants) : p.variants) : [];
-            
-            if(variants.length) {
-                variants.forEach(v => {
-                    const b = document.createElement('button');
-                    b.className = 'border px-3 py-1 rounded text-xs hover:bg-black hover:text-white transition';
-                    b.innerText = v;
-                    b.onclick = () => { selectedVariant = v; };
-                    vContainer.appendChild(b);
-                });
-                selectedVariant = variants[0];
-            } else { 
-                vContainer.innerHTML = '<span class="text-xs text-gray-400">Standard</span>'; 
-                selectedVariant = 'Standard';
-            }
-            
             currentProduct = p;
-            document.getElementById('productModal').classList.replace('hidden', 'flex');
-        }
-
-        function addToCartFromModal() {
-            if(currentProduct) {
-                cart.push({...currentProduct, variant: selectedVariant});
-                toggleCart();
-                closeModal();
-            }
-        }
-
-        function closeModal() { document.getElementById('productModal').classList.replace('flex', 'hidden'); }
-
-        function enterSite() { 
-            document.getElementById('intro-screen').classList.add('intro-hidden'); 
-            document.body.style.overflowY = 'auto';
-        }
-
-        function initMatrixEffect() {
-            const canvas = document.getElementById('matrix-canvas');
-            if(!canvas) return;
-            const ctx = canvas.getContext('2d');
-            canvas.width = window.innerWidth; 
-            canvas.height = window.innerHeight;
-            const drops = Array(Math.floor(canvas.width/20)).fill(1);
-            setInterval(() => {
-                ctx.fillStyle = 'rgba(0, 0, 0, 0.05)'; ctx.fillRect(0, 0, canvas.width, canvas.height);
-                ctx.fillStyle = getComputedStyle(document.documentElement).getPropertyValue('--accent');
-                drops.forEach((y, i) => {
-                    ctx.fillText("01"[Math.floor(Math.random()*2)], i * 20, y * 20);
-                    if (y * 20 > canvas.height && Math.random() > 0.975) drops[i] = 0;
-                    drops[i]++;
+            document.getElementById('modal-title').innerText = p.name;
+            document.getElementById('modal-price').innerText = '$' + p.price;
+            document.getElementById('modal-desc').innerHTML = p.description || '';
+            document.getElementById('modal-img').src = (p.images?.[0] || '').replace(/ /g, '%20');
+            document.getElementById('modal-collection').innerText = p.collection || 'Item';
+            const vDiv = document.getElementById('modal-variants');
+            vDiv.innerHTML = '';
+            let vars = p.variants ? (typeof p.variants === 'string' ? JSON.parse(p.variants) : p.variants) : [];
+            if(vars.length) {
+                vars.forEach(v => {
+                    const btn = document.createElement('button');
+                    btn.className = 'var-btn border border-gray-200 px-4 py-2 text-xs uppercase font-bold hover:border-black transition-colors';
+                    btn.innerText = v;
+                    btn.onclick = () => {
+                        document.querySelectorAll('.var-btn').forEach(b => b.classList.remove('bg-black', 'text-white'));
+                        btn.classList.add('bg-black', 'text-white');
+                        selectedVariant = v;
+                    };
+                    vDiv.appendChild(btn);
                 });
-            }, 50);
+                vDiv.children[0].click();
+            } else { selectedVariant = 'Standard'; }
+            const ov = document.getElementById('modal-overlay');
+            ov.classList.remove('hidden');
+            setTimeout(() => { ov.classList.remove('opacity-0'); document.getElementById('modal-content').classList.remove('scale-95'); }, 10);
         }
 
+        function closeModal() {
+            const ov = document.getElementById('modal-overlay');
+            ov.classList.add('opacity-0');
+            document.getElementById('modal-content').classList.add('scale-95');
+            setTimeout(() => ov.classList.add('hidden'), 300);
+        }
+
+        function addToCartFromModal() { if(currentProduct) { cart.push({...currentProduct, variant: selectedVariant}); closeModal(); toggleCart(); } }
         function checkoutWhatsApp() {
-            if(cart.length === 0) return;
-            let msg = `*Order for ${profile.store_name}*\n`;
-            cart.forEach(i => msg += `• ${i.name} [${i.variant}] ($${i.price})\n`);
-            msg += `\n*Total: ${document.getElementById('cart-total').innerText}*`;
-            const num = profile.payment_number || "919999999999";
-            window.open(`https://wa.me/${num}?text=${encodeURIComponent(msg)}`, '_blank');
+            if(!cart.length) return;
+            let msg = `*ORDER ENQUIRY - ${profile.store_name || 'JINIHOME'}*\n\n`;
+            cart.forEach(i => msg += `— ${i.name} (${i.variant}) : $${i.price}\n`);
+            msg += `\n*TOTAL: ${document.getElementById('cart-total').innerText}*`;
+            window.open(`https://wa.me/${profile.payment_number || "9199999999"}?text=${encodeURIComponent(msg)}`, '_blank');
         }
     </script>
 </body>
