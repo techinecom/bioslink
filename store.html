@@ -229,15 +229,37 @@
     </div>
 
     <div id="modal-overlay" class="fixed inset-0 z-[70] bg-black/98 hidden items-center justify-center p-4 opacity-0 transition-opacity duration-400">
-        <div id="modal-content" class="bg-white w-full max-w-7xl h-auto md:h-[85vh] flex flex-col md:flex-row overflow-hidden border-2 border-black">
-            <button onclick="closeModal()" class="absolute top-8 right-8 z-20 bg-black text-white w-12 h-12 flex items-center justify-center">✕</button>
-            <div class="md:w-3/5 bg-white flex items-center justify-center p-12"><img id="modal-img" class="max-w-full max-h-full object-contain"></div>
-            <div class="md:w-2/5 p-12 flex flex-col bg-white border-l-2 border-black">
-                <h2 id="modal-title" class="text-5xl font-bold mb-6 uppercase italic tracking-tighter leading-none"></h2>
-                <p id="modal-price" class="text-3xl font-bold mb-10 border-b-2 border-black pb-6"></p>
-                <div id="modal-desc" class="text-sm text-gray-500 mb-12 leading-relaxed"></div>
-                <div id="modal-variants" class="flex flex-wrap gap-4 mb-12"></div>
-                <button onclick="addToCartFromModal()" class="w-full py-7 bg-black text-white font-bold uppercase tracking-[0.3em] mt-auto">Add to Archive</button>
+        <div id="modal-content" class="bg-white w-full max-w-7xl h-[90vh] md:h-[85vh] flex flex-col md:flex-row overflow-hidden border-2 border-black relative">
+            
+            <button onclick="closeModal()" class="absolute top-4 right-4 z-50 bg-black text-white w-10 h-10 flex items-center justify-center rounded-full hover:bg-gray-800">✕</button>
+
+            <div class="h-1/2 md:h-full md:w-3/5 bg-gray-50 flex items-center justify-center relative p-8">
+                <div class="w-full h-full relative group">
+                    <img id="modal-img" class="w-full h-full object-contain mix-blend-multiply">
+                    
+                    <button onclick="prevImage()" id="btn-prev" class="absolute left-0 top-1/2 -translate-y-1/2 bg-white/80 border border-black p-3 hover:bg-black hover:text-white transition-all hidden">←</button>
+                    <button onclick="nextImage()" id="btn-next" class="absolute right-0 top-1/2 -translate-y-1/2 bg-white/80 border border-black p-3 hover:bg-black hover:text-white transition-all hidden">→</button>
+                    
+                    <div id="slider-dots" class="absolute bottom-4 left-0 right-0 flex justify-center gap-2"></div>
+                </div>
+            </div>
+
+            <div class="h-1/2 md:h-full md:w-2/5 p-8 md:p-12 flex flex-col bg-white border-t-2 md:border-t-0 md:border-l-2 border-black overflow-y-auto">
+                <span id="modal-collection-tag" class="text-[10px] font-bold uppercase tracking-widest text-gray-400 mb-2"></span>
+                <h2 id="modal-title" class="text-3xl md:text-5xl font-bold mb-4 uppercase italic tracking-tighter leading-none"></h2>
+                <p id="modal-price" class="text-2xl md:text-3xl font-bold mb-6 border-b-2 border-black pb-6"></p>
+                
+                <div class="mb-8">
+                    <h4 class="text-[10px] font-bold uppercase tracking-widest mb-2">Description</h4>
+                    <div id="modal-desc" class="text-sm text-gray-600 leading-relaxed whitespace-pre-line"></div>
+                </div>
+
+                <div class="mb-8">
+                    <h4 class="text-[10px] font-bold uppercase tracking-widest mb-3">Select Variant</h4>
+                    <div id="modal-variants" class="flex flex-wrap gap-2"></div>
+                </div>
+                
+                <button onclick="addToCartFromModal()" class="w-full py-6 bg-black text-white font-bold uppercase tracking-[0.3em] hover:bg-gray-800 transition-all mt-auto sticky bottom-0">Add to Archive</button>
             </div>
         </div>
     </div>
@@ -248,6 +270,7 @@
         const sb = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
         let products = [], cart = [], profile = {}, selectedVariant = null, currentProduct = null;
+        let currentImgIndex = 0;
 
         window.onload = async () => {
             initCursor();
@@ -314,12 +337,13 @@
         }
 
         function renderCollections(all) {
-            // SYNCED DATABASE COLLECTION LOGIC
-            const unique = ["All", ...new Set(all.map(p => p.collection || 'Standard'))];
+            // FIXED COLLECTION SYNCING
+            const unique = ["All", ...new Set(all.map(p => (p.collection || 'Standard').trim()))];
+            
             document.getElementById('collection-track').innerHTML = unique.map(col => {
-                const cover = all.find(p => p.collection === col) || all[0];
+                const cover = all.find(p => (p.collection || 'Standard').trim() === col) || all[0];
                 return `<div class="collection-card-frame ${col === 'All' ? 'active' : ''}" onclick="filterCollection('${col}')" data-col="${col}">
-                    <div class="collection-circle"><img src="${cover ? cover.images[0] : ''}" class="w-full h-full object-cover"></div>
+                    <div class="collection-circle" style="border: 2px solid #000;"><img src="${cover ? cover.images[0] : ''}" class="w-full h-full object-cover"></div>
                     <span class="text-[10px] font-bold uppercase tracking-widest text-black/40">${col}</span>
                 </div>`;
             }).join('');
@@ -327,14 +351,14 @@
 
         function filterCollection(col) {
             document.querySelectorAll('.collection-card-frame').forEach(el => el.classList.toggle('active', el.dataset.col === col));
-            const filtered = col === 'All' ? products : products.filter(p => p.collection === col);
+            const filtered = col === 'All' ? products : products.filter(p => (p.collection || 'Standard').trim() === col);
             renderProductGrid(filtered);
             document.getElementById('active-collection-title').innerText = col;
         }
 
         function renderProductGrid(prods) {
             document.getElementById('product-grid').innerHTML = prods.map(p => `
-                <div class="interactable group cursor-pointer" onclick='openModal(${JSON.stringify(p)})'>
+                <div class="interactable group cursor-pointer" onclick='openModal(${JSON.stringify(p).replace(/'/g, "&#39;")})'>
                     <div class="img-reveal-wrapper aspect-[3/4] mb-4 border-2 border-black relative overflow-hidden">
                         <img src="${p.images[0]}" class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700">
                     </div>
@@ -346,22 +370,86 @@
                 </div>`).join('');
         }
 
+        // --- NEW SLIDER & MODAL LOGIC ---
+        
         function openModal(p) {
             currentProduct = p;
+            currentImgIndex = 0;
+            
+            document.getElementById('modal-collection-tag').innerText = p.collection || "Archive";
             document.getElementById('modal-title').innerText = p.name;
             document.getElementById('modal-price').innerText = '$' + p.price;
             document.getElementById('modal-desc').innerText = p.description;
-            document.getElementById('modal-img').src = p.images[0];
+            
+            updateModalImage();
+
+            // FIXED VARIANT LOGIC
             const vDiv = document.getElementById('modal-variants');
             let vars = [];
-            try { vars = typeof p.variants === 'string' ? JSON.parse(p.variants) : p.variants; } catch(e) { vars = ["Standard"]; }
-            vDiv.innerHTML = (vars || ["Standard"]).map(v => `<button class="border-2 border-black px-8 py-4 text-[10px] font-bold uppercase transition-all" onclick="selectVariant(this, '${v}')">${v}</button>`).join('');
+            
+            // Handle JSON string, Array, or comma-separated string
+            if (Array.isArray(p.variants)) {
+                vars = p.variants;
+            } else if (typeof p.variants === 'string') {
+                try {
+                    vars = JSON.parse(p.variants);
+                } catch(e) {
+                    vars = p.variants.split(',').map(v => v.trim());
+                }
+            } else {
+                vars = ["Standard"];
+            }
+
+            vDiv.innerHTML = vars.map(v => `<button class="border-2 border-black px-6 py-3 text-[10px] font-bold uppercase transition-all hover:bg-black hover:text-white" onclick="selectVariant(this, '${v}')">${v}</button>`).join('');
+            
+            // Auto-select first variant
+            if(vDiv.children.length > 0) selectVariant(vDiv.children[0], vars[0]);
+
             document.getElementById('modal-overlay').classList.remove('hidden');
             setTimeout(() => document.getElementById('modal-overlay').classList.add('opacity-100'), 50);
         }
 
+        function updateModalImage() {
+            const imgEl = document.getElementById('modal-img');
+            const images = currentProduct.images || [];
+            
+            if(images.length > 0) {
+                imgEl.src = images[currentImgIndex];
+                
+                // Show/Hide Arrows
+                document.getElementById('btn-prev').classList.toggle('hidden', images.length <= 1);
+                document.getElementById('btn-next').classList.toggle('hidden', images.length <= 1);
+                
+                // Dots
+                const dotsContainer = document.getElementById('slider-dots');
+                if(images.length > 1) {
+                    dotsContainer.innerHTML = images.map((_, idx) => 
+                        `<div class="w-2 h-2 rounded-full ${idx === currentImgIndex ? 'bg-black' : 'bg-gray-300'}"></div>`
+                    ).join('');
+                } else {
+                    dotsContainer.innerHTML = '';
+                }
+            }
+        }
+
+        function nextImage() {
+            if(!currentProduct || !currentProduct.images) return;
+            currentImgIndex = (currentImgIndex + 1) % currentProduct.images.length;
+            updateModalImage();
+        }
+
+        function prevImage() {
+            if(!currentProduct || !currentProduct.images) return;
+            currentImgIndex = (currentImgIndex - 1 + currentProduct.images.length) % currentProduct.images.length;
+            updateModalImage();
+        }
+
         function selectVariant(el, v) { 
-            document.querySelectorAll('#modal-variants button').forEach(b => b.classList.remove('bg-black', 'text-white'));
+            document.querySelectorAll('#modal-variants button').forEach(b => {
+                b.classList.remove('bg-black', 'text-white');
+                b.classList.add('text-black');
+            });
+            el.classList.remove('text-black');
             el.classList.add('bg-black', 'text-white');
             selectedVariant = v; 
         }
