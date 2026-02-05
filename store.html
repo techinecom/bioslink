@@ -241,35 +241,92 @@
             }
         }
 
-        // --- FIXED SYNC LOGIC FOR 'collections' COLUMN ---
-        function renderCollections() {
-            if(!products || products.length === 0) return;
+        // --- DYNAMIC COLLECTION SYNC SCRIPT ---
 
-            // EXTRACT: Looks specifically at 'p.collections' (plural)
-            const unique = ["All", ...new Set(products
-                .map(p => p.collections ? p.collections.trim() : "Standard") // <--- KEY FIX HERE
-                .filter(c => c !== "") 
-            )];
+async function renderCollections() {
+    const track = document.getElementById('collection-track');
+    if (!track) return;
 
-            // RENDER: Builds the luxury circle navigation
-            document.getElementById('collection-track').innerHTML = unique.map(col => {
-                // Find a cover image for this specific collection
-                const coverProduct = products.find(p => {
-                    const pCol = p.collections ? p.collections.trim() : "Standard"; // <--- KEY FIX HERE
-                    return pCol === col;
-                }) || products[0];
+    try {
+        // 1. Fetch the actual categories you created in the 'collections' table
+        const { data: cols, error: colError } = await sb
+            .from('collections')
+            .select('*')
+            .order('name');
 
-                const imgUrl = coverProduct && coverProduct.images ? coverProduct.images[0] : '';
+        if (colError) throw colError;
 
-                return `
-                <div class="collection-card-frame shrink-0 cursor-pointer ${col === 'All' ? 'active' : ''}" onclick="filterCollection('${col}')" data-col="${col}">
-                    <div class="collection-circle mb-4 relative">
-                        <img src="${imgUrl}" class="w-full h-full object-cover absolute inset-0">
-                    </div>
-                    <p class="text-[10px] font-bold uppercase text-center tracking-widest transition-colors duration-300">${col}</p>
-                </div>`;
-            }).join('');
-        }
+        // 2. Build the "All" button first
+        let html = `
+            <div class="collection-item active shrink-0 text-center cursor-pointer" onclick="filterItems('All', this)">
+                <div class="collection-circle mb-4 bg-zinc-100 flex items-center justify-center font-bold border border-black/10">ALL</div>
+                <p class="text-[10px] font-bold uppercase tracking-widest">All Archive</p>
+            </div>
+        `;
+
+        // 3. Map through your dashboard collections (sunglasses, clothes, watches, etc.)
+        html += cols.map(c => `
+            <div class="collection-item shrink-0 text-center cursor-pointer" onclick="filterItems('${c.name}', this)">
+                <div class="collection-circle mb-4 border border-zinc-100 overflow-hidden">
+                    <img src="${c.img_url}" class="w-full h-full object-cover" onerror="this.src='https://placehold.co/200x200?text=${c.name}'">
+                </div>
+                <p class="text-[10px] font-bold uppercase tracking-widest text-zinc-400">${c.name}</p>
+            </div>
+        `).join('');
+
+        track.innerHTML = html;
+
+    } catch (e) {
+        console.error("Collection Sync Failed:", e);
+    }
+}
+
+// 4. Robust Filtering Logic
+function filterItems(categoryName, element) {
+    // Visual update for circles
+    document.querySelectorAll('.collection-item').forEach(item => {
+        item.classList.remove('active');
+        item.querySelector('p').classList.replace('text-black', 'text-zinc-400');
+    });
+    
+    if (element) {
+        element.classList.add('active');
+        element.querySelector('p').classList.replace('text-zinc-400', 'text-black');
+    }
+
+    // Filter products based on the 'collections' column in your products table
+    const filtered = categoryName === 'All' 
+        ? products 
+        : products.filter(p => p.collections && p.collections.toLowerCase().trim() === categoryName.toLowerCase().trim());
+
+    // Update the UI
+    updateProductGrid(filtered, categoryName);
+}
+
+function updateProductGrid(items, title) {
+    const grid = document.getElementById('product-grid');
+    const titleEl = document.getElementById('active-title');
+    const countEl = document.getElementById('count-label');
+
+    if (titleEl) titleEl.innerText = title;
+    if (countEl) countEl.innerText = `${items.length} PIECES`;
+    
+    if (grid) {
+        grid.innerHTML = items.map(p => `
+            <div class="group product-card opacity-0">
+                <div class="aspect-[3/4] overflow-hidden border border-zinc-100 mb-6 bg-zinc-50 relative">
+                    <img src="${p.images[0]}" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-1000">
+                </div>
+                <p class="text-[9px] tracking-[0.3em] uppercase text-zinc-400 mb-2">${p.collections || 'Archive'}</p>
+                <h4 class="font-bold text-lg uppercase tracking-tighter">${p.name}</h4>
+                <p class="font-light mt-1 text-zinc-600">$${p.price}</p>
+            </div>
+        `).join('');
+
+        // Luxury entry animation
+        gsap.to(".product-card", { opacity: 1, y: 0, duration: 0.8, stagger: 0.05, ease: "power2.out" });
+    }
+}
 
         function filterCollection(col) {
             // Visual Update: Highlight the active circle
