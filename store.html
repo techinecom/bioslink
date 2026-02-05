@@ -68,13 +68,10 @@
         }
 
         .collection-circle {
-            width: 140px; height: 140px; /* BIGGER MOBILE SIZE */
+            width: 140px; height: 140px; /* CONSISTENT SIZE */
             border-radius: 50%;
             transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
             border: 1px solid rgba(0,0,0,0.1);
-        }
-        @media (min-width: 768px) {
-            .collection-circle { width: 180px; height: 180px; } /* HUGE DESKTOP SIZE */
         }
 
         .collection-item.active .collection-circle {
@@ -121,18 +118,18 @@
                 </button>
             </nav>
 
-            <header class="min-h-[85vh] flex flex-col md:flex-row items-center justify-between px-6 md:px-24 pt-32 pb-20">
-                <div class="w-full md:w-1/2 z-10">
+            <header class="min-h-[85vh] flex flex-row items-center justify-between px-6 md:px-24 pt-32 pb-20">
+                <div class="w-1/2 z-10 pr-4">
                     <p class="lux-label text-white mb-6 border-l-2 border-white pl-4">Establishment 2026</p>
-                    <h1 class="text-[14vw] md:text-[9vw] font-bold uppercase tracking-tighter leading-[0.8] mb-10">
+                    <h1 class="text-[9vw] md:text-[9vw] font-bold uppercase tracking-tighter leading-[0.8] mb-10">
                         Prime <br><span class="font-light italic opacity-60">Archive</span>
                     </h1>
-                    <button onclick="document.getElementById('zone-shop').scrollIntoView({behavior:'smooth'})" class="bg-white text-black px-10 py-4 text-[10px] font-bold uppercase tracking-[0.3em] hover:bg-opacity-90 transition-all">
+                    <button onclick="document.getElementById('zone-shop').scrollIntoView({behavior:'smooth'})" class="bg-white text-black px-6 md:px-10 py-3 md:py-4 text-[9px] md:text-[10px] font-bold uppercase tracking-[0.3em] hover:bg-opacity-90 transition-all">
                         Enter Vault
                     </button>
                 </div>
-                <div class="w-full md:w-1/2 flex justify-center mt-12 md:mt-0">
-                    <div class="w-[80%] md:w-[450px] aspect-[3/4] border-2 border-white/20 relative overflow-hidden shadow-2xl float-anim rounded-t-full">
+                <div class="w-1/2 flex justify-center">
+                    <div class="w-full max-w-[450px] aspect-[3/4] border-2 border-white/20 relative overflow-hidden shadow-2xl float-anim rounded-t-full">
                         <img src="https://images.unsplash.com/photo-1515886657613-9f3515b0c78f?q=80&w=1000" class="w-full h-full object-cover">
                     </div>
                 </div>
@@ -158,7 +155,7 @@
                     <h2 id="grid-title" class="text-4xl md:text-5xl font-bold tracking-tighter uppercase">All Items</h2>
                     <p id="grid-count" class="lux-label text-black">Loading...</p>
                 </div>
-                <div id="product-grid" class="grid grid-cols-2 md:grid-cols-4 gap-x-4 gap-y-16"></div>
+                <div id="product-grid" class="grid grid-cols-2 gap-x-4 gap-y-16"></div>
             </div>
 
             <footer class="py-32 text-center opacity-50">
