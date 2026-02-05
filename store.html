@@ -47,7 +47,7 @@
 
         #intro-bg-logo {
             max-width: 60vw; max-height: 50vh; object-fit: contain;
-            opacity: 0.4; /* Fixed 40% Opacity */
+            opacity: 0.4; 
             display: none;
         }
 
@@ -71,13 +71,10 @@
             transition: 0.3s;
         }
         .nav-logo-card:hover { transform: translate(-2px, -2px); box-shadow: 6px 6px 0px #000; }
-        
         .nav-logo-img { height: 40px; width: auto; object-fit: contain; }
 
-        /* 4. HEADER CARD MOVEMENT (COMPLEX UI/UX) */
-        .hero-card-container {
-            perspective: 1000px;
-        }
+        /* 4. HEADER CARD MOVEMENT */
+        .hero-card-container { perspective: 1000px; }
         .hero-card {
             transition: transform 0.6s cubic-bezier(0.23, 1, 0.32, 1);
             transform-style: preserve-3d;
@@ -97,22 +94,23 @@
         /* 6. PRODUCT GRID (STRICT 2X2 ON MOBILE) */
         #product-grid {
             display: grid;
-            grid-template-columns: repeat(2, 1fr); /* Mobile default 2x2 */
+            grid-template-columns: repeat(2, 1fr);
             gap: 16px;
         }
         @media (min-width: 768px) {
             #product-grid { grid-template-columns: repeat(4, 1fr); gap: 40px; }
         }
 
-        /* NO BLACK AND WHITE DRAMA - COLOR FORCED */
         img { grayscale: 0 !important; filter: none !important; }
 
         #app-content { display: block; visibility: hidden; opacity: 0; }
         #app-content.visible { visibility: visible; opacity: 1; transition: opacity 0.8s ease; }
 
         .vignette-bg { position: relative; background-color: #ffffff; background-image: radial-gradient(circle at 0% 0%, var(--vignette) 0%, transparent 40%), radial-gradient(circle at 100% 0%, var(--vignette) 0%, transparent 40%), radial-gradient(circle at 0% 100%, var(--vignette) 0%, transparent 40%), radial-gradient(circle at 100% 100%, var(--vignette) 0%, transparent 40%); }
+        
         .collection-swiper { display: grid; grid-template-columns: repeat(4, 1fr); gap: 1rem; padding: 2rem 1.5rem; justify-items: center; }
         @media (min-width: 768px) { .collection-swiper { display: flex; justify-content: center; gap: 4rem; overflow-x: auto; } }
+        
         .collection-circle { width: 140px; height: 140px; border-radius: 50%; overflow: hidden; border: 1.5px solid #000; margin-bottom: 1rem; background: #f9f9f9; }
         @media (max-width: 768px) { .collection-circle { width: 22vw; height: 22vw; } }
         .collection-card-frame.active .collection-circle { box-shadow: 0 0 0 4px #fff, 0 0 0 6px #000; transform: scale(1.05); }
@@ -120,8 +118,13 @@
         .cursor-dot { width: 8px; height: 8px; background: black; position: fixed; top: 0; left: 0; border-radius: 50%; pointer-events: none; z-index: 9999; mix-blend-difference: difference; }
         .cursor-outline { width: 40px; height: 40px; border: 1.5px solid rgba(0,0,0,1); position: fixed; top: 0; left: 0; border-radius: 50%; pointer-events: none; z-index: 9999; transition: all 0.2s ease-out; }
         .img-reveal-wrapper { overflow: hidden; position: relative; background: #fcfcfc; border: 1.5px solid #000; }
+        
         .no-scrollbar::-webkit-scrollbar { display: none; }
         .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+
+        /* MODAL FIXES */
+        #modal-content { height: 90vh; }
+        @media (min-width: 768px) { #modal-content { height: 85vh; } }
     </style>
 </head>
 
@@ -229,37 +232,37 @@
     </div>
 
     <div id="modal-overlay" class="fixed inset-0 z-[70] bg-black/98 hidden items-center justify-center p-4 opacity-0 transition-opacity duration-400">
-        <div id="modal-content" class="bg-white w-full max-w-7xl h-[90vh] md:h-[85vh] flex flex-col md:flex-row overflow-hidden border-2 border-black relative">
+        <div id="modal-content" class="bg-white w-full max-w-7xl flex flex-col md:flex-row overflow-hidden border-2 border-black relative">
             
-            <button onclick="closeModal()" class="absolute top-4 right-4 z-50 bg-black text-white w-10 h-10 flex items-center justify-center rounded-full hover:bg-gray-800">✕</button>
+            <button onclick="closeModal()" class="absolute top-4 right-4 z-50 bg-black text-white w-10 h-10 flex items-center justify-center rounded-full hover:bg-gray-800 shadow-lg">✕</button>
 
             <div class="h-1/2 md:h-full md:w-3/5 bg-gray-50 flex items-center justify-center relative p-8">
-                <div class="w-full h-full relative group">
-                    <img id="modal-img" class="w-full h-full object-contain mix-blend-multiply">
+                <div class="w-full h-full relative group flex items-center justify-center">
+                    <img id="modal-img" class="max-w-full max-h-full object-contain mix-blend-multiply">
                     
-                    <button onclick="prevImage()" id="btn-prev" class="absolute left-0 top-1/2 -translate-y-1/2 bg-white/80 border border-black p-3 hover:bg-black hover:text-white transition-all hidden">←</button>
-                    <button onclick="nextImage()" id="btn-next" class="absolute right-0 top-1/2 -translate-y-1/2 bg-white/80 border border-black p-3 hover:bg-black hover:text-white transition-all hidden">→</button>
+                    <button onclick="prevImage(event)" id="btn-prev" class="absolute left-2 top-1/2 -translate-y-1/2 bg-white/80 border border-black p-3 hover:bg-black hover:text-white transition-all rounded-full hidden">←</button>
+                    <button onclick="nextImage(event)" id="btn-next" class="absolute right-2 top-1/2 -translate-y-1/2 bg-white/80 border border-black p-3 hover:bg-black hover:text-white transition-all rounded-full hidden">→</button>
                     
-                    <div id="slider-dots" class="absolute bottom-4 left-0 right-0 flex justify-center gap-2"></div>
+                    <div id="slider-dots" class="absolute bottom-2 left-0 right-0 flex justify-center gap-2"></div>
                 </div>
             </div>
 
-            <div class="h-1/2 md:h-full md:w-2/5 p-8 md:p-12 flex flex-col bg-white border-t-2 md:border-t-0 md:border-l-2 border-black overflow-y-auto">
+            <div class="h-1/2 md:h-full md:w-2/5 p-6 md:p-12 flex flex-col bg-white border-t-2 md:border-t-0 md:border-l-2 border-black overflow-y-auto">
                 <span id="modal-collection-tag" class="text-[10px] font-bold uppercase tracking-widest text-gray-400 mb-2"></span>
                 <h2 id="modal-title" class="text-3xl md:text-5xl font-bold mb-4 uppercase italic tracking-tighter leading-none"></h2>
                 <p id="modal-price" class="text-2xl md:text-3xl font-bold mb-6 border-b-2 border-black pb-6"></p>
                 
-                <div class="mb-8">
+                <div class="mb-6 flex-1">
                     <h4 class="text-[10px] font-bold uppercase tracking-widest mb-2">Description</h4>
                     <div id="modal-desc" class="text-sm text-gray-600 leading-relaxed whitespace-pre-line"></div>
                 </div>
 
-                <div class="mb-8">
+                <div class="mb-6">
                     <h4 class="text-[10px] font-bold uppercase tracking-widest mb-3">Select Variant</h4>
                     <div id="modal-variants" class="flex flex-wrap gap-2"></div>
                 </div>
                 
-                <button onclick="addToCartFromModal()" class="w-full py-6 bg-black text-white font-bold uppercase tracking-[0.3em] hover:bg-gray-800 transition-all mt-auto sticky bottom-0">Add to Archive</button>
+                <button onclick="addToCartFromModal()" class="w-full py-6 bg-black text-white font-bold uppercase tracking-[0.3em] hover:bg-gray-800 transition-all shrink-0">Add to Archive</button>
             </div>
         </div>
     </div>
@@ -336,8 +339,10 @@
             document.getElementById('intro-desc').innerText = profile.description || "Premium Digital Storefront.";
         }
 
+        // --- FIXED COLLECTION SYNC & VARIANT LOGIC ---
+        
         function renderCollections(all) {
-            // FIXED COLLECTION SYNCING
+            // Trim whitespace to ensure sync matches
             const unique = ["All", ...new Set(all.map(p => (p.collection || 'Standard').trim()))];
             
             document.getElementById('collection-track').innerHTML = unique.map(col => {
@@ -370,8 +375,6 @@
                 </div>`).join('');
         }
 
-        // --- NEW SLIDER & MODAL LOGIC ---
-        
         function openModal(p) {
             currentProduct = p;
             currentImgIndex = 0;
@@ -381,20 +384,22 @@
             document.getElementById('modal-price').innerText = '$' + p.price;
             document.getElementById('modal-desc').innerText = p.description;
             
+            // Initial Image Load
             updateModalImage();
 
-            // FIXED VARIANT LOGIC
+            // ROBUST VARIANT PARSING (Handles JSON string, Array object, or Comma-String)
             const vDiv = document.getElementById('modal-variants');
             let vars = [];
             
-            // Handle JSON string, Array, or comma-separated string
             if (Array.isArray(p.variants)) {
                 vars = p.variants;
             } else if (typeof p.variants === 'string') {
-                try {
-                    vars = JSON.parse(p.variants);
-                } catch(e) {
-                    vars = p.variants.split(',').map(v => v.trim());
+                // Check if it looks like JSON array "[...]"
+                if(p.variants.trim().startsWith('[')) {
+                    try { vars = JSON.parse(p.variants); } catch(e) { vars = ["Standard"]; }
+                } else {
+                    // Assume comma separated "S, M, L"
+                    vars = p.variants.split(',').map(v => v.trim()).filter(v => v);
                 }
             } else {
                 vars = ["Standard"];
@@ -402,7 +407,6 @@
 
             vDiv.innerHTML = vars.map(v => `<button class="border-2 border-black px-6 py-3 text-[10px] font-bold uppercase transition-all hover:bg-black hover:text-white" onclick="selectVariant(this, '${v}')">${v}</button>`).join('');
             
-            // Auto-select first variant
             if(vDiv.children.length > 0) selectVariant(vDiv.children[0], vars[0]);
 
             document.getElementById('modal-overlay').classList.remove('hidden');
@@ -416,15 +420,15 @@
             if(images.length > 0) {
                 imgEl.src = images[currentImgIndex];
                 
-                // Show/Hide Arrows
-                document.getElementById('btn-prev').classList.toggle('hidden', images.length <= 1);
-                document.getElementById('btn-next').classList.toggle('hidden', images.length <= 1);
+                // Show arrows only if multiple images
+                const hasMultiple = images.length > 1;
+                document.getElementById('btn-prev').classList.toggle('hidden', !hasMultiple);
+                document.getElementById('btn-next').classList.toggle('hidden', !hasMultiple);
                 
-                // Dots
                 const dotsContainer = document.getElementById('slider-dots');
-                if(images.length > 1) {
+                if(hasMultiple) {
                     dotsContainer.innerHTML = images.map((_, idx) => 
-                        `<div class="w-2 h-2 rounded-full ${idx === currentImgIndex ? 'bg-black' : 'bg-gray-300'}"></div>`
+                        `<div class="w-2 h-2 rounded-full transition-all ${idx === currentImgIndex ? 'bg-black scale-125' : 'bg-gray-300'}"></div>`
                     ).join('');
                 } else {
                     dotsContainer.innerHTML = '';
@@ -432,13 +436,15 @@
             }
         }
 
-        function nextImage() {
+        function nextImage(e) {
+            if(e) e.stopPropagation();
             if(!currentProduct || !currentProduct.images) return;
             currentImgIndex = (currentImgIndex + 1) % currentProduct.images.length;
             updateModalImage();
         }
 
-        function prevImage() {
+        function prevImage(e) {
+            if(e) e.stopPropagation();
             if(!currentProduct || !currentProduct.images) return;
             currentImgIndex = (currentImgIndex - 1 + currentProduct.images.length) % currentProduct.images.length;
             updateModalImage();
