@@ -3,220 +3,214 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>JINIHOME | Archive Store</title>
+    <title>JINIHOME | Luxury Archive</title>
     
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/ScrollTrigger.min.js"></script>
     
-    <link href="https://fonts.googleapis.com/css2?family=Oswald:wght@200;400;700&family=Manrope:wght@200;400;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@300;400;600;800&display=swap" rel="stylesheet">
 
     <style>
-        * { margin: 0; padding: 0; box-sizing: border-box; outline: none; }
+        /* 1. CORE SETTINGS */
+        * { margin: 0; padding: 0; box-sizing: border-box; outline: none; -webkit-tap-highlight-color: transparent; }
         
-        :root { 
-            --bg: #ffffff; 
-            --text: #000000; 
-            --accent: #000000; 
+        :root {
+            /* DYNAMIC DASHBOARD COLORS (Defaults) */
+            --header-bg: #002fa7; 
+            --header-text: #ffffff;
+            --body-bg: #ffffff;
+            --body-vignette: #ccff00; 
         }
 
         body {
-            background-color: var(--bg);
-            color: var(--text);
             font-family: 'Manrope', sans-serif;
             overflow-x: hidden;
             -webkit-font-smoothing: antialiased;
+            background: var(--body-bg);
         }
 
-        /* NEXT LEVEL INTRO */
-        .intro-curtain { 
-            position: fixed; top: 0; left: 0; width: 100%; height: 100vh; 
-            background: #000; z-index: 10000; display: flex; align-items: center; justify-content: center;
-            overflow: hidden;
-        }
-
-        .intro-text-layer {
-            position: absolute;
-            font-family: 'Oswald';
-            font-weight: 700;
-            color: white;
-            font-size: 15vw;
-            line-height: 1;
-            letter-spacing: -0.05em;
-            text-transform: uppercase;
-            white-space: nowrap;
-            opacity: 0;
-        }
-
-        .scan-line {
-            position: absolute; top: 0; left: -100%; width: 100%; height: 100%;
-            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.05), transparent);
-            z-index: 10001;
-        }
-
-        /* LUXURY NAV */
-        nav { 
-            height: 80px; 
-            border-bottom: 1px solid rgba(0,0,0,0.05);
-        }
-
-        .nav-logo-card {
-            background: #000; padding: 10px; border: 1px solid #000;
-            display: flex; align-items: center; justify-content: center;
-        }
-
-        /* AUTO-ANIMATED CARDS */
-        .hero-card {
-            border: 1px solid #000;
-            box-shadow: 30px 30px 0px rgba(0,0,0,0.03);
-        }
-
-        /* PRODUCT GRID */
-        #product-grid {
-            display: grid;
-            grid-template-columns: repeat(2, 1fr);
-            gap: 20px;
-        }
-        @media (min-width: 768px) {
-            #product-grid { grid-template-columns: repeat(4, 1fr); gap: 60px; }
-        }
-
-        .product-card { transition: transform 0.8s cubic-bezier(0.16, 1, 0.3, 1); }
-        .product-card:hover { transform: translateY(-10px); }
-
-        .collection-circle { 
-            width: 150px; height: 150px; border-radius: 50%; 
-            overflow: hidden; border: 1px solid #eee;
-            transition: 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+        /* 2. ZONES */
+        .zone-header {
+            background-color: var(--header-bg);
+            color: var(--header-text);
+            transition: background 0.5s ease;
             position: relative;
         }
-        .collection-card-frame.active .collection-circle { 
-            border: 1px solid #000; 
+
+        .zone-body {
+            /* Vignette Effect */
+            background: radial-gradient(circle at 50% 30%, var(--body-bg) 20%, var(--body-vignette) 150%);
+            min-height: 100vh;
+            color: #000;
+            position: relative;
+            z-index: 10;
+        }
+
+        /* 3. BIGGER COLLECTIONS */
+        .collection-track-wrapper {
+            display: flex;
+            justify-content: center; /* Centers the list if it fits on screen */
+            width: 100%;
+        }
+
+        .collection-track {
+            display: flex;
+            gap: 2rem;
+            overflow-x: auto;
+            padding-bottom: 2rem;
+            width: 100%;
+            /* Safe centering logic for scrollable areas */
+            justify-content: flex-start; 
+        }
+        @media (min-width: 768px) {
+            .collection-track { justify-content: center; } /* Center on desktop usually fits */
+        }
+
+        .collection-circle {
+            width: 140px; height: 140px; /* BIGGER MOBILE SIZE */
+            border-radius: 50%;
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            border: 1px solid rgba(0,0,0,0.1);
+        }
+        @media (min-width: 768px) {
+            .collection-circle { width: 180px; height: 180px; } /* HUGE DESKTOP SIZE */
+        }
+
+        .collection-item.active .collection-circle {
+            border-color: #000;
             transform: scale(1.1);
+            box-shadow: 0 10px 25px rgba(0,0,0,0.15);
         }
 
-        .marquee-content { display: inline-block; animation: marquee 30s linear infinite; }
-        @keyframes marquee { 0% { transform: translateX(0); } 100% { transform: translateX(-50%); } }
-
-        #app-content { visibility: hidden; opacity: 0; }
-        
-        .luxury-label {
-            font-size: 10px; letter-spacing: 0.4em; text-transform: uppercase; color: #888;
-        }
-        
+        /* 4. UTILS */
+        .intro-curtain { position: fixed; inset: 0; z-index: 10000; background: #050505; flex-direction: column; justify-content: space-between; padding: 2rem; display: flex; }
+        .lux-label { font-size: 10px; letter-spacing: 0.3em; text-transform: uppercase; font-weight: 700; opacity: 0.6; }
+        .float-anim { animation: float 6s ease-in-out infinite; }
+        @keyframes float { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-15px); } }
         .no-scrollbar::-webkit-scrollbar { display: none; }
-        .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
     </style>
 </head>
 
 <body>
 
     <div id="intro-screen" class="intro-curtain">
-        <div class="scan-line"></div>
-        <div id="intro-layer-1" class="intro-text-layer">AUTHENTIC</div>
-        <div id="intro-layer-2" class="intro-text-layer">CURATED</div>
-        <div id="intro-layer-3" class="intro-text-layer" style="mix-blend-difference: difference;">JINIHOME</div>
+        <div class="flex justify-between items-start w-full opacity-0 intro-reveal">
+            <div><p class="lux-label text-white/50 mb-1">Origin</p><p id="intro-loc" class="text-xs text-white uppercase tracking-widest">Loading...</p></div>
+            <div class="text-right"><p class="lux-label text-white/50 mb-1">Philosophy</p><p id="intro-desc" class="text-xs text-white/80 italic">Archive...</p></div>
+        </div>
+        <div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 text-center w-full">
+            <h1 id="intro-title" class="text-[12vw] font-bold tracking-tighter text-white opacity-0 uppercase mix-blend-difference">JINIHOME</h1>
+        </div>
+        <div class="w-full opacity-0 intro-reveal">
+            <div class="h-[1px] w-full bg-white/20 relative"><div id="load-bar" class="absolute top-0 left-0 h-full w-0 bg-white"></div></div>
+        </div>
     </div>
 
-    <div id="app-content">
-        <nav class="fixed top-0 w-full z-50 px-8 bg-white/80 backdrop-blur-2xl flex justify-between items-center">
-            <div class="flex items-center gap-6">
-                <div class="nav-logo-card">
-                    <img id="nav-brand-logo-img" src="" class="h-6 w-auto invert hidden">
+    <div id="app-content" style="opacity: 0;">
+        
+        <div class="zone-header">
+            <nav class="fixed top-0 w-full z-50 px-6 h-24 flex justify-between items-center mix-blend-difference text-white">
+                <div class="flex items-center gap-4">
+                    <img id="nav-logo" src="" class="h-6 w-auto hidden brightness-0 invert">
+                    <span id="nav-text" class="text-xl font-bold tracking-tighter uppercase">JINIHOME</span>
                 </div>
-                <span class="text-xl font-bold tracking-tighter uppercase" id="nav-brand-text">JINIHOME</span>
-            </div>
-            
-            <button onclick="toggleCart()" class="flex items-center gap-6 group">
-                <span class="luxury-label hidden md:block">Inventory</span>
-                <div class="w-12 h-12 border border-black flex items-center justify-center font-bold" id="cart-count">0</div>
-            </button>
-        </nav>
+                <button onclick="toggleCart()" class="flex items-center gap-3">
+                    <span class="lux-label text-white hidden md:block">Bag</span>
+                    <div id="cart-count" class="w-8 h-8 bg-white text-black flex items-center justify-center text-xs font-bold rounded-full">0</div>
+                </button>
+            </nav>
 
-        <header class="relative w-full min-h-screen flex flex-col md:flex-row items-center justify-between px-8 md:px-24 pt-32 pb-20 overflow-hidden">
-            <div class="w-full md:w-1/2 z-10 hero-text-area">
-                <p class="luxury-label mb-8">Establishment 2026</p>
-                <h1 class="text-[14vw] md:text-[9vw] font-bold uppercase tracking-tighter leading-[0.8] mb-12">
-                    Global <br><span class="italic font-light">Archive</span>
-                </h1>
-                <div class="flex gap-4">
-                    <button onclick="scrollToSection('products-section')" class="bg-black text-white px-12 py-5 text-[10px] font-bold uppercase tracking-[0.3em] hover:bg-zinc-800 transition-all">Enter Catalog</button>
+            <header class="min-h-[85vh] flex flex-col md:flex-row items-center justify-between px-6 md:px-24 pt-32 pb-20">
+                <div class="w-full md:w-1/2 z-10">
+                    <p class="lux-label text-white mb-6 border-l-2 border-white pl-4">Establishment 2026</p>
+                    <h1 class="text-[14vw] md:text-[9vw] font-bold uppercase tracking-tighter leading-[0.8] mb-10">
+                        Prime <br><span class="font-light italic opacity-60">Archive</span>
+                    </h1>
+                    <button onclick="document.getElementById('zone-shop').scrollIntoView({behavior:'smooth'})" class="bg-white text-black px-10 py-4 text-[10px] font-bold uppercase tracking-[0.3em] hover:bg-opacity-90 transition-all">
+                        Enter Vault
+                    </button>
                 </div>
-            </div>
-            
-            <div class="w-full md:w-1/2 flex justify-center items-center mt-20 md:mt-0">
-                <div class="hero-card w-[80%] md:w-[450px] aspect-[3/4] bg-zinc-50 overflow-hidden relative">
-                    <img id="hero-main-img" src="https://images.unsplash.com/photo-1515886657613-9f3515b0c78f?q=80&w=1000&auto=format&fit=crop" class="w-full h-full object-cover scale-110">
+                <div class="w-full md:w-1/2 flex justify-center mt-12 md:mt-0">
+                    <div class="w-[80%] md:w-[450px] aspect-[3/4] border-2 border-white/20 relative overflow-hidden shadow-2xl float-anim rounded-t-full">
+                        <img src="https://images.unsplash.com/photo-1515886657613-9f3515b0c78f?q=80&w=1000" class="w-full h-full object-cover">
+                    </div>
                 </div>
-            </div>
-        </header>
-
-        <div class="py-10 bg-black text-white overflow-hidden">
-            <div class="marquee-content luxury-label text-white">
-                Rare Finds • Verified Quality • Direct Shipping • Rare Finds • Verified Quality • Direct Shipping •&nbsp;
-            </div>
+            </header>
         </div>
 
-        <section id="collections-section" class="py-32 border-b border-zinc-100">
-            <div class="px-8 mb-12"><p class="luxury-label">Filter by Line</p></div>
-            <div id="collection-track" class="flex gap-12 px-8 overflow-x-auto no-scrollbar pb-10">
+        <div id="zone-shop" class="zone-body rounded-t-[3rem] -mt-12 pt-24 px-4 md:px-12 border-t border-white/50 shadow-[0_-20px_40px_rgba(0,0,0,0.05)]">
+            
+            <div class="mb-20 text-center">
+                <div class="mb-10">
+                    <p class="lux-label text-black/40 mb-2">Departments</p>
+                    <h2 class="text-2xl font-bold uppercase tracking-tight">Select Category</h2>
                 </div>
-        </section>
-
-        <section id="products-section" class="py-32 px-8 md:px-24">
-            <div class="mb-24 flex flex-col md:flex-row justify-between items-baseline gap-4">
-                <h2 id="active-collection-title" class="text-6xl font-bold tracking-tighter uppercase">All Pieces</h2>
-                <p class="luxury-label" id="product-count">0 items available</p>
+                
+                <div class="collection-track-wrapper">
+                    <div id="collection-track" class="collection-track no-scrollbar">
+                        </div>
+                </div>
             </div>
-            <div id="product-grid"></div>
-        </section>
 
-        <footer class="bg-white text-black py-40 px-8 border-t border-zinc-100 text-center">
-            <h2 id="footer-logo-text" class="text-[12vw] font-bold tracking-tighter uppercase mb-12">JINIHOME</h2>
-            <p class="luxury-label">All Rights Reserved 2026</p>
-        </footer>
+            <div class="min-h-screen px-2 md:px-12">
+                <div class="mb-12 flex items-baseline justify-between border-b border-black/10 pb-4">
+                    <h2 id="grid-title" class="text-4xl md:text-5xl font-bold tracking-tighter uppercase">All Items</h2>
+                    <p id="grid-count" class="lux-label text-black">Loading...</p>
+                </div>
+                <div id="product-grid" class="grid grid-cols-2 md:grid-cols-4 gap-x-4 gap-y-16"></div>
+            </div>
+
+            <footer class="py-32 text-center opacity-50">
+                <h2 id="footer-logo" class="text-[10vw] font-bold tracking-tighter uppercase opacity-20">JINIHOME</h2>
+                <p class="lux-label mt-8">© 2026 Global Archive System</p>
+            </footer>
+        </div>
+
     </div>
 
-    <div id="cart-sidebar" class="fixed inset-y-0 right-0 w-full md:w-[500px] bg-white z-[60] transform translate-x-full transition-transform duration-700 border-l border-black flex flex-col">
-        <div class="p-10 flex justify-between items-center border-b border-zinc-100">
-            <h3 class="font-bold text-2xl uppercase tracking-tighter">Your Bag</h3>
+    <div id="cart-sidebar" class="fixed inset-y-0 right-0 w-full md:w-[450px] bg-white z-[60] transform translate-x-full transition-transform duration-500 border-l border-black/10 flex flex-col shadow-2xl">
+        <div class="p-8 flex justify-between items-center border-b border-black/5 bg-gray-50">
+            <h3 class="font-bold text-xl uppercase tracking-tighter">Your Bag</h3>
             <button onclick="toggleCart()" class="text-2xl">✕</button>
         </div>
-        <div id="cart-items" class="flex-1 overflow-y-auto p-10 space-y-8"></div>
-        <div class="p-10 border-t border-black bg-white">
-            <div class="flex justify-between text-2xl font-bold mb-10 tracking-tighter"><span>Total</span><span id="cart-total">$0.00</span></div>
-            <button onclick="checkoutWhatsApp()" class="w-full py-8 bg-black text-white font-bold uppercase tracking-[0.4em]">Checkout via WhatsApp</button>
+        <div id="cart-items" class="flex-1 overflow-y-auto p-8 space-y-6"></div>
+        <div class="p-8 border-t border-black/5">
+            <div class="flex justify-between text-xl font-bold mb-6"><span>Total</span><span id="cart-total">$0.00</span></div>
+            <button onclick="checkoutWhatsApp()" class="w-full py-6 bg-black text-white font-bold uppercase tracking-[0.3em]">Checkout</button>
         </div>
     </div>
 
- <script>
+    
+     <script>
         const SUPABASE_URL = 'https://rujozgysdnaxlpqadqff.supabase.co';
         const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InJ1am96Z3lzZG5heGxwcWFkcWZmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Njk0OTY1MTUsImV4cCI6MjA4NTA3MjUxNX0.zi4FwC0xfq0brTrYs3i18rwO3hbFeVhDBq6TpLQCyVs';
         const sb = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
-        let products = [], cart = [], profile = {};
+        let products = [], collections = [], cart = [], profile = {};
+        
+        // --- THE TRANSLATOR ---
+        // This dictionary will map ID numbers (e.g. 123) to Names (e.g. "Shoes")
+        let collectionMap = {}; 
 
         window.onload = async () => {
-            await loadData();
-            startAutoAnimations();
+            await syncDatabase();
+            playIntro();
         };
 
-        async function loadData() {
+        async function syncDatabase() {
             try {
-                // 1. Identify Store via URL
+                // 1. Slug Logic
                 const path = window.location.pathname.replace(/\/+$/, '').split('/').pop();
-                
-                // 2. Fetch Profile
-                let q = sb.from('profiles').select('*');
-                if(!path || path === 'index' || path === 'store') q = q.eq('is_published', true).limit(1);
-                else q = q.eq('store_slug', path);
-                
-                const { data: prof } = await q.maybeSingle();
+                let slug = 'yashus'; 
+                if(path && path !== 'index' && path !== 'store' && path !== 'null') slug = path;
+
+                // 2. Fetch Profile & Colors
+                const { data: prof } = await sb.from('profiles').select('*').eq('store_slug', slug).maybeSingle();
                 
                 if(prof) {
                     profile = prof;
-                    applyBranding();
+                    applyDesign();
                     
                     // 3. Fetch Products
                     const { data: prods } = await sb
@@ -226,189 +220,176 @@
                         .order('created_at', {ascending: false});
                         
                     products = prods || [];
-                    
-                    // 4. Build Interface
-                    renderCollections(); // Builds the circles based on 'collections' column
-                    filterCollection('All'); // Shows all items by default
                 }
+
+                // 4. Fetch Collections & BUILD TRANSLATOR
+                const { data: cols } = await sb
+                    .from('collections')
+                    .select('*')
+                    .order('name');
+                    
+                collections = cols || [];
                 
-                // 5. Start The Show
-                runIntro();
-                
+                // [THE FIX]: Create the ID->Name Map
+                // Example: { "a1-b2-c3": "Shoes", "x9-y8-z7": "Watches" }
+                collections.forEach(c => {
+                    if(c.id) collectionMap[c.id] = c.name;
+                });
+
+                // 5. Render
+                renderCollections();
+                filterGrid('All');
+
             } catch(e) { 
                 console.error("Sync Error:", e); 
-                runIntro(); // Run intro anyway so site isn't blank on error
+                document.getElementById('app-content').style.opacity = 1; 
             }
         }
 
-        // --- DYNAMIC COLLECTION SYNC SCRIPT ---
+        function applyDesign() {
+            const root = document.documentElement;
+            const hColor = profile.header_color || '#002fa7';
+            root.style.setProperty('--header-bg', hColor);
+            const bColor = profile.body_color || '#ccff00';
+            root.style.setProperty('--body-vignette', bColor);
 
-async function renderCollections() {
-    const track = document.getElementById('collection-track');
-    if (!track) return;
+            const name = profile.store_name || "ARCHIVE";
+            document.querySelectorAll('#nav-text, #intro-title, #footer-logo').forEach(el => el.innerText = name);
+            if(profile.location) document.getElementById('intro-loc').innerText = profile.location;
+            if(profile.description) document.getElementById('intro-desc').innerText = profile.description;
+            if(profile.logo_url) {
+                document.getElementById('nav-logo').src = profile.logo_url;
+                document.getElementById('nav-logo').classList.remove('hidden');
+            }
+        }
 
-    try {
-        // 1. Fetch the actual categories you created in the 'collections' table
-        const { data: cols, error: colError } = await sb
-            .from('collections')
-            .select('*')
-            .order('name');
-
-        if (colError) throw colError;
-
-        // 2. Build the "All" button first
-        let html = `
-            <div class="collection-item active shrink-0 text-center cursor-pointer" onclick="filterItems('All', this)">
-                <div class="collection-circle mb-4 bg-zinc-100 flex items-center justify-center font-bold border border-black/10">ALL</div>
-                <p class="text-[10px] font-bold uppercase tracking-widest">All Archive</p>
-            </div>
-        `;
-
-        // 3. Map through your dashboard collections (sunglasses, clothes, watches, etc.)
-        html += cols.map(c => `
-            <div class="collection-item shrink-0 text-center cursor-pointer" onclick="filterItems('${c.name}', this)">
-                <div class="collection-circle mb-4 border border-zinc-100 overflow-hidden">
-                    <img src="${c.img_url}" class="w-full h-full object-cover" onerror="this.src='https://placehold.co/200x200?text=${c.name}'">
-                </div>
-                <p class="text-[10px] font-bold uppercase tracking-widest text-zinc-400">${c.name}</p>
-            </div>
-        `).join('');
-
-        track.innerHTML = html;
-
-    } catch (e) {
-        console.error("Collection Sync Failed:", e);
-    }
-}
-
-// 4. Robust Filtering Logic
-function filterItems(categoryName, element) {
-    // Visual update for circles
-    document.querySelectorAll('.collection-item').forEach(item => {
-        item.classList.remove('active');
-        item.querySelector('p').classList.replace('text-black', 'text-zinc-400');
-    });
-    
-    if (element) {
-        element.classList.add('active');
-        element.querySelector('p').classList.replace('text-zinc-400', 'text-black');
-    }
-
-    // Filter products based on the 'collections' column in your products table
-    const filtered = categoryName === 'All' 
-        ? products 
-        : products.filter(p => p.collections && p.collections.toLowerCase().trim() === categoryName.toLowerCase().trim());
-
-    // Update the UI
-    updateProductGrid(filtered, categoryName);
-}
-
-function updateProductGrid(items, title) {
-    const grid = document.getElementById('product-grid');
-    const titleEl = document.getElementById('active-title');
-    const countEl = document.getElementById('count-label');
-
-    if (titleEl) titleEl.innerText = title;
-    if (countEl) countEl.innerText = `${items.length} PIECES`;
-    
-    if (grid) {
-        grid.innerHTML = items.map(p => `
-            <div class="group product-card opacity-0">
-                <div class="aspect-[3/4] overflow-hidden border border-zinc-100 mb-6 bg-zinc-50 relative">
-                    <img src="${p.images[0]}" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-1000">
-                </div>
-                <p class="text-[9px] tracking-[0.3em] uppercase text-zinc-400 mb-2">${p.collections || 'Archive'}</p>
-                <h4 class="font-bold text-lg uppercase tracking-tighter">${p.name}</h4>
-                <p class="font-light mt-1 text-zinc-600">$${p.price}</p>
-            </div>
-        `).join('');
-
-        // Luxury entry animation
-        gsap.to(".product-card", { opacity: 1, y: 0, duration: 0.8, stagger: 0.05, ease: "power2.out" });
-    }
-}
-
-        function filterCollection(col) {
-            // Visual Update: Highlight the active circle
-            document.querySelectorAll('.collection-card-frame').forEach(el => {
-                const isActive = el.dataset.col === col;
-                el.classList.toggle('active', isActive);
-                // Make non-active text lighter
-                const text = el.querySelector('p');
-                text.style.color = isActive ? '#000' : '#aaa';
-            });
+        function renderCollections() {
+            const track = document.getElementById('collection-track');
             
-            // Logic Update: Filter the grid
-            const filtered = col === 'All' ? products : products.filter(p => {
-                const pCol = p.collections ? p.collections.trim() : "Standard"; // <--- KEY FIX HERE
-                return pCol === col;
-            });
-            
-            // Update Text Headers
-            document.getElementById('active-collection-title').innerText = col;
-            document.getElementById('product-count').innerText = `${filtered.length} PIECES`;
-            
-            // Render Grid
-            document.getElementById('product-grid').innerHTML = filtered.map(p => `
-                <div class="product-card group cursor-pointer" onclick='openModal(${JSON.stringify(p).replace(/'/g, "&#39;")})'>
-                    <div class="aspect-[3/4] overflow-hidden border border-zinc-100 mb-6 bg-gray-50 relative">
-                        <img src="${p.images[0]}" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-1000">
-                        <div class="absolute inset-0 bg-black/0 group-hover:bg-black/5 transition-colors duration-500"></div>
+            // "ALL" Button
+            let html = `
+                <div class="collection-item active shrink-0 text-center cursor-pointer group" onclick="filterGrid('All', this)">
+                    <div class="collection-circle flex items-center justify-center bg-black text-white mb-4 mx-auto">
+                        <span class="font-bold text-sm tracking-widest">ALL</span>
                     </div>
-                    <p class="luxury-label mb-2">${p.collections || 'Archive'}</p>
-                    <h4 class="font-bold text-lg uppercase tracking-tighter">${p.name}</h4>
-                    <p class="font-light mt-1">$${p.price}</p>
+                    <p class="lux-label text-black">All Items</p>
+                </div>`;
+
+            // Dynamic Items
+            html += collections.map(c => {
+                const safeName = c.name.replace(/'/g, "\\'");
+                return `
+                <div class="collection-item shrink-0 text-center cursor-pointer group" onclick="filterGrid('${safeName}', this)">
+                    <div class="collection-circle overflow-hidden mb-4 mx-auto bg-white">
+                        <img src="${c.img_url}" class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700" 
+                             onerror="this.src='https://placehold.co/300?text=${c.name}'">
+                    </div>
+                    <p class="lux-label text-gray-500 group-hover:text-black transition-colors">${c.name}</p>
+                </div>
+            `}).join('');
+
+            track.innerHTML = html;
+        }
+
+        function filterGrid(categoryName, element) {
+            if(element) {
+                document.querySelectorAll('.collection-item').forEach(el => {
+                    el.classList.remove('active');
+                    el.querySelector('p').classList.replace('text-black', 'text-gray-500');
+                });
+                element.classList.add('active');
+                element.querySelector('p').classList.replace('text-gray-500', 'text-black');
+            }
+
+            const target = categoryName.toLowerCase().trim();
+            
+            // --- THE TRANSLATOR FILTER ---
+            const filtered = target === 'all' 
+                ? products 
+                : products.filter(p => {
+                    // 1. Check direct Text Matches (The old way)
+                    const textValues = [p.collections, p.collection, p.category, p.categories, p.tags].flat().filter(v => v);
+                    const hasTextMatch = textValues.some(val => String(val).toLowerCase().trim() === target);
+                    
+                    if(hasTextMatch) return true;
+
+                    // 2. Check ID Matches (The new "Foreign Key" fix)
+                    // If product has 'collection_id', we convert it to a Name using the map
+                    const idValues = [p.collection_id, p.category_id, p.collection].flat().filter(v => v);
+                    const hasIdMatch = idValues.some(id => {
+                        const mappedName = collectionMap[id]; // Looks up "5" -> "Shoes"
+                        return mappedName && mappedName.toLowerCase().trim() === target;
+                    });
+                    
+                    return hasIdMatch;
+                });
+
+            document.getElementById('grid-title').innerText = categoryName === 'All' ? 'Full Archive' : categoryName;
+            document.getElementById('grid-count').innerText = `${filtered.length} AVAILABLE`;
+
+            const grid = document.getElementById('product-grid');
+            
+            if(filtered.length === 0) {
+                grid.innerHTML = `<div class="col-span-full py-20 text-center lux-label opacity-50">No items found in ${categoryName}</div>`;
+                return;
+            }
+
+            // Helper to get display name for the card
+            const getCatName = (p) => {
+                // Try text first
+                if(p.collections) return p.collections;
+                if(p.category) return p.category;
+                // Try ID lookup second
+                if(p.collection_id && collectionMap[p.collection_id]) return collectionMap[p.collection_id];
+                return 'Archive';
+            };
+
+            grid.innerHTML = filtered.map(p => `
+                <div class="group cursor-pointer" onclick='addToCart(${JSON.stringify(p).replace(/'/g, "&#39;")})'>
+                    <div class="aspect-[3/4] overflow-hidden rounded-lg mb-4 bg-white relative shadow-sm">
+                        <img src="${p.images ? p.images[0] : ''}" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700">
+                        <div class="absolute bottom-0 left-0 w-full p-3 bg-white/90 backdrop-blur opacity-0 group-hover:opacity-100 transition-opacity flex justify-between items-center">
+                            <span class="text-[9px] font-bold uppercase tracking-widest">Add</span>
+                            <span class="text-xs font-bold">$${p.price}</span>
+                        </div>
+                    </div>
+                    <div>
+                        <h4 class="font-bold text-sm uppercase tracking-tight leading-none mb-1">${p.name}</h4>
+                        <p class="lux-label">${getCatName(p)}</p>
+                    </div>
                 </div>
             `).join('');
-            
-            // Trigger GSAP entry animation for new items
-            gsap.from(".product-card", {
-                y: 30, opacity: 0, duration: 0.8, stagger: 0.1, ease: "power2.out"
+
+            gsap.fromTo(".group", { y: 20, opacity: 0 }, { y: 0, opacity: 1, duration: 0.5, stagger: 0.05 });
+        }
+
+        function playIntro() {
+            const tl = gsap.timeline({
+                onComplete: () => {
+                    document.getElementById('app-content').style.opacity = 1;
+                    setTimeout(() => document.getElementById('intro-screen').style.display = 'none', 1000);
+                }
             });
+            tl.to(".intro-reveal", { opacity: 1, y: 0, duration: 1, stagger: 0.2 })
+              .to("#load-bar", { width: "100%", duration: 1.5, ease: "power2.inOut" })
+              .to("#intro-title", { opacity: 1, duration: 1 }, "-=1")
+              .to("#intro-screen", { y: "-100%", duration: 1.2, ease: "expo.inOut", delay: 0.5 });
         }
 
-        // --- ANIMATIONS & UTILITIES ---
-        function runIntro() {
-            const tl = gsap.timeline({ onComplete: () => {
-                document.getElementById('app-content').style.visibility = 'visible';
-                gsap.to('#app-content', { opacity: 1, duration: 1 });
-            }});
-
-            tl.to(".scan-line", { left: "100%", duration: 1.5, ease: "power4.inOut" })
-              .to("#intro-layer-1", { opacity: 1, y: -20, duration: 0.6 }, "-=0.5")
-              .to("#intro-layer-1", { opacity: 0, y: -40, duration: 0.4 })
-              .to("#intro-layer-2", { opacity: 1, y: -20, duration: 0.6 })
-              .to("#intro-layer-2", { opacity: 0, y: -40, duration: 0.4 })
-              .to("#intro-layer-3", { opacity: 1, scale: 1.2, duration: 1, ease: "expo.out" })
-              .to("#intro-screen", { y: "-100%", duration: 1.2, ease: "expo.inOut" });
+        function addToCart(p) { cart.push(p); updateCart(); toggleCart(); }
+        function updateCart() {
+            const cont = document.getElementById('cart-items');
+            let total = 0;
+            cont.innerHTML = cart.map((item, i) => {
+                total += parseFloat(item.price || 0);
+                return `<div class="flex gap-4 border-b pb-4"><img src="${item.images[0]}" class="w-12 h-16 object-cover"><div class="flex-1"><p class="font-bold text-sm">${item.name}</p><p class="text-xs text-gray-500">$${item.price}</p><button onclick="cart.splice(${i},1);updateCart()" class="text-[9px] underline mt-1">REMOVE</button></div></div>`;
+            }).join('');
+            document.getElementById('cart-total').innerText = '$' + total.toFixed(2);
+            document.getElementById('cart-count').innerText = cart.length;
         }
-
-        function startAutoAnimations() {
-            gsap.to(".hero-card", { y: 20, rotate: 1, duration: 4, repeat: -1, yoyo: true, ease: "sine.inOut" });
-            gsap.to(".hero-text-area", { x: 10, duration: 5, repeat: -1, yoyo: true, ease: "sine.inOut" });
-        }
-
-        function applyBranding() {
-            const name = profile.store_name || "JINIHOME";
-            document.querySelectorAll('#nav-brand-text, #footer-logo-text, #intro-layer-3').forEach(el => el.innerText = name);
-            if(profile.logo_url) {
-                const navLogo = document.getElementById('nav-brand-logo-img');
-                navLogo.src = profile.logo_url;
-                navLogo.classList.remove('hidden');
-            }
-        }
-        
-        // Modal Logic (Simplified for Archive Feel)
-        function openModal(p) {
-            // You can add your modal open logic here if you want the pop-up
-            // For now, let's just log it to ensure click works
-            console.log("Opening", p.name);
-            // If you want to use the previous modal, paste the openModal function here
-        }
-
         function toggleCart() { document.getElementById('cart-sidebar').classList.toggle('translate-x-full'); }
-        function scrollToSection(id) { document.getElementById(id).scrollIntoView({behavior:'smooth'}); }
-        function checkoutWhatsApp() { window.open(`https://wa.me/${profile.payment_number || '9199999999'}?text=Archive Order`, '_blank'); }
+        function checkoutWhatsApp() { window.open(`https://wa.me/${profile.payment_number || '9199999999'}?text=Order:${cart.map(i=>i.name).join(',')}`, '_blank'); }
     </script>
+    
 </body>
 </html>
